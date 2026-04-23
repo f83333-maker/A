@@ -1,10 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { X, Copy, Check, Minus, Plus, Info, Zap } from "lucide-react"
+import { X, Copy, Check, Minus, Plus, Info, Zap, Loader2, CreditCard } from "lucide-react"
+import { createCheckoutSession } from "@/app/actions/stripe"
 
 interface Product {
-  id: number
+  id: number | string
   name: string
   description: string
   price: number
@@ -23,28 +24,20 @@ interface PurchaseModalProps {
   onClose: () => void
 }
 
-const paymentMethods = [
-  { id: "usdt", name: "USDT-TRC20", icon: "💎", color: "#26a17b" },
-  { id: "trx", name: "TRON-TRX", icon: "🔷", color: "#eb0029" },
-  { id: "wechat", name: "微信支付", icon: "💬", fee: "8%", color: "#07c160" },
-  { id: "alipay", name: "支付宝", icon: "🔵", fee: "8%", color: "#1677ff" },
-  { id: "wechat2", name: "微信(备用)", icon: "💬", color: "#07c160" },
-  { id: "alipay2", name: "支付宝(备用)", icon: "🔵", color: "#1677ff" },
-]
-
 export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) {
   const [quantity, setQuantity] = useState(1)
   const [contact, setContact] = useState("")
-  const [selectedPayment, setSelectedPayment] = useState("usdt")
   const [copied, setCopied] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
 
   // 重置状态
   useEffect(() => {
     if (isOpen) {
       setQuantity(1)
       setContact("")
-      setSelectedPayment("usdt")
       setCopied(false)
+      setError("")
     }
   }, [isOpen])
 
@@ -77,6 +70,31 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
     const newQuantity = quantity + delta
     if (newQuantity >= 1 && newQuantity <= product.stock) {
       setQuantity(newQuantity)
+    }
+  }
+
+  const handlePurchase = async () => {
+    if (!contact.trim()) {
+      setError("请填写联系方式")
+      return
+    }
+
+    setIsLoading(true)
+    setError("")
+
+    try {
+      const { url } = await createCheckoutSession({
+        productId: String(product.id),
+        quantity,
+      })
+
+      if (url) {
+        window.location.href = url
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "创建订单失败，请重试")
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -121,7 +139,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
             {/* 价格 */}
             <div className="flex items-center gap-3">
               <span className="text-[13px] font-medium text-[#9aa0a6] w-20 shrink-0">商品单价:</span>
-              <span className="text-[18px] font-semibold text-[#ee675c]">¥{product.price}</span>
+              <span className="text-[18px] font-semibold text-[#ee675c]">${product.price}</span>
             </div>
 
             {/* 发货方式 */}
@@ -141,14 +159,11 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
                   type="text"
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
-                  placeholder="请输入您的任意联系方式"
+                  placeholder="请输入您的邮箱或联系方式"
                   className="w-full h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
                 />
                 <p className="mt-2 text-[12px] font-medium text-[#81c995] leading-relaxed">
-                  联系方式用于查询订单，请勿随意填写，以便查询订单
-                </p>
-                <p className="mt-1 text-[12px] font-medium text-[#fdd663] leading-relaxed">
-                  未登录时购买，联系方式请勿过于简单，以免被盗！
+                  联系方式用于查询订单，支付后将收到订单号
                 </p>
               </div>
             </div>
@@ -192,33 +207,15 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
             {/* 订单金额 */}
             <div className="flex items-center gap-3 pt-2 border-t border-[#3c3c3f]/50">
               <span className="text-[13px] font-medium text-[#9aa0a6] w-20 shrink-0">订单金额:</span>
-              <span className="text-[22px] font-semibold text-[#ee675c]">¥{totalPrice}</span>
+              <span className="text-[22px] font-semibold text-[#ee675c]">${totalPrice}</span>
             </div>
           </div>
 
-          {/* 付款方式 */}
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-[13px] font-medium text-[#9aa0a6]">付款方式:</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {paymentMethods.map((method) => (
-                <button
-                  key={method.id}
-                  onClick={() => setSelectedPayment(method.id)}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-full border text-[12px] font-semibold transition-all duration-200 ${
-                    selectedPayment === method.id
-                      ? "border-[#8ab4f8] bg-[#8ab4f8]/10 text-[#e3e3e3]"
-                      : "border-[#3c3c3f] bg-[#2d2e30] text-[#9aa0a6] hover:border-[#5f6368] hover:text-[#e3e3e3]"
-                  }`}
-                >
-                  <span>{method.icon}</span>
-                  <span>{method.name}</span>
-                  {method.fee && (
-                    <span className="text-[10px] text-[#fdd663]">(费率{method.fee})</span>
-                  )}
-                </button>
-              ))}
+          {/* 支付方式说明 */}
+          <div className="mb-4 p-3 bg-[#8ab4f8]/10 border border-[#8ab4f8]/30 rounded-xl">
+            <div className="flex items-center gap-2 text-[13px] text-[#8ab4f8] font-medium">
+              <CreditCard className="w-4 h-4" />
+              <span>支持信用卡、Alipay 等多种支付方式</span>
             </div>
           </div>
 
@@ -232,18 +229,32 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
               <p>{product.description}</p>
               <p>购买后系统自动发货，请在订单中查看账号信息。</p>
               <p>如遇问题请及时联系客服处理，24小时在线。</p>
-              <p className="text-[#8ab4f8]">登录24小时后踢出其它设备！并修改二级密码</p>
             </div>
           </div>
+
+          {/* 错误提示 */}
+          {error && (
+            <div className="mb-4 p-3 bg-[#ee675c]/10 border border-[#ee675c]/30 rounded-xl">
+              <p className="text-[13px] text-[#ee675c] font-medium">{error}</p>
+            </div>
+          )}
         </div>
 
         {/* 底部按钮 */}
         <div className="p-4 border-t border-[#3c3c3f]/50 bg-[#1e1f20]">
           <button
-            disabled={!contact.trim()}
-            className="w-full py-3 bg-[#8ab4f8] hover:bg-[#aecbfa] disabled:bg-[#3c3c3f] disabled:cursor-not-allowed text-[#131314] disabled:text-[#6e6e73] font-semibold rounded-xl transition-all duration-200 text-[15px]"
+            onClick={handlePurchase}
+            disabled={isLoading || !contact.trim() || product.stock < 1}
+            className="w-full py-3 bg-[#8ab4f8] hover:bg-[#aecbfa] disabled:bg-[#3c3c3f] disabled:cursor-not-allowed text-[#131314] disabled:text-[#6e6e73] font-semibold rounded-xl transition-all duration-200 text-[15px] flex items-center justify-center gap-2"
           >
-            立即购买 · ¥{totalPrice}
+            {isLoading ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                处理中...
+              </>
+            ) : (
+              <>立即购买 · ${totalPrice}</>
+            )}
           </button>
         </div>
       </div>
