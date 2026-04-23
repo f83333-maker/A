@@ -68,9 +68,31 @@ export async function createEpayOrder(options: {
     buyerName,
   })
 
-  params.sign = generateSign(params)
+  // 签名需要排除custom字段（易支付的要求）
+  const signParams = {
+    pid: params.pid,
+    type: params.type,
+    out_trade_no: params.out_trade_no,
+    money: params.money,
+    name: params.name,
+    notify_url: params.notify_url,
+    return_url: params.return_url,
+  }
+
+  params.sign = generateSign(signParams)
 
   // 构建支付 URL
-  const searchParams = new URLSearchParams(params)
+  const searchParams = new URLSearchParams()
+  // 按照易支付的要求添加参数顺序
+  searchParams.append("pid", params.pid)
+  searchParams.append("type", params.type)
+  searchParams.append("out_trade_no", params.out_trade_no)
+  searchParams.append("money", params.money)
+  searchParams.append("name", params.name)
+  searchParams.append("notify_url", params.notify_url)
+  searchParams.append("return_url", params.return_url)
+  searchParams.append("custom", params.custom)
+  searchParams.append("sign", params.sign)
+
   return `${epayConfig.apiUrl}submit.php?${searchParams.toString()}`
 }
