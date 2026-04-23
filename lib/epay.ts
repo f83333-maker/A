@@ -54,7 +54,7 @@ export async function createEpayOrder(options: {
     pid: epayConfig.pid,
     type: type, // wxpay: 微信支付, alipay: 支付宝
     out_trade_no: orderNo,
-    amount: amount.toFixed(2),
+    money: amount.toFixed(2), // 易支付使用 money 字段表示金额
     name: buyerName || "商品购买",
     notify_url: notifyUrl,
     return_url: options.returnUrl || `${process.env.NEXT_PUBLIC_BASE_URL}/order/${orderNo}`,
