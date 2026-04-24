@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { Menu, X, Sparkles, ChevronRight, Search, Shield, BookOpen } from "lucide-react"
 import { useState } from "react"
+import { useRouter, usePathname } from "next/navigation"
 
 const navItems = [
   { name: "首页", href: "#top", isAnchor: true },
@@ -14,19 +15,36 @@ const navItems = [
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const router = useRouter()
+  const pathname = usePathname()
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, item: typeof navItems[0]) => {
-    if (item.isAnchor) {
-      e.preventDefault()
-      if (item.href === "#top") {
+    if (!item.isAnchor) return
+    e.preventDefault()
+    setMobileMenuOpen(false)
+
+    const isHome = pathname === "/"
+
+    if (item.href === "#top") {
+      if (isHome) {
         window.scrollTo({ top: 0, behavior: "smooth" })
       } else {
-        const element = document.querySelector(item.href)
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth" })
-        }
+        router.push("/")
+        // 跳转后等页面加载再滚到顶部
+        setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 300)
       }
-      setMobileMenuOpen(false)
+    } else {
+      if (isHome) {
+        const element = document.querySelector(item.href)
+        if (element) element.scrollIntoView({ behavior: "smooth" })
+      } else {
+        // 跳回首页并带 hash，首页加载后自动定位到 #categories
+        router.push("/" + item.href)
+        setTimeout(() => {
+          const el = document.querySelector(item.href)
+          if (el) el.scrollIntoView({ behavior: "smooth" })
+        }, 400)
+      }
     }
   }
 
