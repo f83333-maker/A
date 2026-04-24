@@ -40,6 +40,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
   const [queryPassword, setQueryPassword] = useState("")
   const [captcha, setCaptcha] = useState(() => generateCaptcha())
   const [captchaInput, setCaptchaInput] = useState("")
+  const [captchaError, setCaptchaError] = useState("")
   const [copied, setCopied] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
@@ -53,6 +54,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
       setQueryPassword("")
       setCaptcha(generateCaptcha())
       setCaptchaInput("")
+      setCaptchaError("")
       setCopied(false)
       setError("")
       setPaymentType("wxpay")
@@ -101,11 +103,12 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
       return
     }
     if (captchaInput.toUpperCase() !== captcha) {
-      setError("验证码错误，请重新输入")
+      setCaptchaError("验证码错误，请重新输入")
       setCaptcha(generateCaptcha())
       setCaptchaInput("")
       return
     }
+    setCaptchaError("")
 
     setIsLoading(true)
     setError("")
@@ -187,22 +190,20 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
             </div>
 
             {/* 联系方式 */}
-            <div className="flex items-start gap-3">
-              <span className="text-[13px] font-medium text-[#9aa0a6] w-20 shrink-0 pt-2">联系方式:</span>
-              <div className="flex-1">
-                <input
-                  type="text"
-                  value={contact}
-                  onChange={(e) => setContact(e.target.value)}
-                  placeholder="请输入您的邮箱或联系方式"
-                  className="w-full h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
-                />
-              </div>
+            <div className="flex items-center gap-3">
+              <span className="text-[12px] font-medium text-[#9aa0a6] w-16 shrink-0">联系方式:</span>
+              <input
+                type="text"
+                value={contact}
+                onChange={(e) => setContact(e.target.value)}
+                placeholder="请输入您的邮箱或联系方式"
+                className="flex-1 h-7 px-2.5 bg-[#2d2e30] border border-[#3c3c3f] rounded-md text-[#e3e3e3] placeholder-[#6e6e73] text-[12px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
+              />
             </div>
 
             {/* 查询密码 */}
             <div className="flex items-start gap-3">
-              <span className="text-[13px] font-medium text-[#9aa0a6] w-20 shrink-0 pt-2">查询密码:</span>
+              <span className="text-[12px] font-medium text-[#9aa0a6] w-16 shrink-0 pt-1.5">查询密码:</span>
               <div className="flex-1">
                 <input
                   type="password"
@@ -210,9 +211,9 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
                   onChange={(e) => setQueryPassword(e.target.value)}
                   placeholder="请设置6位以上查询密码"
                   minLength={6}
-                  className="w-full h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                  className="w-full h-7 px-2.5 bg-[#2d2e30] border border-[#3c3c3f] rounded-md text-[#e3e3e3] placeholder-[#6e6e73] text-[12px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
                 />
-                <p className="mt-2 text-[12px] font-medium text-[#f28b82] leading-relaxed">
+                <p className="mt-1 text-[11px] text-[#f28b82]">
                   重要：查询密码用于查询订单和提取货物，请牢记！
                 </p>
               </div>
@@ -220,56 +221,61 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
 
             {/* 验证码 */}
             <div className="flex items-start gap-3">
-              <span className="text-[13px] font-medium text-[#9aa0a6] w-20 shrink-0 pt-2">验证码:</span>
-              <div className="flex-1 flex items-center gap-2">
-                <input
-                  type="text"
-                  value={captchaInput}
-                  onChange={(e) => setCaptchaInput(e.target.value.toUpperCase())}
-                  placeholder="请输入验证码"
-                  maxLength={4}
-                  className="flex-1 h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors tracking-widest uppercase"
-                />
-                <div
-                  className="flex items-center justify-center h-10 px-4 rounded-lg bg-[#2d2e30] border border-[#3c3c3f] select-none min-w-[80px]"
-                  style={{ fontFamily: "monospace" }}
-                >
-                  {captcha.split("").map((char, i) => (
-                    <span
-                      key={i}
-                      className="text-[16px] font-bold tracking-widest"
-                      style={{
-                        color: ["#8ab4f8", "#81c995", "#f28b82", "#fdd663"][i % 4],
-                        transform: `rotate(${(Math.random() > 0.5 ? 1 : -1) * (5 + i * 3)}deg)`,
-                        display: "inline-block",
-                      }}
-                    >
-                      {char}
-                    </span>
-                  ))}
+              <span className="text-[12px] font-medium text-[#9aa0a6] w-16 shrink-0 pt-1.5">验证码:</span>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={captchaInput}
+                    onChange={(e) => { setCaptchaInput(e.target.value.toUpperCase()); setCaptchaError("") }}
+                    placeholder="输入验证码"
+                    maxLength={4}
+                    className="flex-1 h-7 px-2.5 bg-[#2d2e30] border border-[#3c3c3f] rounded-md text-[#e3e3e3] placeholder-[#6e6e73] text-[12px] focus:outline-none focus:border-[#8ab4f8] transition-colors tracking-widest uppercase"
+                  />
+                  <div
+                    className="flex items-center justify-center h-7 px-3 rounded-md bg-[#2d2e30] border border-[#3c3c3f] select-none min-w-[72px]"
+                    style={{ fontFamily: "monospace" }}
+                  >
+                    {captcha.split("").map((char, i) => (
+                      <span
+                        key={i}
+                        className="text-[14px] font-bold"
+                        style={{
+                          color: ["#8ab4f8", "#81c995", "#f28b82", "#fdd663"][i % 4],
+                          transform: `rotate(${(i % 2 === 0 ? 1 : -1) * (4 + i * 2)}deg)`,
+                          display: "inline-block",
+                        }}
+                      >
+                        {char}
+                      </span>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { setCaptcha(generateCaptcha()); setCaptchaInput(""); setCaptchaError("") }}
+                    className="h-7 w-7 flex items-center justify-center rounded-md bg-[#2d2e30] border border-[#3c3c3f] text-[#9aa0a6] hover:text-[#e3e3e3] hover:bg-[#3c3c3f] transition-all"
+                    title="刷新验证码"
+                  >
+                    <RefreshCw className="w-3 h-3" />
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => { setCaptcha(generateCaptcha()); setCaptchaInput("") }}
-                  className="h-10 w-10 flex items-center justify-center rounded-lg bg-[#2d2e30] border border-[#3c3c3f] text-[#9aa0a6] hover:text-[#e3e3e3] hover:bg-[#3c3c3f] transition-all"
-                  title="刷新验证码"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                </button>
+                {captchaError && (
+                  <p className="mt-1 text-[11px] text-[#ee675c]">{captchaError}</p>
+                )}
               </div>
             </div>
 
             {/* 购买数量 */}
             <div className="flex items-center gap-3">
-              <span className="text-[13px] font-medium text-[#9aa0a6] w-20 shrink-0">购买数量:</span>
+              <span className="text-[12px] font-medium text-[#9aa0a6] w-16 shrink-0">购买数量:</span>
               <div className="flex items-center gap-2">
-                <div className="flex items-center border border-[#3c3c3f] rounded-lg overflow-hidden">
+                <div className="flex items-center border border-[#3c3c3f] rounded-md overflow-hidden">
                   <button
                     onClick={() => handleQuantityChange(-1)}
                     disabled={quantity <= 1}
-                    className="w-9 h-9 flex items-center justify-center bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#9aa0a6] hover:text-[#e3e3e3] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="w-7 h-7 flex items-center justify-center bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#9aa0a6] hover:text-[#e3e3e3] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
-                    <Minus className="w-3.5 h-3.5" />
+                    <Minus className="w-3 h-3" />
                   </button>
                   <input
                     type="number"
@@ -278,17 +284,17 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
                       const val = parseInt(e.target.value) || 1
                       if (val >= 1 && val <= product.stock) setQuantity(val)
                     }}
-                    className="w-14 h-9 text-center bg-[#1e1f20] border-x border-[#3c3c3f] text-[#e3e3e3] text-[14px] font-semibold focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-10 h-7 text-center bg-[#1e1f20] border-x border-[#3c3c3f] text-[#e3e3e3] text-[12px] font-semibold focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                   <button
                     onClick={() => handleQuantityChange(1)}
                     disabled={quantity >= product.stock}
-                    className="w-9 h-9 flex items-center justify-center bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#9aa0a6] hover:text-[#e3e3e3] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="w-7 h-7 flex items-center justify-center bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#9aa0a6] hover:text-[#e3e3e3] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
-                    <Plus className="w-3.5 h-3.5" />
+                    <Plus className="w-3 h-3" />
                   </button>
                 </div>
-                <span className="text-[13px] font-medium">
+                <span className="text-[12px]">
                   <span className="text-[#6e6e73]">库存: </span>
                   <span className="text-[#8ab4f8]">{product.stock}</span>
                 </span>
