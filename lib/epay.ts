@@ -88,7 +88,7 @@ export async function createEpayOrder(options: {
     type: type,
     out_trade_no: orderNo,
     notify_url: notifyUrl,
-    return_url: options.returnUrl || `${process.env.NEXT_PUBLIC_BASE_URL}/order/${orderNo}`,
+    return_url: options.returnUrl || "",
     name: buyerName || "商品购买",
     money: amount.toFixed(2),
   }

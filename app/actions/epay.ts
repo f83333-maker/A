@@ -3,6 +3,20 @@
 import { createEpayOrder } from "@/lib/epay"
 import { createClient } from "@/lib/supabase/server"
 import crypto from "crypto"
+import { headers } from "next/headers"
+
+function getBaseUrl(): string {
+  // 优先使用环境变量
+  if (process.env.NEXT_PUBLIC_BASE_URL) {
+    return process.env.NEXT_PUBLIC_BASE_URL
+  }
+  // Vercel 部署环境
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`
+  }
+  // 本地开发
+  return "http://localhost:3000"
+}
 
 export async function createEpayCheckout(options: {
   productId: string
@@ -64,7 +78,9 @@ export async function createEpayCheckout(options: {
     }
 
     // 获取回调 URL
-    const notifyUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhooks/epay`
+    const baseUrl = getBaseUrl()
+    const notifyUrl = `${baseUrl}/api/webhooks/epay`
+    const returnUrl = `${baseUrl}/order/${orderNo}`
 
     // 创建易支付支付 URL
     const paymentUrl = await createEpayOrder({
@@ -75,6 +91,7 @@ export async function createEpayCheckout(options: {
       buyerEmail,
       buyerName,
       notifyUrl,
+      returnUrl,
       type: paymentType,
     })
 
