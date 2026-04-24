@@ -90,10 +90,12 @@ export async function createEpayCheckout(options: {
       throw new Error("创建订单失败")
     }
 
-    // 获取回调 URL - 使用请求头中的主机名
+    // 获取回调 URL
     const baseUrl = await getBaseUrl()
+    // notify_url: 异步通知，POST请求，返回"success"
+    // return_url: 同步跳转，GET请求，跳转到订单页面
     const notifyUrl = `${baseUrl}/api/webhooks/epay`
-    const returnUrl = `${baseUrl}/order/${orderNo}`
+    const returnUrl = `${baseUrl}/api/webhooks/epay`
 
     // 创建易支付支付 URL
     const paymentUrl = await createEpayOrder({
