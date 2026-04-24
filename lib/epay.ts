@@ -29,10 +29,10 @@ export function generateSign(params: Record<string, any>): string {
   // 按ASCII码排序
   const keys = Object.keys(filteredParams).sort()
   
-  // 拼接字符串
+  // 拼接字符串：key1=value1&key2=value2&...
   const str = keys.map((k) => `${k}=${filteredParams[k]}`).join("&")
   
-  // 在末尾直接拼接密钥（易支付标准格式）
+  // 在末尾直接拼接密钥（易支付标准格式）：str + 密钥
   const signStr = str + epayConfig.key
   
   // MD5加密
