@@ -3,14 +3,17 @@
 import { useState } from "react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { Search, Package, Clock, CheckCircle, XCircle, Loader2, Copy, Check } from "lucide-react"
+import { Search, Package, Clock, CheckCircle, XCircle, Loader2, Copy, Check, Lock, Eye, EyeOff } from "lucide-react"
 
 export default function OrderQueryPage() {
   const [orderNo, setOrderNo] = useState("")
+  const [queryPassword, setQueryPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [order, setOrder] = useState<any>(null)
   const [error, setError] = useState("")
   const [copied, setCopied] = useState(false)
+  const [needPassword, setNeedPassword] = useState(false)
 
   const handleSearch = async () => {
     if (!orderNo.trim()) {
@@ -21,18 +24,59 @@ export default function OrderQueryPage() {
     setLoading(true)
     setError("")
     setOrder(null)
+    setNeedPassword(false)
 
     try {
-      const res = await fetch(`/api/orders/query?orderNo=${encodeURIComponent(orderNo.trim())}`)
+      // 先查询订单基本信息
+      const res = await fetch(`/api/orders/${encodeURIComponent(orderNo.trim())}`)
+      const data = await res.json()
+
+      if (data.error) {
+        setError(data.error)
+        return
+      }
+
+      if (data.order) {
+        // 检查是否需要密码
+        if (data.order.query_password === "***") {
+          setNeedPassword(true)
+          setOrder(data.order)
+        } else {
+          setOrder(data.order)
+        }
+      }
+    } catch {
+      setError("查询失败，请稍后重试")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleVerifyPassword = async () => {
+    if (!queryPassword.trim()) {
+      setError("请输入查询密码")
+      return
+    }
+
+    setLoading(true)
+    setError("")
+
+    try {
+      const res = await fetch(`/api/orders/${encodeURIComponent(orderNo.trim())}/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: queryPassword }),
+      })
       const data = await res.json()
 
       if (data.success && data.order) {
         setOrder(data.order)
+        setNeedPassword(false)
       } else {
-        setError(data.error || "未找到该订单")
+        setError(data.error || "密码错误")
       }
     } catch {
-      setError("查询失败，请稍后重试")
+      setError("验证失败，请稍后重试")
     } finally {
       setLoading(false)
     }
@@ -66,27 +110,65 @@ export default function OrderQueryPage() {
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold text-[#e3e3e3] mb-2">订单查询</h1>
-            <p className="text-[#9aa0a6]">输入订单号查询订单状态和账号信息</p>
+            <p className="text-[#9aa0a6]">输入订单号和查询密码查询订单状态和账号信息</p>
           </div>
 
           <div className="bg-[#1e1f20] rounded-xl border border-[#3c3c3f] p-6 mb-6">
-            <div className="flex gap-3">
-              <input
-                type="text"
-                value={orderNo}
-                onChange={(e) => setOrderNo(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                placeholder="请输入订单号"
-                className="flex-1 h-12 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] placeholder-[#6e6e73] focus:outline-none focus:border-[#8ab4f8]"
-              />
-              <button
-                onClick={handleSearch}
-                disabled={loading}
-                className="px-6 h-12 bg-[#8ab4f8] hover:bg-[#aecbfa] disabled:bg-[#3c3c3f] text-[#131314] font-semibold rounded-lg flex items-center gap-2 transition-colors"
-              >
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
-                查询
-              </button>
+            <div className="space-y-4">
+              <div className="flex gap-3">
+                <input
+                  type="text"
+                  value={orderNo}
+                  onChange={(e) => setOrderNo(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                  placeholder="请输入订单号"
+                  className="flex-1 h-12 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] placeholder-[#6e6e73] focus:outline-none focus:border-[#8ab4f8]"
+                />
+                <button
+                  onClick={handleSearch}
+                  disabled={loading}
+                  className="px-6 h-12 bg-[#8ab4f8] hover:bg-[#aecbfa] disabled:bg-[#3c3c3f] text-[#131314] font-semibold rounded-lg flex items-center gap-2 transition-colors"
+                >
+                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
+                  查询
+                </button>
+              </div>
+
+              {/* 密码输入 */}
+              {needPassword && (
+                <div className="pt-4 border-t border-[#3c3c3f]">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Lock className="w-4 h-4 text-[#8ab4f8]" />
+                    <span className="text-sm text-[#e3e3e3]">此订单需要验证查询密码</span>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex-1 relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        value={queryPassword}
+                        onChange={(e) => setQueryPassword(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleVerifyPassword()}
+                        placeholder="请输入查询密码"
+                        className="w-full h-12 px-4 pr-12 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] placeholder-[#6e6e73] focus:outline-none focus:border-[#8ab4f8]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9aa0a6] hover:text-[#e3e3e3]"
+                      >
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
+                    <button
+                      onClick={handleVerifyPassword}
+                      disabled={loading || !queryPassword.trim()}
+                      className="px-6 h-12 bg-[#81c995] hover:bg-[#6ab583] disabled:bg-[#3c3c3f] text-[#131314] font-semibold rounded-lg flex items-center gap-2 transition-colors"
+                    >
+                      {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "验证"}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {error && (
@@ -96,7 +178,7 @@ export default function OrderQueryPage() {
             )}
           </div>
 
-          {order && (
+          {order && !needPassword && (
             <div className="bg-[#1e1f20] rounded-xl border border-[#3c3c3f] overflow-hidden">
               <div className="p-6 border-b border-[#3c3c3f]">
                 <div className="flex items-center justify-between mb-4">
@@ -124,11 +206,11 @@ export default function OrderQueryPage() {
                   </div>
                   <div>
                     <span className="text-[#6e6e73]">单价:</span>
-                    <span className="ml-2 text-[#e3e3e3]">{order.unit_price}</span>
+                    <span className="ml-2 text-[#e3e3e3]">¥{order.unit_price}</span>
                   </div>
                   <div>
                     <span className="text-[#6e6e73]">总金额:</span>
-                    <span className="ml-2 text-[#8ab4f8] font-semibold">{order.total_amount}</span>
+                    <span className="ml-2 text-[#8ab4f8] font-semibold">¥{order.total_amount}</span>
                   </div>
                   <div className="col-span-2">
                     <span className="text-[#6e6e73]">下单时间:</span>

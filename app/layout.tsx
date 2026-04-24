@@ -1,35 +1,22 @@
 import type { Metadata } from 'next'
-import { Inter, Roboto_Mono } from 'next/font/google'
+import { Noto_Sans_SC, Roboto_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
-const inter = Inter({ 
+const notoSansSC = Noto_Sans_SC({ 
   subsets: ["latin"], 
   variable: "--font-sans",
-  weight: ["300", "400", "500", "600", "700"]
+  weight: ["300", "400", "500", "700"]
 });
 const robotoMono = Roboto_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
-  title: '账号批发平台 - 专业账号批发服务',
+  title: 'CHUHAIZIYUAN - 专业账号批发服务',
   description: '专业的账号批发平台，提供优质账号批发服务',
-  generator: 'v0.app',
   icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
+    icon: '/icon.svg',
+    shortcut: '/icon.svg',
+    apple: '/icon.svg',
   },
 }
 
@@ -39,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="zh-CN" className={`${inter.variable} ${robotoMono.variable} bg-background`}>
+    <html lang="zh-CN" className={`${notoSansSC.variable} ${robotoMono.variable} bg-background`}>
       <body className="font-sans antialiased min-h-screen">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { X, Copy, Check, Minus, Plus, Info, Zap, Loader2, Smartphone } from "lucide-react"
+import { X, Copy, Check, Minus, Plus, Info, Zap, Loader2, Smartphone, RefreshCw } from "lucide-react"
 import { createEpayCheckout } from "@/app/actions/epay"
 
 interface Product {
@@ -24,9 +24,23 @@ interface PurchaseModalProps {
   onClose: () => void
 }
 
+const CAPTCHA_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+
+function generateCaptcha(): string {
+  let result = ""
+  for (let i = 0; i < 4; i++) {
+    result += CAPTCHA_CHARS[Math.floor(Math.random() * CAPTCHA_CHARS.length)]
+  }
+  return result
+}
+
 export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) {
   const [quantity, setQuantity] = useState(1)
   const [contact, setContact] = useState("")
+  const [queryPassword, setQueryPassword] = useState("")
+  const [captcha, setCaptcha] = useState(() => generateCaptcha())
+  const [captchaInput, setCaptchaInput] = useState("")
+  const [captchaError, setCaptchaError] = useState("")
   const [copied, setCopied] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
@@ -37,6 +51,10 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
     if (isOpen) {
       setQuantity(1)
       setContact("")
+      setQueryPassword("")
+      setCaptcha(generateCaptcha())
+      setCaptchaInput("")
+      setCaptchaError("")
       setCopied(false)
       setError("")
       setPaymentType("wxpay")
@@ -80,6 +98,17 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
       setError("请填写联系方式")
       return
     }
+    if (!queryPassword.trim() || queryPassword.length < 6) {
+      setError("请设置6位以上的查询密码")
+      return
+    }
+    if (captchaInput.toUpperCase() !== captcha) {
+      setCaptchaError("验证码错误，请重新输入")
+      setCaptcha(generateCaptcha())
+      setCaptchaInput("")
+      return
+    }
+    setCaptchaError("")
 
     setIsLoading(true)
     setError("")
@@ -91,6 +120,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
         buyerEmail: contact,
         buyerName: contact,
         paymentType,
+        queryPassword,
       })
 
       if (result.success && result.url) {
@@ -146,47 +176,105 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
           <div className="space-y-4 mb-6">
             {/* 价格 */}
             <div className="flex items-center gap-3">
-              <span className="text-[13px] font-medium text-[#9aa0a6] w-20 shrink-0">商品单价:</span>
+              <span className="text-[13px] font-semibold text-[#e3e3e3] w-20 shrink-0">商品单价:</span>
               <span className="text-[18px] font-semibold text-[#ee675c]">¥{product.price}</span>
             </div>
 
             {/* 发货方式 */}
             <div className="flex items-center gap-3">
-              <span className="text-[13px] font-medium text-[#9aa0a6] w-20 shrink-0">发货方式:</span>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#81c995]/15 text-[#81c995] text-[12px] font-semibold rounded-md">
+              <span className="text-[13px] font-semibold text-[#e3e3e3] w-20 shrink-0">发货方式:</span>
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#81c995]/15 text-[#81c995] text-[13px] font-semibold rounded-md">
                 <Zap className="w-3 h-3" />
                 自动发货
               </span>
             </div>
 
-            {/* 联系方式 */}
-            <div className="flex items-start gap-3">
-              <span className="text-[13px] font-medium text-[#9aa0a6] w-20 shrink-0 pt-2">联系方式:</span>
-              <div className="flex-1">
+            {/* 联系方式 + 查询密码 同行 */}
+            <div className="flex items-start gap-2">
+              <div className="flex-1 flex flex-col gap-1.5">
+                <span className="text-[13px] font-semibold text-[#e3e3e3]">联系方式</span>
                 <input
                   type="text"
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
-                  placeholder="请输入您的邮箱或联系方式"
-                  className="w-full h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                  placeholder="邮箱或联系方式"
+                  className="w-full h-7 px-2.5 bg-[#2d2e30] border border-[#3c3c3f] rounded-md text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
                 />
-                <p className="mt-2 text-[12px] font-medium text-[#81c995] leading-relaxed">
-                  联系方式用于查询订单，支付后将收到订单号
-                </p>
+              </div>
+              <div className="flex-1 flex flex-col gap-1.5">
+                <span className="text-[13px] font-semibold text-[#e3e3e3]">查询密码 <span className="text-[#f28b82] font-medium text-[12px]">（≥6位，请牢记）</span></span>
+                <input
+                  type="password"
+                  value={queryPassword}
+                  onChange={(e) => setQueryPassword(e.target.value)}
+                  placeholder="设置6位以上密码"
+                  minLength={6}
+                  className="w-full h-7 px-2.5 bg-[#2d2e30] border border-[#3c3c3f] rounded-md text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                />
+              </div>
+            </div>
+
+            {/* 验证码 */}
+            <div className="flex items-start gap-3">
+              <span className="text-[13px] font-semibold text-[#e3e3e3] w-20 shrink-0 pt-2">验证码:</span>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={captchaInput}
+                    onChange={(e) => { setCaptchaInput(e.target.value.toUpperCase()); setCaptchaError("") }}
+                    placeholder="输入右侧验证码"
+                    maxLength={4}
+                    className="flex-1 h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-md text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] focus:outline-none focus:border-[#8ab4f8] transition-colors tracking-[0.3em] uppercase"
+                  />
+                  {/* 验证码图形 - 放大版 */}
+                  <div
+                    className="flex items-center justify-center h-10 px-4 rounded-md bg-[#252627] border border-[#3c3c3f] select-none gap-1"
+                    style={{ fontFamily: "monospace", minWidth: "96px" }}
+                  >
+                    {captcha.split("").map((char, i) => (
+                      <span
+                        key={i}
+                        className="font-black"
+                        style={{
+                          fontSize: "20px",
+                          color: ["#8ab4f8", "#81c995", "#f28b82", "#fdd663"][i % 4],
+                          transform: `rotate(${(i % 2 === 0 ? 1 : -1) * (5 + i * 2)}deg)`,
+                          display: "inline-block",
+                          lineHeight: 1,
+                          letterSpacing: 0,
+                        }}
+                      >
+                        {char}
+                      </span>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { setCaptcha(generateCaptcha()); setCaptchaInput(""); setCaptchaError("") }}
+                    className="h-10 w-10 flex items-center justify-center rounded-md bg-[#2d2e30] border border-[#3c3c3f] text-[#9aa0a6] hover:text-[#e3e3e3] hover:bg-[#3c3c3f] transition-all shrink-0"
+                    title="刷新验证码"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                {captchaError && (
+                  <p className="mt-1 text-[11px] text-[#ee675c]">{captchaError}</p>
+                )}
               </div>
             </div>
 
             {/* 购买数量 */}
             <div className="flex items-center gap-3">
-              <span className="text-[13px] font-medium text-[#9aa0a6] w-20 shrink-0">购买数量:</span>
+              <span className="text-[13px] font-semibold text-[#e3e3e3] w-20 shrink-0">购买数量:</span>
               <div className="flex items-center gap-2">
-                <div className="flex items-center border border-[#3c3c3f] rounded-lg overflow-hidden">
+                <div className="flex items-center border border-[#3c3c3f] rounded-md overflow-hidden">
                   <button
                     onClick={() => handleQuantityChange(-1)}
                     disabled={quantity <= 1}
-                    className="w-9 h-9 flex items-center justify-center bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#9aa0a6] hover:text-[#e3e3e3] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="w-7 h-7 flex items-center justify-center bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#9aa0a6] hover:text-[#e3e3e3] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
-                    <Minus className="w-3.5 h-3.5" />
+                    <Minus className="w-3 h-3" />
                   </button>
                   <input
                     type="number"
@@ -195,26 +283,26 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
                       const val = parseInt(e.target.value) || 1
                       if (val >= 1 && val <= product.stock) setQuantity(val)
                     }}
-                    className="w-14 h-9 text-center bg-[#1e1f20] border-x border-[#3c3c3f] text-[#e3e3e3] text-[14px] font-semibold focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-10 h-7 text-center bg-[#1e1f20] border-x border-[#3c3c3f] text-[#e3e3e3] text-[13px] font-semibold focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                   <button
                     onClick={() => handleQuantityChange(1)}
                     disabled={quantity >= product.stock}
-                    className="w-9 h-9 flex items-center justify-center bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#9aa0a6] hover:text-[#e3e3e3] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="w-7 h-7 flex items-center justify-center bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#9aa0a6] hover:text-[#e3e3e3] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
-                    <Plus className="w-3.5 h-3.5" />
+                    <Plus className="w-3 h-3" />
                   </button>
                 </div>
-                <span className="text-[13px] font-medium">
-                  <span className="text-[#6e6e73]">库存: </span>
-                  <span className="text-[#8ab4f8]">{product.stock}</span>
+                <span className="text-[13px]">
+                  <span className="text-[#9aa0a6]">库存: </span>
+                  <span className="text-[#8ab4f8] font-semibold">{product.stock}</span>
                 </span>
               </div>
             </div>
 
             {/* 订单金额 */}
             <div className="flex items-center gap-3 pt-2 border-t border-[#3c3c3f]/50">
-              <span className="text-[13px] font-medium text-[#9aa0a6] w-20 shrink-0">订单金额:</span>
+              <span className="text-[13px] font-semibold text-[#e3e3e3] w-20 shrink-0">订单金额:</span>
               <span className="text-[22px] font-semibold text-[#ee675c]">¥{totalPrice}</span>
             </div>
           </div>
@@ -281,7 +369,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
         <div className="p-4 border-t border-[#3c3c3f]/50 bg-[#1e1f20]">
           <button
             onClick={handlePurchase}
-            disabled={isLoading || !contact.trim() || product.stock < 1}
+            disabled={isLoading || !contact.trim() || !queryPassword.trim() || queryPassword.length < 6 || captchaInput.length < 4 || product.stock < 1}
             className={`w-full py-3 font-semibold rounded-xl transition-all duration-200 text-[15px] flex items-center justify-center gap-2 ${
               paymentType === "wxpay" 
                 ? "bg-[#07c160] hover:bg-[#06ad56] text-white disabled:bg-[#3c3c3f]" 

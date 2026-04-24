@@ -1,32 +1,26 @@
 import Link from "next/link"
-import { Sparkles } from "lucide-react"
 
 const footerLinks = {
   products: {
     title: "产品",
     links: [
-      { name: "社交账号", href: "/category/social" },
-      { name: "邮箱账号", href: "/category/email" },
-      { name: "流媒体账号", href: "/category/video" },
-      { name: "全部商品", href: "/products" },
+      { name: "社交账号", href: "#categories" },
+      { name: "邮箱账号", href: "#categories" },
+      { name: "流媒体账号", href: "#categories" },
     ],
   },
   support: {
     title: "支持",
     links: [
-      { name: "帮助中心", href: "/help" },
-      { name: "使用教程", href: "/tutorials" },
-      { name: "常见问题", href: "/faq" },
-      { name: "联系我们", href: "/contact" },
+      { name: "使用教程", href: "/tutorial" },
+      { name: "2FA验证", href: "/2fa" },
     ],
   },
   about: {
     title: "关于",
     links: [
-      { name: "关于我们", href: "/about" },
       { name: "用户协议", href: "/terms" },
       { name: "隐私政策", href: "/privacy" },
-      { name: "合作伙伴", href: "/partners" },
     ],
   },
 }
@@ -38,12 +32,14 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="inline-flex items-center gap-2.5 mb-5">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#8ab4f8] to-[#81c995] flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-[#131314]" />
+            <Link href="/" className="inline-flex items-center gap-2.5 mb-5 group">
+              <div className="w-8 h-8 rounded-lg bg-[#2d2e30] flex items-center justify-center transition-all group-hover:bg-[#3c3c3f]">
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
+                  <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" fill="#8ab4f8" stroke="#8ab4f8" strokeWidth="0.5" strokeLinejoin="round"/>
+                </svg>
               </div>
-              <span className="text-[16px] font-semibold text-[#e3e3e3]">
-                Platform
+              <span className="text-[16px] font-bold text-[#e3e3e3]">
+                CHUHAIZIYUAN
               </span>
             </Link>
             <p className="text-[13px] text-[#6e6e73] leading-relaxed mb-6 font-medium">
@@ -85,22 +81,22 @@ export function Footer() {
           ))}
         </div>
 
-        {/* Bottom */}
-        <div className="mt-14 pt-8 border-t border-[#3c3c3f]/30">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-[13px] text-[#6e6e73] font-medium">
-              © 2024 Platform. All rights reserved.
-            </p>
-            <div className="flex items-center gap-6">
-              <Link href="/terms" className="text-[13px] text-[#6e6e73] hover:text-[#e3e3e3] transition-colors font-medium">
-                服务条款
-              </Link>
-              <Link href="/privacy" className="text-[13px] text-[#6e6e73] hover:text-[#e3e3e3] transition-colors font-medium">
-                隐私政策
-              </Link>
+          {/* Bottom */}
+          <div className="mt-14 pt-8 border-t border-[#3c3c3f]/30">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <p className="text-[13px] text-[#6e6e73] font-medium">
+                © 2024 CHUHAIZIYUAN. All rights reserved.
+              </p>
+              <div className="flex items-center gap-6">
+                <Link href="/terms" className="text-[13px] text-[#6e6e73] hover:text-[#e3e3e3] transition-colors font-medium">
+                  服务条款
+                </Link>
+                <Link href="/privacy" className="text-[13px] text-[#6e6e73] hover:text-[#e3e3e3] transition-colors font-medium">
+                  隐私政策
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
       </div>
     </footer>
   )

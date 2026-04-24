@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, Pencil, Trash2, Loader2, X } from "lucide-react"
+import { Plus, Pencil, Trash2, Loader2, X, Package } from "lucide-react"
+import Link from "next/link"
 
 interface Category {
   id: string
@@ -232,15 +233,24 @@ export default function ProductsPage() {
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center justify-end gap-2">
+                      <Link
+                        href={`/admin/inventory?productId=${product.id}&name=${encodeURIComponent(product.name)}`}
+                        className="p-2 text-[#9aa0a6] hover:text-[#81c995] hover:bg-[#81c995]/10 rounded-lg transition-all"
+                        title="管理库存"
+                      >
+                        <Package className="w-4 h-4" />
+                      </Link>
                       <button
                         onClick={() => openModal(product)}
                         className="p-2 text-[#9aa0a6] hover:text-[#8ab4f8] hover:bg-[#8ab4f8]/10 rounded-lg transition-all"
+                        title="编辑产品"
                       >
                         <Pencil className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(product.id)}
                         className="p-2 text-[#9aa0a6] hover:text-[#ee675c] hover:bg-[#ee675c]/10 rounded-lg transition-all"
+                        title="删除产品"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

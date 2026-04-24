@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { Header } from "@/components/header"
 import { SearchBanner } from "@/components/search-banner"
 import { CategoryBrowser } from "@/components/category-browser"
@@ -10,6 +11,18 @@ import { Footer } from "@/components/footer"
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("")
+  const searchParams = useSearchParams()
+
+  // 从其他页面跳回首页时，自动处理 hash 定位
+  useEffect(() => {
+    const hash = window.location.hash
+    if (hash) {
+      setTimeout(() => {
+        const el = document.querySelector(hash)
+        if (el) el.scrollIntoView({ behavior: "smooth" })
+      }, 300)
+    }
+  }, [])
 
   return (
     <div id="top" className="min-h-screen flex flex-col">

@@ -1,0 +1,30 @@
+import { createClient } from "@/lib/supabase/server"
+import { NextRequest, NextResponse } from "next/server"
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ orderNo: string }> }
+) {
+  const { orderNo } = await params
+  const supabase = await createClient()
+
+  const { data: order, error } = await supabase
+    .from("orders")
+    .select("id, order_no, product_name, quantity, unit_price, total_amount, status, delivered_content, delivered_at, created_at, query_password")
+    .eq("order_no", orderNo)
+    .single()
+
+  if (error || !order) {
+    return NextResponse.json({ error: "订单不存在" }, { status: 404 })
+  }
+
+  // 返回订单信息（只返回是否有密码，不返回密码本身）
+  return NextResponse.json({
+    order: {
+      ...order,
+      query_password: order.query_password ? "***" : null, // 隐藏实际密码
+      // 如果未验证密码，隐藏敏感内容
+      delivered_content: order.query_password ? null : order.delivered_content,
+    }
+  })
+}
