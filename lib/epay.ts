@@ -10,11 +10,11 @@ export const epayConfig = {
 
 /**
  * 生成签名
- * 易支付签名规则：
+ * 易支付签名规则（彩虹易支付标准）：
  * 1. 将参数按照参数名ASCII码从小到大排序
  * 2. 排除空值和sign、sign_type参数
  * 3. 拼接成 key=value&key=value 格式
- * 4. 在末尾拼接 &key=密钥
+ * 4. 在末尾直接拼接密钥（不带&key=）
  * 5. 进行MD5加密
  */
 export function generateSign(params: Record<string, any>): string {
@@ -32,18 +32,11 @@ export function generateSign(params: Record<string, any>): string {
   // 拼接字符串
   const str = keys.map((k) => `${k}=${filteredParams[k]}`).join("&")
   
-  // 在末尾拼接 &key=密钥
-  const signStr = str + "&key=" + epayConfig.key
+  // 在末尾直接拼接密钥（彩虹易支付标准格式）
+  const signStr = str + epayConfig.key
   
   // MD5加密
   const sign = crypto.createHash("md5").update(signStr).digest("hex")
-  
-  // 调试日志
-  console.log("[v0] 易支付签名信息:")
-  console.log("[v0] 参数:", filteredParams)
-  console.log("[v0] 排序后的key:", keys)
-  console.log("[v0] 签名前字符串:", signStr)
-  console.log("[v0] 生成的签名:", sign)
   
   return sign
 }
