@@ -24,6 +24,7 @@ interface Product {
   category_id: string
   product_info: string
   usage_instructions: string
+  logo_url: string
   categories: { name: string } | null
 }
 
@@ -47,6 +48,7 @@ export default function ProductsPage() {
     category_id: "",
     product_info: "",
     usage_instructions: "",
+    logo_url: "",
   })
   const [isSaving, setIsSaving] = useState(false)
 
@@ -88,6 +90,7 @@ export default function ProductsPage() {
         category_id: product.category_id,
         product_info: product.product_info || "",
         usage_instructions: product.usage_instructions || "",
+        logo_url: product.logo_url || "",
       })
     } else {
       setEditingProduct(null)
@@ -105,6 +108,7 @@ export default function ProductsPage() {
         category_id: categories[0]?.id || "",
         product_info: "",
         usage_instructions: "",
+        logo_url: "",
       })
     }
     setIsModalOpen(true)
@@ -323,6 +327,21 @@ export default function ProductsPage() {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
                 />
+              </div>
+              <div>
+                <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
+                  Logo网址 <span className="text-[#6e6e73]">（输入官网地址自动获取Logo）</span>
+                </label>
+                <input
+                  type="url"
+                  value={formData.logo_url}
+                  onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
+                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                  placeholder="如：https://v0.dev 或直接填写图片URL"
+                />
+                <p className="mt-1 text-[11px] text-[#6e6e73]">
+                  可填写官网地址（自动获取Favicon）或直接填写图片URL
+                </p>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 <div>

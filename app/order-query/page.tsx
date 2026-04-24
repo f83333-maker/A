@@ -3,12 +3,11 @@
 import { useState } from "react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { Search, Package, Clock, CheckCircle, XCircle, Loader2, Copy, Check, Lock, Eye, EyeOff } from "lucide-react"
+import { Search, Package, Clock, CheckCircle, XCircle, Loader2, Copy, Check, Lock } from "lucide-react"
 
 export default function OrderQueryPage() {
   const [orderNo, setOrderNo] = useState("")
   const [queryPassword, setQueryPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [order, setOrder] = useState<any>(null)
   const [error, setError] = useState("")
@@ -142,22 +141,15 @@ export default function OrderQueryPage() {
                     <span className="text-sm text-[#e3e3e3]">此订单需要验证查询密码</span>
                   </div>
                   <div className="flex gap-3">
-                    <div className="flex-1 relative">
+                    <div className="flex-1">
                       <input
-                        type={showPassword ? "text" : "password"}
+                        type="text"
                         value={queryPassword}
                         onChange={(e) => setQueryPassword(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleVerifyPassword()}
                         placeholder="请输入查询密码"
-                        className="w-full h-12 px-4 pr-12 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] placeholder-[#6e6e73] focus:outline-none focus:border-[#8ab4f8]"
+                        className="w-full h-12 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] placeholder-[#6e6e73] focus:outline-none focus:border-[#8ab4f8]"
                       />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9aa0a6] hover:text-[#e3e3e3]"
-                      >
-                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                      </button>
                     </div>
                     <button
                       onClick={handleVerifyPassword}
@@ -220,7 +212,7 @@ export default function OrderQueryPage() {
               </div>
 
               {order.delivered_content && (
-                <div className="p-6">
+                <div className="p-6 border-b border-[#3c3c3f]">
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-sm font-semibold text-[#81c995]">账号信息</h3>
                     <button
@@ -236,6 +228,16 @@ export default function OrderQueryPage() {
                       {order.delivered_content}
                     </pre>
                   </div>
+                </div>
+              )}
+
+              {order.usage_instructions && (
+                <div className="p-6">
+                  <h3 className="text-sm font-semibold text-[#8ab4f8] mb-3">使用说明</h3>
+                  <div
+                    className="prose prose-invert prose-sm max-w-none text-[#e3e3e3] [&_img]:rounded-xl [&_img]:max-w-full [&_img]:h-auto [&_a]:text-[#8ab4f8] [&_a:hover]:underline"
+                    dangerouslySetInnerHTML={{ __html: order.usage_instructions }}
+                  />
                 </div>
               )}
             </div>

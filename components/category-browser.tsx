@@ -26,6 +26,7 @@ interface Product {
   tags: string[]
   is_hot: boolean
   category_id: string
+  logo_url: string | null
   categories: {
     name: string
     icon: string
@@ -240,7 +241,8 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                   return (
                     <div
                       key={product.id}
-                      className="group relative bg-[#1e1f20] rounded-2xl border border-[#3c3c3f]/50 overflow-hidden hover:border-[#5f6368]/60 hover:bg-[#232425] transition-all duration-300 animate-fade-in-up"
+                      id={`product-${product.id}`}
+                      className="group relative bg-[#1e1f20] rounded-2xl border border-[#3c3c3f]/50 overflow-hidden hover:border-[#5f6368]/60 hover:bg-[#232425] transition-all duration-300 animate-fade-in-up scroll-mt-24"
                       style={{
                         animationDelay: `${index * 50}ms`,
                         animationFillMode: "backwards",
@@ -259,10 +261,26 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
 
                       <div className="p-4">
                         {/* 产品图区 */}
-                        <div className="w-full h-24 mb-4 rounded-xl bg-[#2d2e30] flex items-center justify-center group-hover:bg-[#3c3c3f] transition-colors duration-300">
-                          <span className="text-[38px] transition-transform duration-300 group-hover:scale-110">
-                            {categoryIcon}
-                          </span>
+                        <div className="w-full h-24 mb-4 rounded-xl bg-[#2d2e30] flex items-center justify-center group-hover:bg-[#3c3c3f] transition-colors duration-300 overflow-hidden">
+                          {product.logo_url ? (
+                            <img 
+                              src={product.logo_url.startsWith('http') && !product.logo_url.match(/\.(png|jpg|jpeg|gif|svg|ico|webp)$/i) 
+                                ? `https://www.google.com/s2/favicons?domain=${new URL(product.logo_url).hostname}&sz=128`
+                                : product.logo_url
+                              }
+                              alt={product.name}
+                              className="w-16 h-16 object-contain transition-transform duration-300 group-hover:scale-110"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement
+                                target.style.display = 'none'
+                                target.parentElement!.innerHTML = `<span class="text-[38px]">${categoryIcon}</span>`
+                              }}
+                            />
+                          ) : (
+                            <span className="text-[38px] transition-transform duration-300 group-hover:scale-110">
+                              {categoryIcon}
+                            </span>
+                          )}
                         </div>
 
                         {/* 名称 & 描述 */}
