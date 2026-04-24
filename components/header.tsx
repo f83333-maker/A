@@ -52,13 +52,16 @@ export function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#131314]/90 backdrop-blur-xl border-b border-[#3c3c3f]/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+          {/* Logo - ChatGPT风格，搜索按钮配色 */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#8ab4f8] to-[#81c995] flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
-              <Sparkles className="w-4 h-4 text-[#131314]" />
+            <div className="w-9 h-9 rounded-full bg-[#8ab4f8] flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-[#8ab4f8]/30">
+              <svg className="w-5 h-5 text-[#131314]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+              </svg>
             </div>
-            <span className="text-[17px] font-semibold text-[#e3e3e3] tracking-[-0.01em]">
-              Platform
+            <span className="text-[17px] font-bold text-[#e3e3e3] tracking-tight">
+              CHUHAIZIYUAN
             </span>
           </Link>
 
@@ -78,19 +81,27 @@ export function Header() {
 
           {/* Action Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <Link
-              href="/login"
-              className="px-4 py-2 text-[14px] text-[#9aa0a6] hover:text-[#e3e3e3] transition-colors font-medium"
-            >
-              登录
-            </Link>
-            <Link
-              href="/register"
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-[14px] text-[#e3e3e3] bg-[#2d2e30] hover:bg-[#3c3c3f] border border-[#3c3c3f] hover:border-[#5f6368] rounded-full transition-all duration-200 font-semibold"
+            <a
+              href="#categories"
+              onClick={(e) => {
+                e.preventDefault()
+                const isHome = pathname === "/"
+                if (isHome) {
+                  const el = document.querySelector("#categories")
+                  if (el) el.scrollIntoView({ behavior: "smooth" })
+                } else {
+                  router.push("/#categories")
+                  setTimeout(() => {
+                    const el = document.querySelector("#categories")
+                    if (el) el.scrollIntoView({ behavior: "smooth" })
+                  }, 400)
+                }
+              }}
+              className="inline-flex items-center gap-1.5 px-5 py-2 text-[14px] text-[#131314] bg-[#8ab4f8] hover:bg-[#aecbfa] rounded-full transition-all duration-200 font-semibold cursor-pointer"
             >
               开始使用
               <ChevronRight className="w-3.5 h-3.5" />
-            </Link>
+            </a>
           </div>
 
           {/* Mobile Menu Button */}
@@ -121,18 +132,27 @@ export function Header() {
                 </a>
               ))}
               <div className="flex gap-3 mt-4 px-4 pt-4 border-t border-[#3c3c3f]/50">
-                <Link
-                  href="/login"
-                  className="flex-1 py-2.5 text-[14px] text-center text-[#9aa0a6] border border-[#3c3c3f] rounded-full hover:bg-[#2d2e30] transition-all duration-200 font-medium"
+                <a
+                  href="#categories"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setMobileMenuOpen(false)
+                    const isHome = pathname === "/"
+                    if (isHome) {
+                      const el = document.querySelector("#categories")
+                      if (el) el.scrollIntoView({ behavior: "smooth" })
+                    } else {
+                      router.push("/#categories")
+                      setTimeout(() => {
+                        const el = document.querySelector("#categories")
+                        if (el) el.scrollIntoView({ behavior: "smooth" })
+                      }, 400)
+                    }
+                  }}
+                  className="flex-1 py-2.5 text-[14px] text-center bg-[#8ab4f8] text-[#131314] rounded-full font-semibold hover:bg-[#aecbfa] transition-all duration-200 cursor-pointer"
                 >
-                  登录
-                </Link>
-                <Link
-                  href="/register"
-                  className="flex-1 py-2.5 text-[14px] text-center bg-[#8ab4f8] text-[#131314] rounded-full font-semibold hover:bg-[#aecbfa] transition-all duration-200"
-                >
-                  注册
-                </Link>
+                  开始使用
+                </a>
               </div>
             </nav>
           </div>
