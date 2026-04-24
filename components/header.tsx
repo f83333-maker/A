@@ -1,19 +1,34 @@
 "use client"
 
 import Link from "next/link"
-import { Menu, X, Sparkles, ChevronRight } from "lucide-react"
+import { Menu, X, Sparkles, ChevronRight, Search, Shield, BookOpen } from "lucide-react"
 import { useState } from "react"
 
 const navItems = [
-  { name: "首页", href: "/" },
-  { name: "产品中心", href: "/products" },
-  { name: "价格", href: "/pricing" },
-  { name: "文档", href: "/docs" },
-  { name: "案例", href: "/cases" },
+  { name: "首页", href: "#top", isAnchor: true },
+  { name: "账号类别", href: "#categories", isAnchor: true },
+  { name: "订单查询", href: "/order-query" },
+  { name: "2FA验证", href: "/2fa" },
+  { name: "使用教程", href: "/tutorial" },
 ]
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, item: typeof navItems[0]) => {
+    if (item.isAnchor) {
+      e.preventDefault()
+      if (item.href === "#top") {
+        window.scrollTo({ top: 0, behavior: "smooth" })
+      } else {
+        const element = document.querySelector(item.href)
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" })
+        }
+      }
+      setMobileMenuOpen(false)
+    }
+  }
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#131314]/90 backdrop-blur-xl border-b border-[#3c3c3f]/50">
@@ -32,13 +47,14 @@ export function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
             {navItems.map((item) => (
-              <Link
+              <a
                 key={item.name}
                 href={item.href}
-                className="px-4 py-2 text-[14px] text-[#9aa0a6] hover:text-[#e3e3e3] transition-colors duration-200 rounded-full hover:bg-[#2d2e30]/80 font-medium"
+                onClick={(e) => handleNavClick(e, item)}
+                className="px-4 py-2 text-[14px] text-[#9aa0a6] hover:text-[#e3e3e3] transition-colors duration-200 rounded-full hover:bg-[#2d2e30]/80 font-medium cursor-pointer"
               >
                 {item.name}
-              </Link>
+              </a>
             ))}
           </nav>
 
@@ -77,14 +93,14 @@ export function Header() {
           <div className="py-4 border-t border-[#3c3c3f]/50">
             <nav className="flex flex-col gap-1">
               {navItems.map((item) => (
-                <Link
+                <a
                   key={item.name}
                   href={item.href}
-                  className="px-4 py-3 text-[14px] text-[#9aa0a6] hover:text-[#e3e3e3] hover:bg-[#2d2e30] rounded-xl transition-all duration-200 font-medium"
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={(e) => handleNavClick(e, item)}
+                  className="px-4 py-3 text-[14px] text-[#9aa0a6] hover:text-[#e3e3e3] hover:bg-[#2d2e30] rounded-xl transition-all duration-200 font-medium cursor-pointer"
                 >
                   {item.name}
-                </Link>
+                </a>
               ))}
               <div className="flex gap-3 mt-4 px-4 pt-4 border-t border-[#3c3c3f]/50">
                 <Link
