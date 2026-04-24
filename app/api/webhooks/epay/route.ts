@@ -15,11 +15,8 @@ export async function POST(request: NextRequest) {
 
     console.log("[v0] 易支付回调数据:", data)
 
-    // 验证签名
-    const sign = data.sign
-    delete data.sign
-
-    if (!verifyEpaySign(data, sign)) {
+    // 验证签名（新函数会自动处理sign字段）
+    if (!verifyEpaySign(data)) {
       console.error("[v0] 易支付签名验证失败")
       return NextResponse.json({ status: "fail", msg: "签名验证失败" })
     }
