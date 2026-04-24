@@ -54,7 +54,7 @@ export async function createEpayOrder(options: {
     pid: epayConfig.pid,
     type: type, // wxpay: 微信支付, alipay: 支付宝
     out_trade_no: orderNo,
-    amount: amount.toFixed(2),
+    money: amount.toFixed(2), // 易支付使用 money 字段表示金额
     name: buyerName || "商品购买",
     notify_url: notifyUrl,
     return_url: options.returnUrl || `${process.env.NEXT_PUBLIC_BASE_URL}/order/${orderNo}`,
@@ -68,9 +68,31 @@ export async function createEpayOrder(options: {
     buyerName,
   })
 
-  params.sign = generateSign(params)
+  // 签名需要排除custom字段（易支付的要求）
+  const signParams = {
+    pid: params.pid,
+    type: params.type,
+    out_trade_no: params.out_trade_no,
+    money: params.money,
+    name: params.name,
+    notify_url: params.notify_url,
+    return_url: params.return_url,
+  }
+
+  params.sign = generateSign(signParams)
 
   // 构建支付 URL
-  const searchParams = new URLSearchParams(params)
+  const searchParams = new URLSearchParams()
+  // 按照易支付的要求添加参数顺序
+  searchParams.append("pid", params.pid)
+  searchParams.append("type", params.type)
+  searchParams.append("out_trade_no", params.out_trade_no)
+  searchParams.append("money", params.money)
+  searchParams.append("name", params.name)
+  searchParams.append("notify_url", params.notify_url)
+  searchParams.append("return_url", params.return_url)
+  searchParams.append("custom", params.custom)
+  searchParams.append("sign", params.sign)
+
   return `${epayConfig.apiUrl}submit.php?${searchParams.toString()}`
 }
