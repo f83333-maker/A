@@ -112,6 +112,13 @@ export async function createEpayOrder(options: {
   }
 
   params.sign = generateSign(signParams)
+  params.sign_type = "MD5"
+
+  // 调试日志
+  console.log("[v0] 易支付签名调试:")
+  console.log("[v0] signParams:", JSON.stringify(signParams, null, 2))
+  console.log("[v0] 签名字符串:", Object.keys(signParams).sort().map(k => `${k}=${signParams[k as keyof typeof signParams]}`).join("&") + epayConfig.key)
+  console.log("[v0] 生成的签名:", params.sign)
 
   // 构建支付 URL
   const searchParams = new URLSearchParams()
@@ -123,8 +130,8 @@ export async function createEpayOrder(options: {
   searchParams.append("name", params.name)
   searchParams.append("notify_url", params.notify_url)
   searchParams.append("return_url", params.return_url)
-  searchParams.append("custom", params.custom)
   searchParams.append("sign", params.sign)
+  searchParams.append("sign_type", params.sign_type)
 
   return `${epayConfig.apiUrl}submit.php?${searchParams.toString()}`
 }
