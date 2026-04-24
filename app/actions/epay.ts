@@ -5,15 +5,34 @@ import { createClient } from "@/lib/supabase/server"
 import crypto from "crypto"
 import { headers } from "next/headers"
 
-function getBaseUrl(): string {
+async function getBaseUrl(): Promise<string> {
   // 优先使用环境变量
   if (process.env.NEXT_PUBLIC_BASE_URL) {
     return process.env.NEXT_PUBLIC_BASE_URL
   }
+  
+  // 从请求头获取主机名
+  try {
+    const headersList = await headers()
+    const host = headersList.get("host")
+    const protocol = headersList.get("x-forwarded-proto") || "https"
+    if (host) {
+      return `${protocol}://${host}`
+    }
+  } catch (e) {
+    // 忽略错误
+  }
+  
+  // Vercel 生产部署环境
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  }
+  
   // Vercel 部署环境
   if (process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL}`
   }
+  
   // 本地开发
   return "http://localhost:3000"
 }
@@ -77,8 +96,8 @@ export async function createEpayCheckout(options: {
       throw new Error("创建订单失败")
     }
 
-    // 获取回调 URL
-    const baseUrl = getBaseUrl()
+    // 获取回调 URL - 使用请求头中的主机名
+    const baseUrl = await getBaseUrl()
     const notifyUrl = `${baseUrl}/api/webhooks/epay`
     const returnUrl = `${baseUrl}/order/${orderNo}`
 
