@@ -115,6 +115,19 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* 全站禁止选择和复制 */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  /* 允许特定区域复制 - 添加 .selectable 类 */
+  .selectable,
+  .selectable * {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
   }
 }
 

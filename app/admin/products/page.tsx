@@ -25,6 +25,8 @@ interface Product {
   product_info: string
   usage_instructions: string
   logo_url: string
+  logo_data: string | null
+  logo_bg_color: string | null
   categories: { name: string } | null
 }
 
@@ -49,8 +51,12 @@ export default function ProductsPage() {
     product_info: "",
     usage_instructions: "",
     logo_url: "",
+    logo_data: "",
+    logo_bg_color: "#2d2e30",
   })
   const [isSaving, setIsSaving] = useState(false)
+  const [isFetchingLogo, setIsFetchingLogo] = useState(false)
+  const [logoPreview, setLogoPreview] = useState<string | null>(null)
 
   useEffect(() => {
     fetchData()
@@ -91,7 +97,10 @@ export default function ProductsPage() {
         product_info: product.product_info || "",
         usage_instructions: product.usage_instructions || "",
         logo_url: product.logo_url || "",
+        logo_data: product.logo_data || "",
+        logo_bg_color: product.logo_bg_color || "#2d2e30",
       })
+      setLogoPreview(product.logo_data || null)
     } else {
       setEditingProduct(null)
       setFormData({
@@ -109,7 +118,10 @@ export default function ProductsPage() {
         product_info: "",
         usage_instructions: "",
         logo_url: "",
+        logo_data: "",
+        logo_bg_color: "#2d2e30",
       })
+      setLogoPreview(null)
     }
     setIsModalOpen(true)
   }
@@ -332,15 +344,67 @@ export default function ProductsPage() {
                 <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
                   Logo网址 <span className="text-[#6e6e73]">（输入官网地址自动获取Logo）</span>
                 </label>
-                <input
-                  type="url"
-                  value={formData.logo_url}
-                  onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
-                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
-                  placeholder="如：https://v0.dev 或直接填写图片URL"
-                />
-                <p className="mt-1 text-[11px] text-[#6e6e73]">
-                  可填写官网地址（自动获取Favicon）或直接填写图片URL
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={formData.logo_url}
+                    onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
+                    className="flex-1 h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                    placeholder="如：baidu.com 或 v0.dev"
+                  />
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (!formData.logo_url) return
+                      setIsFetchingLogo(true)
+                      try {
+                        const res = await fetch('/api/fetch-logo', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ url: formData.logo_url })
+                        })
+                        const data = await res.json()
+                        if (data.logoBase64) {
+                          setFormData({ ...formData, logo_data: data.logoBase64, logo_url: data.normalizedUrl || formData.logo_url })
+                          setLogoPreview(data.logoBase64)
+                        } else if (data.logoUrl) {
+                          setFormData({ ...formData, logo_data: data.logoUrl, logo_url: data.normalizedUrl || formData.logo_url })
+                          setLogoPreview(data.logoUrl)
+                        }
+                      } catch (e) {
+                        console.error('获取Logo失败', e)
+                      } finally {
+                        setIsFetchingLogo(false)
+                      }
+                    }}
+                    disabled={isFetchingLogo || !formData.logo_url}
+                    className="px-4 h-11 bg-[#8ab4f8] hover:bg-[#aecbfa] text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[13px] disabled:bg-[#3c3c3f] disabled:text-[#6e6e73] disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    {isFetchingLogo ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                    获取Logo
+                  </button>
+                </div>
+                {logoPreview && (
+                  <div className="mt-3 flex items-center gap-4">
+                    <div 
+                      className="w-16 h-16 rounded-xl flex items-center justify-center overflow-hidden border border-[#3c3c3f]"
+                      style={{ backgroundColor: formData.logo_bg_color }}
+                    >
+                      <img src={logoPreview} alt="Logo预览" className="w-10 h-10 object-contain" />
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-[12px] font-medium text-[#9aa0a6] mb-1">背景色</label>
+                      <input
+                        type="color"
+                        value={formData.logo_bg_color}
+                        onChange={(e) => setFormData({ ...formData, logo_bg_color: e.target.value })}
+                        className="w-16 h-8 rounded cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                )}
+                <p className="mt-2 text-[11px] text-[#6e6e73]">
+                  输入网址后点击获取Logo，系统会自动获取网站图标
                 </p>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
