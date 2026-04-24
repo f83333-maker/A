@@ -10,18 +10,48 @@ export const epayConfig = {
 
 /**
  * 生成签名
+ * 易支付签名规则：
+ * 1. 将参数按照参数名ASCII码从小到大排序
+ * 2. 排除空值和sign、sign_type参数
+ * 3. 拼接成 key=value&key=value 格式
+ * 4. 在末尾拼接 &key=密钥
+ * 5. 进行MD5加密
  */
 export function generateSign(params: Record<string, any>): string {
-  const keys = Object.keys(params).sort()
-  const str = keys.map((k) => `${k}=${params[k]}`).join("&") + epayConfig.key
-  return crypto.createHash("md5").update(str).digest("hex")
+  // 过滤空值和sign、sign_type
+  const filteredParams: Record<string, string> = {}
+  for (const key of Object.keys(params)) {
+    if (params[key] !== "" && params[key] !== null && params[key] !== undefined && key !== "sign" && key !== "sign_type") {
+      filteredParams[key] = String(params[key])
+    }
+  }
+  
+  // 按ASCII码排序
+  const keys = Object.keys(filteredParams).sort()
+  
+  // 拼接字符串
+  const str = keys.map((k) => `${k}=${filteredParams[k]}`).join("&")
+  
+  // 在末尾拼接 &key=密钥
+  const signStr = str + "&key=" + epayConfig.key
+  
+  // MD5加密
+  return crypto.createHash("md5").update(signStr).digest("hex")
 }
 
 /**
  * 验证易支付回调签名
  */
-export function verifyEpaySign(params: Record<string, any>, sign: string): boolean {
-  const calculated = generateSign(params)
+export function verifyEpaySign(params: Record<string, any>): boolean {
+  const sign = params.sign
+  if (!sign) return false
+  
+  // 复制参数并移除sign字段用于验证
+  const verifyParams = { ...params }
+  delete verifyParams.sign
+  delete verifyParams.sign_type
+  
+  const calculated = generateSign(verifyParams)
   return calculated === sign
 }
 
