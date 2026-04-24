@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, Suspense } from "react"
 import { useParams, useSearchParams } from "next/navigation"
-import { CheckCircle, XCircle, Clock, Package, ArrowLeft, Lock, Loader2, Eye, EyeOff, RefreshCw } from "lucide-react"
+import { CheckCircle, XCircle, Clock, Package, ArrowLeft, Loader2, Eye, EyeOff, RefreshCw } from "lucide-react"
 import Link from "next/link"
 import { CopyButton } from "@/components/copy-button"
 
@@ -138,7 +138,6 @@ function OrderContent() {
       bgColor: "bg-[#fdd663]/10",
       borderColor: "border-[#fdd663]/30",
       text: "待支付",
-      description: "订单已创建，等待支付完成",
     },
     paid: {
       icon: CheckCircle,
@@ -146,7 +145,6 @@ function OrderContent() {
       bgColor: "bg-[#81c995]/10",
       borderColor: "border-[#81c995]/30",
       text: "已支付",
-      description: "支付成功，账号正在处理中",
     },
     delivered: {
       icon: Package,
@@ -154,7 +152,6 @@ function OrderContent() {
       bgColor: "bg-[#8ab4f8]/10",
       borderColor: "border-[#8ab4f8]/30",
       text: "已发放",
-      description: "账号已发放，请查收",
     },
     cancelled: {
       icon: XCircle,
@@ -162,7 +159,6 @@ function OrderContent() {
       bgColor: "bg-[#ee675c]/10",
       borderColor: "border-[#ee675c]/30",
       text: "已取消",
-      description: "订单已取消",
     },
     refunded: {
       icon: XCircle,
@@ -170,82 +166,11 @@ function OrderContent() {
       bgColor: "bg-[#9aa0a6]/10",
       borderColor: "border-[#9aa0a6]/30",
       text: "已退款",
-      description: "订单已退款",
     },
   }
 
   const status = statusConfig[order.status as keyof typeof statusConfig] || statusConfig.pending
   const StatusIcon = status.icon
-
-  // 需要密码验证但还未验证
-  if (order.query_password && !passwordVerified) {
-    return (
-      <div className="min-h-screen bg-[#131314] py-8 px-4">
-        <div className="max-w-md mx-auto">
-          <Link 
-            href="/"
-            className="inline-flex items-center gap-2 text-[14px] text-[#9aa0a6] hover:text-[#e3e3e3] mb-6 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            返回首页
-          </Link>
-
-          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] p-8">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-[#8ab4f8]/10 flex items-center justify-center">
-                <Lock className="w-8 h-8 text-[#8ab4f8]" />
-              </div>
-              <h1 className="text-xl font-semibold text-[#e3e3e3] mb-2">验证查询密码</h1>
-              <p className="text-[14px] text-[#9aa0a6]">请输入下单时设置的查询密码</p>
-            </div>
-
-            <div className="space-y-4">
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleVerifyPassword()}
-                  placeholder="请输入查询密码"
-                  className="w-full h-12 px-4 pr-12 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-[14px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9aa0a6] hover:text-[#e3e3e3]"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-
-              {passwordError && (
-                <p className="text-[13px] text-[#ee675c]">{passwordError}</p>
-              )}
-
-              <button
-                onClick={handleVerifyPassword}
-                disabled={verifying || !password.trim()}
-                className="w-full h-12 bg-[#8ab4f8] hover:bg-[#aecbfa] disabled:bg-[#3c3c3f] text-[#131314] disabled:text-[#6e6e73] font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
-              >
-                {verifying ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    验证中...
-                  </>
-                ) : (
-                  "验证密码"
-                )}
-              </button>
-            </div>
-
-            <p className="mt-6 text-center text-[12px] text-[#6e6e73]">
-              订单号: {order.order_no}
-            </p>
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="min-h-screen bg-[#131314] py-8 px-4">
@@ -258,22 +183,6 @@ function OrderContent() {
           <ArrowLeft className="w-4 h-4" />
           返回首页
         </Link>
-
-        {/* 状态卡片 */}
-        <div className={`${status.bgColor} ${status.borderColor} border rounded-2xl p-6 mb-6`}>
-          <div className="flex items-center gap-4">
-            <div 
-              className="w-14 h-14 rounded-2xl flex items-center justify-center"
-              style={{ backgroundColor: `${status.color}20` }}
-            >
-              <StatusIcon className="w-7 h-7" style={{ color: status.color }} />
-            </div>
-            <div>
-              <h1 className="text-[20px] font-semibold text-[#e3e3e3]">{status.text}</h1>
-              <p className="text-[14px] text-[#9aa0a6] mt-1">{status.description}</p>
-            </div>
-          </div>
-        </div>
 
         {/* 支付处理中提示 */}
         {order.status === "pending" && polling && (
@@ -300,50 +209,102 @@ function OrderContent() {
           </div>
         )}
 
-        {/* 订单信息 */}
+        {/* 订单信息卡片 */}
         <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] overflow-hidden mb-6">
-          <div className="px-6 py-4 border-b border-[#3c3c3f]">
-            <h2 className="text-[16px] font-semibold text-[#e3e3e3]">订单信息</h2>
+          {/* 状态栏 */}
+          <div className={`px-6 py-4 ${status.bgColor} border-b ${status.borderColor} flex items-center justify-between`}>
+            <div className="flex items-center gap-3">
+              <StatusIcon className="w-5 h-5" style={{ color: status.color }} />
+              <span className="text-[15px] font-semibold" style={{ color: status.color }}>{status.text}</span>
+            </div>
+            <span className="text-[13px] text-[#9aa0a6]">
+              {new Date(order.created_at).toLocaleString("zh-CN")}
+            </span>
           </div>
-          <div className="p-6 space-y-4">
-            <div className="flex justify-between">
-              <span className="text-[14px] text-[#9aa0a6]">订单号</span>
-              <span className="text-[14px] font-mono text-[#e3e3e3]">{order.order_no}</span>
+          
+          {/* 订单详情 */}
+          <div className="p-6">
+            <div className="grid grid-cols-2 gap-4 text-[14px]">
+              <div>
+                <span className="text-[#6e6e73]">订单号</span>
+                <p className="mt-1 font-mono text-[#e3e3e3]">{order.order_no}</p>
+              </div>
+              <div>
+                <span className="text-[#6e6e73]">购买产品</span>
+                <p className="mt-1 text-[#e3e3e3]">{order.product_name}</p>
+              </div>
+              <div>
+                <span className="text-[#6e6e73]">购买数量</span>
+                <p className="mt-1 text-[#e3e3e3]">{order.quantity} 件</p>
+              </div>
+              <div>
+                <span className="text-[#6e6e73]">单价</span>
+                <p className="mt-1 text-[#e3e3e3]">¥{order.unit_price}</p>
+              </div>
             </div>
-            <div className="flex justify-between">
-              <span className="text-[14px] text-[#9aa0a6]">产品名称</span>
-              <span className="text-[14px] text-[#e3e3e3]">{order.product_name}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-[14px] text-[#9aa0a6]">购买数量</span>
-              <span className="text-[14px] text-[#e3e3e3]">{order.quantity} 件</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-[14px] text-[#9aa0a6]">单价</span>
-              <span className="text-[14px] text-[#e3e3e3]">¥{order.unit_price}</span>
-            </div>
-            <div className="flex justify-between pt-4 border-t border-[#3c3c3f]">
-              <span className="text-[16px] font-medium text-[#e3e3e3]">总计</span>
-              <span className="text-[20px] font-bold text-[#8ab4f8]">¥{order.total_amount}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-[14px] text-[#9aa0a6]">创建时间</span>
-              <span className="text-[14px] text-[#e3e3e3]">
-                {new Date(order.created_at).toLocaleString("zh-CN")}
-              </span>
+            
+            {/* 总计 */}
+            <div className="mt-6 pt-4 border-t border-[#3c3c3f] flex items-center justify-between">
+              <span className="text-[15px] text-[#9aa0a6]">订单总计</span>
+              <span className="text-[22px] font-bold text-[#8ab4f8]">¥{order.total_amount}</span>
             </div>
           </div>
         </div>
 
-        {/* 账号信息（已发放时显示） */}
-        {order.status === "delivered" && order.delivered_content && (
+        {/* 查询密码输入区域 - 仅在需要验证且未验证时显示 */}
+        {order.query_password && !passwordVerified && order.status === "delivered" && (
+          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] overflow-hidden mb-6">
+            <div className="px-6 py-4 border-b border-[#3c3c3f]">
+              <h2 className="text-[15px] font-semibold text-[#e3e3e3]">验证查询密码</h2>
+              <p className="text-[13px] text-[#6e6e73] mt-1">请输入下单时设置的查询密码以查看账号信息</p>
+            </div>
+            <div className="p-6">
+              <div className="flex gap-3">
+                <div className="flex-1 relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleVerifyPassword()}
+                    placeholder="请输入查询密码"
+                    className="w-full h-11 px-4 pr-11 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-[14px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9aa0a6] hover:text-[#e3e3e3]"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+                <button
+                  onClick={handleVerifyPassword}
+                  disabled={verifying || !password.trim()}
+                  className="h-11 px-6 bg-[#8ab4f8] hover:bg-[#aecbfa] disabled:bg-[#3c3c3f] text-[#131314] disabled:text-[#6e6e73] font-semibold rounded-xl transition-colors flex items-center gap-2 shrink-0"
+                >
+                  {verifying ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    "验证"
+                  )}
+                </button>
+              </div>
+              {passwordError && (
+                <p className="mt-3 text-[13px] text-[#ee675c]">{passwordError}</p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* 账号信息 - 已发放且已验证密码（或无需密码）时显示 */}
+        {order.status === "delivered" && order.delivered_content && passwordVerified && (
           <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] overflow-hidden mb-6">
             <div className="px-6 py-4 border-b border-[#3c3c3f] flex items-center justify-between">
-              <h2 className="text-[16px] font-semibold text-[#e3e3e3]">账号信息</h2>
+              <h2 className="text-[15px] font-semibold text-[#e3e3e3]">账号信息</h2>
               <CopyButton content={order.delivered_content} />
             </div>
             <div className="p-6">
-              <div className="bg-[#2d2e30] rounded-xl p-4 font-mono text-[13px] text-[#81c995] whitespace-pre-wrap break-all">
+              <div className="bg-[#252627] rounded-xl p-4 font-mono text-[13px] text-[#81c995] whitespace-pre-wrap break-all leading-relaxed">
                 {order.delivered_content}
               </div>
               {order.delivered_at && (
@@ -355,11 +316,11 @@ function OrderContent() {
           </div>
         )}
 
-        {/* 使用说明（如果有的话） */}
-        {order.status === "delivered" && order.usage_instructions && (
+        {/* 使用说明 - 已发放且已验证密码时显示 */}
+        {order.status === "delivered" && order.usage_instructions && passwordVerified && (
           <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] overflow-hidden">
             <div className="px-6 py-4 border-b border-[#3c3c3f]">
-              <h2 className="text-[16px] font-semibold text-[#e3e3e3]">使用说明</h2>
+              <h2 className="text-[15px] font-semibold text-[#e3e3e3]">使用说明</h2>
             </div>
             <div className="p-6">
               <div 
@@ -369,7 +330,6 @@ function OrderContent() {
             </div>
           </div>
         )}
-
       </div>
     </div>
   )
