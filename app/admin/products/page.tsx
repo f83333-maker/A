@@ -23,6 +23,7 @@ interface Product {
   is_active: boolean
   category_id: string
   product_info: string
+  usage_instructions: string
   categories: { name: string } | null
 }
 
@@ -45,6 +46,7 @@ export default function ProductsPage() {
     is_active: true,
     category_id: "",
     product_info: "",
+    usage_instructions: "",
   })
   const [isSaving, setIsSaving] = useState(false)
 
@@ -85,6 +87,7 @@ export default function ProductsPage() {
         is_active: product.is_active,
         category_id: product.category_id,
         product_info: product.product_info || "",
+        usage_instructions: product.usage_instructions || "",
       })
     } else {
       setEditingProduct(null)
@@ -101,6 +104,7 @@ export default function ProductsPage() {
         is_active: true,
         category_id: categories[0]?.id || "",
         product_info: "",
+        usage_instructions: "",
       })
     }
     setIsModalOpen(true)
@@ -406,6 +410,21 @@ export default function ProductsPage() {
                   className="w-full px-4 py-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors resize-none"
                   placeholder="商品详细介绍..."
                 />
+              </div>
+              <div>
+                <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
+                  使用说明 <span className="text-[#6e6e73]">（支持HTML，可插入图片）</span>
+                </label>
+                <textarea
+                  value={formData.usage_instructions}
+                  onChange={(e) => setFormData({ ...formData, usage_instructions: e.target.value })}
+                  rows={6}
+                  className="w-full px-4 py-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors resize-none font-mono"
+                  placeholder="使用说明，支持HTML格式。例如：&#10;1. 登录账号&#10;2. 进入设置&#10;&#10;插入图片示例：&#10;<img src=&quot;https://example.com/image.png&quot; alt=&quot;说明图片&quot; />"
+                />
+                <p className="mt-2 text-[12px] text-[#6e6e73]">
+                  提示：可以使用 HTML 标签如 &lt;img&gt;、&lt;a&gt;、&lt;br&gt; 等来丰富说明内容
+                </p>
               </div>
               <div className="flex items-center gap-6">
                 <label className="flex items-center gap-2 cursor-pointer">
