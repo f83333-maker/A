@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { X, Copy, Check, Minus, Plus, Info, Zap, Loader2, Smartphone } from "lucide-react"
+import { X, Copy, Check, Minus, Plus, Info, Zap, Loader2, Smartphone, RefreshCw } from "lucide-react"
 import { createEpayCheckout } from "@/app/actions/epay"
 
 interface Product {
@@ -24,10 +24,22 @@ interface PurchaseModalProps {
   onClose: () => void
 }
 
+const CAPTCHA_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+
+function generateCaptcha(): string {
+  let result = ""
+  for (let i = 0; i < 4; i++) {
+    result += CAPTCHA_CHARS[Math.floor(Math.random() * CAPTCHA_CHARS.length)]
+  }
+  return result
+}
+
 export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) {
   const [quantity, setQuantity] = useState(1)
   const [contact, setContact] = useState("")
   const [queryPassword, setQueryPassword] = useState("")
+  const [captcha, setCaptcha] = useState(() => generateCaptcha())
+  const [captchaInput, setCaptchaInput] = useState("")
   const [copied, setCopied] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
@@ -39,6 +51,8 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
       setQuantity(1)
       setContact("")
       setQueryPassword("")
+      setCaptcha(generateCaptcha())
+      setCaptchaInput("")
       setCopied(false)
       setError("")
       setPaymentType("wxpay")
@@ -84,6 +98,12 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
     }
     if (!queryPassword.trim() || queryPassword.length < 6) {
       setError("请设置6位以上的查询密码")
+      return
+    }
+    if (captchaInput.toUpperCase() !== captcha) {
+      setError("验证码错误，请重新输入")
+      setCaptcha(generateCaptcha())
+      setCaptchaInput("")
       return
     }
 
@@ -198,6 +218,47 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
               </div>
             </div>
 
+            {/* 验证码 */}
+            <div className="flex items-start gap-3">
+              <span className="text-[13px] font-medium text-[#9aa0a6] w-20 shrink-0 pt-2">验证码:</span>
+              <div className="flex-1 flex items-center gap-2">
+                <input
+                  type="text"
+                  value={captchaInput}
+                  onChange={(e) => setCaptchaInput(e.target.value.toUpperCase())}
+                  placeholder="请输入验证码"
+                  maxLength={4}
+                  className="flex-1 h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors tracking-widest uppercase"
+                />
+                <div
+                  className="flex items-center justify-center h-10 px-4 rounded-lg bg-[#2d2e30] border border-[#3c3c3f] select-none min-w-[80px]"
+                  style={{ fontFamily: "monospace" }}
+                >
+                  {captcha.split("").map((char, i) => (
+                    <span
+                      key={i}
+                      className="text-[16px] font-bold tracking-widest"
+                      style={{
+                        color: ["#8ab4f8", "#81c995", "#f28b82", "#fdd663"][i % 4],
+                        transform: `rotate(${(Math.random() > 0.5 ? 1 : -1) * (5 + i * 3)}deg)`,
+                        display: "inline-block",
+                      }}
+                    >
+                      {char}
+                    </span>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setCaptcha(generateCaptcha()); setCaptchaInput("") }}
+                  className="h-10 w-10 flex items-center justify-center rounded-lg bg-[#2d2e30] border border-[#3c3c3f] text-[#9aa0a6] hover:text-[#e3e3e3] hover:bg-[#3c3c3f] transition-all"
+                  title="刷新验证码"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
             {/* 购买数量 */}
             <div className="flex items-center gap-3">
               <span className="text-[13px] font-medium text-[#9aa0a6] w-20 shrink-0">购买数量:</span>
@@ -303,7 +364,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
         <div className="p-4 border-t border-[#3c3c3f]/50 bg-[#1e1f20]">
           <button
             onClick={handlePurchase}
-            disabled={isLoading || !contact.trim() || !queryPassword.trim() || queryPassword.length < 6 || product.stock < 1}
+            disabled={isLoading || !contact.trim() || !queryPassword.trim() || queryPassword.length < 6 || captchaInput.length < 4 || product.stock < 1}
             className={`w-full py-3 font-semibold rounded-xl transition-all duration-200 text-[15px] flex items-center justify-center gap-2 ${
               paymentType === "wxpay" 
                 ? "bg-[#07c160] hover:bg-[#06ad56] text-white disabled:bg-[#3c3c3f]" 
