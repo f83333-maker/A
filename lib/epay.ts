@@ -14,7 +14,7 @@ export const epayConfig = {
  * 1. 将参数按照参数名ASCII码从小到大排序
  * 2. 排除空值和sign、sign_type参数
  * 3. 拼接成 key=value&key=value 格式
- * 4. 在末尾拼接 &key=密钥
+ * 4. 在末尾直接拼接密钥（不加&key=）
  * 5. 进行MD5加密
  */
 export function generateSign(params: Record<string, any>): string {
@@ -29,21 +29,14 @@ export function generateSign(params: Record<string, any>): string {
   // 按ASCII码排序
   const keys = Object.keys(filteredParams).sort()
   
-  // 拼接字符串
+  // 拼接字符串：key1=value1&key2=value2&...
   const str = keys.map((k) => `${k}=${filteredParams[k]}`).join("&")
   
-  // 在末尾拼接 &key=密钥
-  const signStr = str + "&key=" + epayConfig.key
+  // 在末尾直接拼接密钥（易支付标准格式）：str + 密钥
+  const signStr = str + epayConfig.key
   
   // MD5加密
   const sign = crypto.createHash("md5").update(signStr).digest("hex")
-  
-  // 调试日志
-  console.log("[v0] 易支付签名信息:")
-  console.log("[v0] 参数:", filteredParams)
-  console.log("[v0] 排序后的key:", keys)
-  console.log("[v0] 签名前字符串:", signStr)
-  console.log("[v0] 生成的签名:", sign)
   
   return sign
 }
@@ -89,49 +82,31 @@ export async function createEpayOrder(options: {
     type,
   } = options
 
-  const params: Record<string, any> = {
+  // 签名参数（必须的参数）
+  const signParams: Record<string, string> = {
     pid: epayConfig.pid,
-    type: type, // wxpay: 微信支付, alipay: 支付宝
+    type: type,
     out_trade_no: orderNo,
-    money: amount.toFixed(2), // 易支付使用 money 字段表示金额
-    name: buyerName || "商品购买",
     notify_url: notifyUrl,
     return_url: options.returnUrl || `${process.env.NEXT_PUBLIC_BASE_URL}/order/${orderNo}`,
+    name: buyerName || "商品购买",
+    money: amount.toFixed(2),
   }
 
-  // 添加自定义参数用于后续查询
-  params.custom = JSON.stringify({
-    productId,
-    quantity,
-    buyerEmail,
-    buyerName,
-  })
+  // 生成签名
+  const sign = generateSign(signParams)
 
-  // 签名需要排除custom字段（易支付的要求）
-  const signParams = {
-    pid: params.pid,
-    type: params.type,
-    out_trade_no: params.out_trade_no,
-    money: params.money,
-    name: params.name,
-    notify_url: params.notify_url,
-    return_url: params.return_url,
-  }
-
-  params.sign = generateSign(signParams)
-
-  // 构建支付 URL
+  // 构建支付 URL（使用表单提交方式更可靠）
   const searchParams = new URLSearchParams()
-  // 按照易支付的要求添加参数顺序
-  searchParams.append("pid", params.pid)
-  searchParams.append("type", params.type)
-  searchParams.append("out_trade_no", params.out_trade_no)
-  searchParams.append("money", params.money)
-  searchParams.append("name", params.name)
-  searchParams.append("notify_url", params.notify_url)
-  searchParams.append("return_url", params.return_url)
-  searchParams.append("custom", params.custom)
-  searchParams.append("sign", params.sign)
+  searchParams.append("pid", signParams.pid)
+  searchParams.append("type", signParams.type)
+  searchParams.append("out_trade_no", signParams.out_trade_no)
+  searchParams.append("notify_url", signParams.notify_url)
+  searchParams.append("return_url", signParams.return_url)
+  searchParams.append("name", signParams.name)
+  searchParams.append("money", signParams.money)
+  searchParams.append("sign", sign)
+  searchParams.append("sign_type", "MD5")
 
   return `${epayConfig.apiUrl}submit.php?${searchParams.toString()}`
 }
