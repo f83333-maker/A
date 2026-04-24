@@ -81,7 +81,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
   const totalPrice = (product.price * quantity).toFixed(2)
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(`${window.location.origin}/product/${product.id}`)
+    navigator.clipboard.writeText(`${window.location.origin}/#product-${product.id}`)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -158,10 +158,15 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
         {/* 可滚动内容区 */}
         <div className="overflow-y-auto flex-1 p-6">
           
-          {/* 商品标题 */}
-          <h2 className="text-[18px] font-semibold text-[#e3e3e3] pr-10 mb-4 leading-relaxed">
-            {product.name}
-          </h2>
+          {/* 商品标题 + 自动发货图标 */}
+          <div className="flex items-center gap-2 pr-10 mb-4">
+            <h2 className="text-[18px] font-semibold text-[#e3e3e3] leading-relaxed">
+              {product.name}
+            </h2>
+            <span className="inline-flex items-center justify-center w-5 h-5 bg-[#81c995]/15 rounded-md" title="自动发货">
+              <Zap className="w-3 h-3 text-[#81c995]" />
+            </span>
+          </div>
 
           {/* 复制链接 */}
           <button
@@ -180,15 +185,6 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
               <span className="text-[18px] font-semibold text-[#ee675c]">¥{product.price}</span>
             </div>
 
-            {/* 发货方式 */}
-            <div className="flex items-center gap-3">
-              <span className="text-[13px] font-semibold text-[#e3e3e3] w-20 shrink-0">发货方式:</span>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#81c995]/15 text-[#81c995] text-[13px] font-semibold rounded-md">
-                <Zap className="w-3 h-3" />
-                自动发货
-              </span>
-            </div>
-
             {/* 联系方式 + 查询密码 同行 */}
             <div className="flex items-start gap-2">
               <div className="flex-1 flex flex-col gap-1.5">
@@ -204,7 +200,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
               <div className="flex-1 flex flex-col gap-1.5">
                 <span className="text-[13px] font-semibold text-[#e3e3e3]">查询密码 <span className="text-[#f28b82] font-medium text-[12px]">（≥6位，请牢记）</span></span>
                 <input
-                  type="password"
+                  type="text"
                   value={queryPassword}
                   onChange={(e) => setQueryPassword(e.target.value)}
                   placeholder="设置6位以上密码"
@@ -387,6 +383,12 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
               </>
             )}
           </button>
+          {/* 免责声明 */}
+          <p className="mt-3 text-[11px] text-[#6e6e73] text-center leading-relaxed">
+            点击支付即表示您已阅读并同意本站
+            <span className="text-[#8ab4f8]">免责声明</span>
+            ：本店只提供账号用于出海学习与交流，如若用于其他任何非法用途与本店无关；本店不参与客户任何项目，也不教授任何软件使用方法；本店账号来源于正规海外资源，不涉及任何个人公民信息。
+          </p>
         </div>
       </div>
     </div>
