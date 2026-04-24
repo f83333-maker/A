@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, Suspense } from "react"
 import { useParams, useSearchParams } from "next/navigation"
-import { CheckCircle, XCircle, Clock, Package, ArrowLeft, Lock, Loader2, Eye, EyeOff } from "lucide-react"
+import { CheckCircle, XCircle, Clock, Package, ArrowLeft, Lock, Loader2, Eye, EyeOff, RefreshCw } from "lucide-react"
 import Link from "next/link"
 import { CopyButton } from "@/components/copy-button"
 
@@ -20,12 +20,11 @@ interface Order {
   query_password: string | null
 }
 
-export default function OrderPage() {
+function OrderContent() {
   const params = useParams()
   const searchParams = useSearchParams()
   const orderNo = params.orderNo as string
-  const success = searchParams.get("success")
-  const cancelled = searchParams.get("cancelled")
+  const tradeNo = searchParams.get("trade_no")
 
   const [order, setOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(true)
@@ -34,27 +33,51 @@ export default function OrderPage() {
   const [passwordError, setPasswordError] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [verifying, setVerifying] = useState(false)
+  const [polling, setPolling] = useState(false)
+
+  const fetchOrder = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/orders/${orderNo}`)
+      const data = await res.json()
+      if (data.order) {
+        setOrder(data.order)
+        // 如果订单没有设置密码，自动跳过验证
+        if (!data.order.query_password) {
+          setPasswordVerified(true)
+        }
+        return data.order
+      }
+    } catch (error) {
+      console.error("获取订单失败:", error)
+    }
+    return null
+  }, [orderNo])
 
   useEffect(() => {
-    async function fetchOrder() {
-      try {
-        const res = await fetch(`/api/orders/${orderNo}`)
-        const data = await res.json()
-        if (data.order) {
-          setOrder(data.order)
-          // 如果订单没有设置密码，自动跳过验证
-          if (!data.order.query_password) {
-            setPasswordVerified(true)
+    async function init() {
+      const orderData = await fetchOrder()
+      setLoading(false)
+      
+      // 如果从支付页面返回且订单是待支付状态，启动轮询
+      if (tradeNo && orderData?.status === "pending") {
+        setPolling(true)
+        let attempts = 0
+        const maxAttempts = 20 // 最多轮询20次（约40秒）
+        
+        const pollInterval = setInterval(async () => {
+          attempts++
+          const updated = await fetchOrder()
+          if (updated?.status !== "pending" || attempts >= maxAttempts) {
+            clearInterval(pollInterval)
+            setPolling(false)
           }
-        }
-      } catch (error) {
-        console.error("获取订单失败:", error)
-      } finally {
-        setLoading(false)
+        }, 2000) // 每2秒检查一次
+        
+        return () => clearInterval(pollInterval)
       }
     }
-    fetchOrder()
-  }, [orderNo])
+    init()
+  }, [orderNo, tradeNo, fetchOrder])
 
   const handleVerifyPassword = async () => {
     if (!password.trim()) {
@@ -251,12 +274,28 @@ export default function OrderPage() {
           </div>
         </div>
 
-        {/* 刚支付成功的提示 */}
-        {success === "true" && order.status === "pending" && (
+        {/* 支付处理中提示 */}
+        {order.status === "pending" && polling && (
+          <div className="bg-[#fdd663]/10 border border-[#fdd663]/30 rounded-xl p-4 mb-6 flex items-center gap-3">
+            <RefreshCw className="w-5 h-5 text-[#fdd663] animate-spin" />
+            <p className="text-[14px] text-[#fdd663]">
+              正在检查支付状态，请稍候...
+            </p>
+          </div>
+        )}
+
+        {/* 待支付但不在轮询状态 */}
+        {order.status === "pending" && !polling && tradeNo && (
           <div className="bg-[#fdd663]/10 border border-[#fdd663]/30 rounded-xl p-4 mb-6">
             <p className="text-[14px] text-[#fdd663]">
-              支付正在处理中，请稍后刷新页面查看订单状态...
+              如果已完成支付，请点击下方按钮刷新状态
             </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-2 px-4 py-2 bg-[#fdd663] text-[#131314] rounded-lg text-[13px] font-semibold hover:bg-[#fdd663]/80 transition-colors"
+            >
+              刷新订单状态
+            </button>
           </div>
         )}
 
@@ -315,18 +354,20 @@ export default function OrderPage() {
           </div>
         )}
 
-        {/* 取消提示 */}
-        {cancelled === "true" && (
-          <div className="mt-6 text-center">
-            <p className="text-[14px] text-[#9aa0a6]">
-              支付已取消。
-              <Link href="/" className="text-[#8ab4f8] hover:underline ml-1">
-                返回继续购物
-              </Link>
-            </p>
-          </div>
-        )}
       </div>
     </div>
+  )
+}
+
+// 使用 Suspense 包裹以支持 useSearchParams
+export default function OrderPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#131314] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#8ab4f8]" />
+      </div>
+    }>
+      <OrderContent />
+    </Suspense>
   )
 }
