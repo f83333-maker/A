@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, Suspense } from "react"
 import { useParams, useSearchParams } from "next/navigation"
-import { CheckCircle, XCircle, Clock, Package, ArrowLeft, Loader2, Eye, EyeOff, RefreshCw } from "lucide-react"
+import { CheckCircle, XCircle, Clock, Package, ArrowLeft, Loader2, RefreshCw } from "lucide-react"
 import Link from "next/link"
 import { CopyButton } from "@/components/copy-button"
 
@@ -32,7 +32,6 @@ function OrderContent() {
   const [password, setPassword] = useState("")
   const [passwordVerified, setPasswordVerified] = useState(false)
   const [passwordError, setPasswordError] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
   const [verifying, setVerifying] = useState(false)
   const [polling, setPolling] = useState(false)
 
@@ -260,22 +259,15 @@ function OrderContent() {
             </div>
             <div className="p-6">
               <div className="flex gap-3">
-                <div className="flex-1 relative">
+                <div className="flex-1">
                   <input
-                    type={showPassword ? "text" : "password"}
+                    type="text"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleVerifyPassword()}
                     placeholder="请输入查询密码"
-                    className="w-full h-11 px-4 pr-11 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-[14px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-[14px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9aa0a6] hover:text-[#e3e3e3]"
-                  >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
                 </div>
                 <button
                   onClick={handleVerifyPassword}
