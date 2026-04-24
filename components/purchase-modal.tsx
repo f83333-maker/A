@@ -176,14 +176,14 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
           <div className="space-y-4 mb-6">
             {/* 价格 */}
             <div className="flex items-center gap-3">
-              <span className="text-[13px] font-medium text-[#9aa0a6] w-20 shrink-0">商品单价:</span>
+              <span className="text-[13px] font-semibold text-[#e3e3e3] w-20 shrink-0">商品单价:</span>
               <span className="text-[18px] font-semibold text-[#ee675c]">¥{product.price}</span>
             </div>
 
             {/* 发货方式 */}
             <div className="flex items-center gap-3">
-              <span className="text-[13px] font-medium text-[#9aa0a6] w-20 shrink-0">发货方式:</span>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#81c995]/15 text-[#81c995] text-[12px] font-semibold rounded-md">
+              <span className="text-[13px] font-semibold text-[#e3e3e3] w-20 shrink-0">发货方式:</span>
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#81c995]/15 text-[#81c995] text-[13px] font-semibold rounded-md">
                 <Zap className="w-3 h-3" />
                 自动发货
               </span>
@@ -191,32 +191,32 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
 
             {/* 联系方式 + 查询密码 同行 */}
             <div className="flex items-start gap-2">
-              <div className="flex-1 flex flex-col gap-1">
-                <span className="text-[11px] font-medium text-[#9aa0a6]">联系方式</span>
+              <div className="flex-1 flex flex-col gap-1.5">
+                <span className="text-[13px] font-semibold text-[#e3e3e3]">联系方式</span>
                 <input
                   type="text"
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
                   placeholder="邮箱或联系方式"
-                  className="w-full h-7 px-2.5 bg-[#2d2e30] border border-[#3c3c3f] rounded-md text-[#e3e3e3] placeholder-[#6e6e73] text-[12px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                  className="w-full h-7 px-2.5 bg-[#2d2e30] border border-[#3c3c3f] rounded-md text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
                 />
               </div>
-              <div className="flex-1 flex flex-col gap-1">
-                <span className="text-[11px] font-medium text-[#9aa0a6]">查询密码 <span className="text-[#f28b82]">（≥6位，请牢记）</span></span>
+              <div className="flex-1 flex flex-col gap-1.5">
+                <span className="text-[13px] font-semibold text-[#e3e3e3]">查询密码 <span className="text-[#f28b82] font-medium text-[12px]">（≥6位，请牢记）</span></span>
                 <input
                   type="password"
                   value={queryPassword}
                   onChange={(e) => setQueryPassword(e.target.value)}
                   placeholder="设置6位以上密码"
                   minLength={6}
-                  className="w-full h-7 px-2.5 bg-[#2d2e30] border border-[#3c3c3f] rounded-md text-[#e3e3e3] placeholder-[#6e6e73] text-[12px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                  className="w-full h-7 px-2.5 bg-[#2d2e30] border border-[#3c3c3f] rounded-md text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
                 />
               </div>
             </div>
 
             {/* 验证码 */}
             <div className="flex items-start gap-3">
-              <span className="text-[12px] font-medium text-[#9aa0a6] w-16 shrink-0 pt-2">验证码:</span>
+              <span className="text-[13px] font-semibold text-[#e3e3e3] w-20 shrink-0 pt-2">验证码:</span>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <input
@@ -225,7 +225,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
                     onChange={(e) => { setCaptchaInput(e.target.value.toUpperCase()); setCaptchaError("") }}
                     placeholder="输入右侧验证码"
                     maxLength={4}
-                    className="flex-1 h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-md text-[#e3e3e3] placeholder-[#6e6e73] text-[14px] focus:outline-none focus:border-[#8ab4f8] transition-colors tracking-[0.3em] uppercase"
+                    className="flex-1 h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-md text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] focus:outline-none focus:border-[#8ab4f8] transition-colors tracking-[0.3em] uppercase"
                   />
                   {/* 验证码图形 - 放大版 */}
                   <div
@@ -266,7 +266,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
 
             {/* 购买数量 */}
             <div className="flex items-center gap-3">
-              <span className="text-[12px] font-medium text-[#9aa0a6] w-16 shrink-0">购买数量:</span>
+              <span className="text-[13px] font-semibold text-[#e3e3e3] w-20 shrink-0">购买数量:</span>
               <div className="flex items-center gap-2">
                 <div className="flex items-center border border-[#3c3c3f] rounded-md overflow-hidden">
                   <button
@@ -283,7 +283,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
                       const val = parseInt(e.target.value) || 1
                       if (val >= 1 && val <= product.stock) setQuantity(val)
                     }}
-                    className="w-10 h-7 text-center bg-[#1e1f20] border-x border-[#3c3c3f] text-[#e3e3e3] text-[12px] font-semibold focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-10 h-7 text-center bg-[#1e1f20] border-x border-[#3c3c3f] text-[#e3e3e3] text-[13px] font-semibold focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                   <button
                     onClick={() => handleQuantityChange(1)}
@@ -293,16 +293,16 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
                     <Plus className="w-3 h-3" />
                   </button>
                 </div>
-                <span className="text-[12px]">
-                  <span className="text-[#6e6e73]">库存: </span>
-                  <span className="text-[#8ab4f8]">{product.stock}</span>
+                <span className="text-[13px]">
+                  <span className="text-[#9aa0a6]">库存: </span>
+                  <span className="text-[#8ab4f8] font-semibold">{product.stock}</span>
                 </span>
               </div>
             </div>
 
             {/* 订单金额 */}
             <div className="flex items-center gap-3 pt-2 border-t border-[#3c3c3f]/50">
-              <span className="text-[13px] font-medium text-[#9aa0a6] w-20 shrink-0">订单金额:</span>
+              <span className="text-[13px] font-semibold text-[#e3e3e3] w-20 shrink-0">订单金额:</span>
               <span className="text-[22px] font-semibold text-[#ee675c]">¥{totalPrice}</span>
             </div>
           </div>
