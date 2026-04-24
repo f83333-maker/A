@@ -208,8 +208,8 @@ function OrderContent() {
           </div>
         )}
 
-        {/* 订单信息卡片 */}
-        <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] overflow-hidden mb-6">
+        {/* 订单信息卡片 - 可复制区域 */}
+        <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] overflow-hidden mb-6 selectable">
           {/* 状态栏 */}
           <div className={`px-6 py-4 ${status.bgColor} border-b ${status.borderColor} flex items-center justify-between`}>
             <div className="flex items-center gap-3">
@@ -288,9 +288,9 @@ function OrderContent() {
           </div>
         )}
 
-        {/* 账号信息 - 已发放且已验证密码（或无需密码）时显示 */}
+        {/* 账号信息 - 已发放且已验证密码（或无需密码）时显示 - 可复制区域 */}
         {order.status === "delivered" && order.delivered_content && passwordVerified && (
-          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] overflow-hidden mb-6">
+          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] overflow-hidden mb-6 selectable">
             <div className="px-6 py-4 border-b border-[#3c3c3f] flex items-center justify-between">
               <h2 className="text-[15px] font-semibold text-[#e3e3e3]">账号信息</h2>
               <CopyButton content={order.delivered_content} />
@@ -308,9 +308,9 @@ function OrderContent() {
           </div>
         )}
 
-        {/* 使用说明 - 已发放且已验证密码时显示 */}
+        {/* 使用说明 - 已发放且已验证密码时显示 - 可复制区域 */}
         {order.status === "delivered" && order.usage_instructions && passwordVerified && (
-          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] overflow-hidden">
+          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] overflow-hidden selectable">
             <div className="px-6 py-4 border-b border-[#3c3c3f]">
               <h2 className="text-[15px] font-semibold text-[#e3e3e3]">使用说明</h2>
             </div>

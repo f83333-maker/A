@@ -171,7 +171,7 @@ export default function OrderQueryPage() {
           </div>
 
           {order && !needPassword && (
-            <div className="bg-[#1e1f20] rounded-xl border border-[#3c3c3f] overflow-hidden">
+            <div className="bg-[#1e1f20] rounded-xl border border-[#3c3c3f] overflow-hidden selectable">
               <div className="p-6 border-b border-[#3c3c3f]">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-semibold text-[#e3e3e3]">{order.product_name}</h2>

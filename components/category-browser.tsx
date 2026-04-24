@@ -27,6 +27,8 @@ interface Product {
   is_hot: boolean
   category_id: string
   logo_url: string | null
+  logo_data: string | null
+  logo_bg_color: string | null
   categories: {
     name: string
     icon: string
@@ -260,20 +262,24 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                       </div>
 
                       <div className="p-4">
-                        {/* 产品图区 */}
-                        <div className="w-full h-24 mb-4 rounded-xl bg-[#2d2e30] flex items-center justify-center group-hover:bg-[#3c3c3f] transition-colors duration-300 overflow-hidden">
-                          {product.logo_url ? (
+                        {/* 产品图区 - 使用数据库中的logo_data和背景色 */}
+                        <div 
+                          className="w-full h-24 mb-4 rounded-xl flex items-center justify-center transition-all duration-300 overflow-hidden"
+                          style={{ backgroundColor: product.logo_data ? (product.logo_bg_color || '#2d2e30') : '#2d2e30' }}
+                        >
+                          {product.logo_data ? (
                             <img 
-                              src={product.logo_url.startsWith('http') && !product.logo_url.match(/\.(png|jpg|jpeg|gif|svg|ico|webp)$/i) 
-                                ? `https://www.google.com/s2/favicons?domain=${new URL(product.logo_url).hostname}&sz=128`
-                                : product.logo_url
-                              }
+                              src={product.logo_data}
                               alt={product.name}
-                              className="w-16 h-16 object-contain transition-transform duration-300 group-hover:scale-110"
+                              className="w-12 h-12 object-contain transition-transform duration-300 group-hover:scale-110"
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement
                                 target.style.display = 'none'
-                                target.parentElement!.innerHTML = `<span class="text-[38px]">${categoryIcon}</span>`
+                                const parent = target.parentElement
+                                if (parent) {
+                                  parent.style.backgroundColor = '#2d2e30'
+                                  parent.innerHTML = `<span class="text-[38px]">${categoryIcon}</span>`
+                                }
                               }}
                             />
                           ) : (
