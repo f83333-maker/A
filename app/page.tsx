@@ -12,12 +12,14 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("")
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div id="top" className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
         <SearchBanner searchQuery={searchQuery} onSearch={setSearchQuery} />
         <Features />
-        <CategoryBrowser searchQuery={searchQuery} />
+        <div id="categories">
+          <CategoryBrowser searchQuery={searchQuery} />
+        </div>
         <Announcement />
       </main>
       <Footer />
