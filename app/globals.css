@@ -54,8 +54,8 @@
 
 
 @theme inline {
-  --font-sans: 'Google Sans', 'Product Sans', 'Inter', system-ui, sans-serif;
-  --font-mono: 'Google Sans Mono', 'Roboto Mono', monospace;
+  --font-sans: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-mono: 'Roboto Mono', monospace;
   --color-google-blue: var(--google-blue);
   --color-google-green: var(--google-green);
   --color-google-yellow: var(--google-yellow);

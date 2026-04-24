@@ -1,12 +1,12 @@
 import type { Metadata } from 'next'
-import { Inter, Roboto_Mono } from 'next/font/google'
+import { Noto_Sans_SC, Roboto_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
-const inter = Inter({ 
+const notoSansSC = Noto_Sans_SC({ 
   subsets: ["latin"], 
   variable: "--font-sans",
-  weight: ["300", "400", "500", "600", "700"]
+  weight: ["300", "400", "500", "700"]
 });
 const robotoMono = Roboto_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
@@ -26,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="zh-CN" className={`${inter.variable} ${robotoMono.variable} bg-background`}>
+    <html lang="zh-CN" className={`${notoSansSC.variable} ${robotoMono.variable} bg-background`}>
       <body className="font-sans antialiased min-h-screen">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
