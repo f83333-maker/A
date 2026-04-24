@@ -36,7 +36,16 @@ export function generateSign(params: Record<string, any>): string {
   const signStr = str + "&key=" + epayConfig.key
   
   // MD5加密
-  return crypto.createHash("md5").update(signStr).digest("hex")
+  const sign = crypto.createHash("md5").update(signStr).digest("hex")
+  
+  // 调试日志
+  console.log("[v0] 易支付签名信息:")
+  console.log("[v0] 参数:", filteredParams)
+  console.log("[v0] 排序后的key:", keys)
+  console.log("[v0] 签名前字符串:", signStr)
+  console.log("[v0] 生成的签名:", sign)
+  
+  return sign
 }
 
 /**
