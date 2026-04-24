@@ -1,34 +1,110 @@
-import { createClient } from "@/lib/supabase/server"
-import { notFound } from "next/navigation"
-import { CheckCircle, XCircle, Clock, Package, ArrowLeft } from "lucide-react"
+"use client"
+
+import { useState, useEffect } from "react"
+import { useParams, useSearchParams } from "next/navigation"
+import { CheckCircle, XCircle, Clock, Package, ArrowLeft, Lock, Loader2, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
 import { CopyButton } from "@/components/copy-button"
 
-interface OrderPageProps {
-  params: Promise<{ orderNo: string }>
-  searchParams: Promise<{ success?: string; cancelled?: string }>
+interface Order {
+  id: string
+  order_no: string
+  product_name: string
+  quantity: number
+  unit_price: number
+  total_amount: number
+  status: string
+  delivered_content: string | null
+  delivered_at: string | null
+  created_at: string
+  query_password: string | null
 }
 
-async function getOrder(orderNo: string) {
-  const supabase = await createClient()
-  
-  const { data: order } = await supabase
-    .from("orders")
-    .select("*")
-    .eq("order_no", orderNo)
-    .single()
-  
-  return order
-}
+export default function OrderPage() {
+  const params = useParams()
+  const searchParams = useSearchParams()
+  const orderNo = params.orderNo as string
+  const success = searchParams.get("success")
+  const cancelled = searchParams.get("cancelled")
 
-export default async function OrderPage({ params, searchParams }: OrderPageProps) {
-  const { orderNo } = await params
-  const { success, cancelled } = await searchParams
-  
-  const order = await getOrder(orderNo)
-  
+  const [order, setOrder] = useState<Order | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [password, setPassword] = useState("")
+  const [passwordVerified, setPasswordVerified] = useState(false)
+  const [passwordError, setPasswordError] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [verifying, setVerifying] = useState(false)
+
+  useEffect(() => {
+    async function fetchOrder() {
+      try {
+        const res = await fetch(`/api/orders/${orderNo}`)
+        const data = await res.json()
+        if (data.order) {
+          setOrder(data.order)
+          // 如果订单没有设置密码，自动跳过验证
+          if (!data.order.query_password) {
+            setPasswordVerified(true)
+          }
+        }
+      } catch (error) {
+        console.error("获取订单失败:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchOrder()
+  }, [orderNo])
+
+  const handleVerifyPassword = async () => {
+    if (!password.trim()) {
+      setPasswordError("请输入查询密码")
+      return
+    }
+
+    setVerifying(true)
+    setPasswordError("")
+
+    try {
+      const res = await fetch(`/api/orders/${orderNo}/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      })
+      const data = await res.json()
+
+      if (data.success && data.order) {
+        setOrder(data.order)
+        setPasswordVerified(true)
+      } else {
+        setPasswordError(data.error || "密码错误")
+      }
+    } catch (error) {
+      setPasswordError("验证失败，请重试")
+    } finally {
+      setVerifying(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#131314] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#8ab4f8]" />
+      </div>
+    )
+  }
+
   if (!order) {
-    notFound()
+    return (
+      <div className="min-h-screen bg-[#131314] py-8 px-4">
+        <div className="max-w-2xl mx-auto text-center py-20">
+          <XCircle className="w-16 h-16 mx-auto text-[#ee675c] mb-4" />
+          <h1 className="text-xl font-semibold text-[#e3e3e3] mb-2">订单不存在</h1>
+          <p className="text-[#9aa0a6] mb-6">请检查订单号是否正确</p>
+          <Link href="/" className="text-[#8ab4f8] hover:underline">返回首页</Link>
+        </div>
+      </div>
+    )
   }
 
   const statusConfig = {
@@ -76,6 +152,76 @@ export default async function OrderPage({ params, searchParams }: OrderPageProps
 
   const status = statusConfig[order.status as keyof typeof statusConfig] || statusConfig.pending
   const StatusIcon = status.icon
+
+  // 需要密码验证但还未验证
+  if (order.query_password && !passwordVerified) {
+    return (
+      <div className="min-h-screen bg-[#131314] py-8 px-4">
+        <div className="max-w-md mx-auto">
+          <Link 
+            href="/"
+            className="inline-flex items-center gap-2 text-[14px] text-[#9aa0a6] hover:text-[#e3e3e3] mb-6 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            返回首页
+          </Link>
+
+          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] p-8">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-[#8ab4f8]/10 flex items-center justify-center">
+                <Lock className="w-8 h-8 text-[#8ab4f8]" />
+              </div>
+              <h1 className="text-xl font-semibold text-[#e3e3e3] mb-2">验证查询密码</h1>
+              <p className="text-[14px] text-[#9aa0a6]">请输入下单时设置的查询密码</p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleVerifyPassword()}
+                  placeholder="请输入查询密码"
+                  className="w-full h-12 px-4 pr-12 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-[14px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9aa0a6] hover:text-[#e3e3e3]"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+
+              {passwordError && (
+                <p className="text-[13px] text-[#ee675c]">{passwordError}</p>
+              )}
+
+              <button
+                onClick={handleVerifyPassword}
+                disabled={verifying || !password.trim()}
+                className="w-full h-12 bg-[#8ab4f8] hover:bg-[#aecbfa] disabled:bg-[#3c3c3f] text-[#131314] disabled:text-[#6e6e73] font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
+              >
+                {verifying ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    验证中...
+                  </>
+                ) : (
+                  "验证密码"
+                )}
+              </button>
+            </div>
+
+            <p className="mt-6 text-center text-[12px] text-[#6e6e73]">
+              订单号: {order.order_no}
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-[#131314] py-8 px-4">
@@ -134,11 +280,11 @@ export default async function OrderPage({ params, searchParams }: OrderPageProps
             </div>
             <div className="flex justify-between">
               <span className="text-[14px] text-[#9aa0a6]">单价</span>
-              <span className="text-[14px] text-[#e3e3e3]">${order.unit_price}</span>
+              <span className="text-[14px] text-[#e3e3e3]">¥{order.unit_price}</span>
             </div>
             <div className="flex justify-between pt-4 border-t border-[#3c3c3f]">
               <span className="text-[16px] font-medium text-[#e3e3e3]">总计</span>
-              <span className="text-[20px] font-bold text-[#8ab4f8]">${order.total_amount}</span>
+              <span className="text-[20px] font-bold text-[#8ab4f8]">¥{order.total_amount}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-[14px] text-[#9aa0a6]">创建时间</span>
@@ -160,9 +306,11 @@ export default async function OrderPage({ params, searchParams }: OrderPageProps
               <div className="bg-[#2d2e30] rounded-xl p-4 font-mono text-[13px] text-[#81c995] whitespace-pre-wrap break-all">
                 {order.delivered_content}
               </div>
-              <p className="mt-4 text-[12px] text-[#6e6e73]">
-                发放时间: {new Date(order.delivered_at).toLocaleString("zh-CN")}
-              </p>
+              {order.delivered_at && (
+                <p className="mt-4 text-[12px] text-[#6e6e73]">
+                  发放时间: {new Date(order.delivered_at).toLocaleString("zh-CN")}
+                </p>
+              )}
             </div>
           </div>
         )}
@@ -182,5 +330,3 @@ export default async function OrderPage({ params, searchParams }: OrderPageProps
     </div>
   )
 }
-
-

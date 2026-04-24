@@ -27,6 +27,7 @@ interface PurchaseModalProps {
 export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) {
   const [quantity, setQuantity] = useState(1)
   const [contact, setContact] = useState("")
+  const [queryPassword, setQueryPassword] = useState("")
   const [copied, setCopied] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
@@ -37,6 +38,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
     if (isOpen) {
       setQuantity(1)
       setContact("")
+      setQueryPassword("")
       setCopied(false)
       setError("")
       setPaymentType("wxpay")
@@ -80,6 +82,10 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
       setError("请填写联系方式")
       return
     }
+    if (!queryPassword.trim() || queryPassword.length < 6) {
+      setError("请设置6位以上的查询密码")
+      return
+    }
 
     setIsLoading(true)
     setError("")
@@ -91,6 +97,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
         buyerEmail: contact,
         buyerName: contact,
         paymentType,
+        queryPassword,
       })
 
       if (result.success && result.url) {
@@ -170,8 +177,23 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
                   placeholder="请输入您的邮箱或联系方式"
                   className="w-full h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
                 />
-                <p className="mt-2 text-[12px] font-medium text-[#81c995] leading-relaxed">
-                  联系方式用于查询订单，支付后将收到订单号
+              </div>
+            </div>
+
+            {/* 查询密码 */}
+            <div className="flex items-start gap-3">
+              <span className="text-[13px] font-medium text-[#9aa0a6] w-20 shrink-0 pt-2">查询密码:</span>
+              <div className="flex-1">
+                <input
+                  type="password"
+                  value={queryPassword}
+                  onChange={(e) => setQueryPassword(e.target.value)}
+                  placeholder="请设置6位以上查询密码"
+                  minLength={6}
+                  className="w-full h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                />
+                <p className="mt-2 text-[12px] font-medium text-[#f28b82] leading-relaxed">
+                  重要：查询密码用于查询订单和提取货物，请牢记！
                 </p>
               </div>
             </div>
@@ -281,7 +303,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
         <div className="p-4 border-t border-[#3c3c3f]/50 bg-[#1e1f20]">
           <button
             onClick={handlePurchase}
-            disabled={isLoading || !contact.trim() || product.stock < 1}
+            disabled={isLoading || !contact.trim() || !queryPassword.trim() || queryPassword.length < 6 || product.stock < 1}
             className={`w-full py-3 font-semibold rounded-xl transition-all duration-200 text-[15px] flex items-center justify-center gap-2 ${
               paymentType === "wxpay" 
                 ? "bg-[#07c160] hover:bg-[#06ad56] text-white disabled:bg-[#3c3c3f]" 

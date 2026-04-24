@@ -10,8 +10,9 @@ export async function createEpayCheckout(options: {
   buyerEmail?: string
   buyerName?: string
   paymentType: "wxpay" | "alipay"
+  queryPassword?: string
 }) {
-  const { productId, quantity, buyerEmail, buyerName, paymentType } = options
+  const { productId, quantity, buyerEmail, buyerName, paymentType, queryPassword } = options
 
   try {
     const supabase = await createClient()
@@ -36,7 +37,11 @@ export async function createEpayCheckout(options: {
     const orderNo = `ORD${Date.now()}${Math.random().toString(36).substr(2, 9).toUpperCase()}`
     const totalAmount = (product.price * quantity)
 
-    // 创建订单记录
+    // 创建订单记录（包含查询密码的哈希）
+    const passwordHash = queryPassword 
+      ? crypto.createHash("sha256").update(queryPassword).digest("hex")
+      : null
+
     const { data: order, error: orderError } = await supabase
       .from("orders")
       .insert({
@@ -49,6 +54,7 @@ export async function createEpayCheckout(options: {
         buyer_email: buyerEmail,
         buyer_name: buyerName,
         status: "pending",
+        query_password: passwordHash,
       })
       .select()
       .single()

@@ -15,13 +15,15 @@ import {
   X,
   ChevronRight,
   Loader2,
-  ShoppingCart
+  ShoppingCart,
+  Boxes
 } from "lucide-react"
 
 const navItems = [
   { name: "仪表盘", href: "/admin", icon: LayoutDashboard },
   { name: "分类管理", href: "/admin/categories", icon: FolderTree },
   { name: "产品管理", href: "/admin/products", icon: Package },
+  { name: "库存管理", href: "/admin/inventory", icon: Boxes },
   { name: "订单管理", href: "/admin/orders", icon: ShoppingCart },
   { name: "公告管理", href: "/admin/announcements", icon: Megaphone },
   { name: "特性管理", href: "/admin/features", icon: Sparkles },
