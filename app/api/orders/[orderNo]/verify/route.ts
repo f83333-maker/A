@@ -34,12 +34,24 @@ export async function POST(
     return NextResponse.json({ success: false, error: "密码错误" })
   }
 
+  // 获取产品的使用说明
+  let usageInstructions = null
+  if (order.product_id) {
+    const { data: product } = await supabase
+      .from("products")
+      .select("usage_instructions")
+      .eq("id", order.product_id)
+      .single()
+    usageInstructions = product?.usage_instructions || null
+  }
+
   // 密码正确，返回完整订单信息
   return NextResponse.json({
     success: true,
     order: {
       ...order,
       query_password: "***",
+      usage_instructions: usageInstructions,
     }
   })
 }

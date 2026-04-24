@@ -18,6 +18,7 @@ interface Order {
   delivered_at: string | null
   created_at: string
   query_password: string | null
+  usage_instructions: string | null
 }
 
 function OrderContent() {
@@ -336,7 +337,7 @@ function OrderContent() {
 
         {/* 账号信息（已发放时显示） */}
         {order.status === "delivered" && order.delivered_content && (
-          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] overflow-hidden">
+          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] overflow-hidden mb-6">
             <div className="px-6 py-4 border-b border-[#3c3c3f] flex items-center justify-between">
               <h2 className="text-[16px] font-semibold text-[#e3e3e3]">账号信息</h2>
               <CopyButton content={order.delivered_content} />
@@ -350,6 +351,21 @@ function OrderContent() {
                   发放时间: {new Date(order.delivered_at).toLocaleString("zh-CN")}
                 </p>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* 使用说明（如果有的话） */}
+        {order.status === "delivered" && order.usage_instructions && (
+          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] overflow-hidden">
+            <div className="px-6 py-4 border-b border-[#3c3c3f]">
+              <h2 className="text-[16px] font-semibold text-[#e3e3e3]">使用说明</h2>
+            </div>
+            <div className="p-6">
+              <div 
+                className="prose prose-invert prose-sm max-w-none text-[#e3e3e3] [&_img]:rounded-xl [&_img]:max-w-full [&_img]:h-auto [&_a]:text-[#8ab4f8] [&_a:hover]:underline"
+                dangerouslySetInnerHTML={{ __html: order.usage_instructions }}
+              />
             </div>
           </div>
         )}

@@ -50,8 +50,18 @@ export async function createEpayCheckout(options: {
       throw new Error("库存不足")
     }
 
-    // 生成订单号
-    const orderNo = `ORD${Date.now()}${Math.random().toString(36).substr(2, 9).toUpperCase()}`
+    // 生成订单号：ZH + 年月日时分秒毫秒 + 3位随机字母数字
+    const now = new Date()
+    const dateStr = now.getFullYear().toString() +
+      String(now.getMonth() + 1).padStart(2, '0') +
+      String(now.getDate()).padStart(2, '0') +
+      String(now.getHours()).padStart(2, '0') +
+      String(now.getMinutes()).padStart(2, '0') +
+      String(now.getSeconds()).padStart(2, '0') +
+      String(now.getMilliseconds()).padStart(3, '0')
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+    const randomStr = Array.from({ length: 3 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+    const orderNo = `ZH${dateStr}${randomStr}`
     const totalAmount = (product.price * quantity)
 
     // 创建订单记录（包含查询密码的哈希）
