@@ -57,9 +57,9 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
       .catch(err => console.error("获取设置失败:", err))
   }, [])
 
-  // 重置状态
+  // 重置状态并记录商品浏览
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && product) {
       setQuantity(1)
       setContact("")
       setQueryPassword("")
@@ -69,8 +69,18 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
       setCopied(false)
       setError("")
       setPaymentType("wxpay")
+      
+      // 记录商品浏览
+      fetch("/api/visitor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          page: `/product/${product.id}`,
+          productId: String(product.id)
+        })
+      }).catch(() => {})
     }
-  }, [isOpen])
+  }, [isOpen, product])
 
   // 按 ESC 关闭
   useEffect(() => {

@@ -4,41 +4,62 @@ import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { 
   Users, 
-  TrendingUp, 
   ShoppingCart, 
   DollarSign, 
-  Loader2, 
-  Calendar,
+  Loader2,
   Eye,
-  Package
+  X,
+  Smartphone,
+  Monitor,
+  Package,
+  ExternalLink,
+  TrendingUp
 } from "lucide-react"
 
-interface DailyStats {
-  date: string
-  visitors: number
-  orders: number
-  revenue: number
+interface Visitor {
+  id: string
+  ip_address: string
+  ip_location: string | null
+  device_type: string | null
+  device_info: string | null
+  user_agent: string
+  page_url: string
+  viewed_products: string[] | null
+  order_no: string | null
+  visited_at: string
+  session_id: string | null
+}
+
+interface ProductInfo {
+  id: string
+  name: string
 }
 
 export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true)
-  const [dateRange, setDateRange] = useState<"7" | "30" | "90">("7")
   const [stats, setStats] = useState({
     todayVisitors: 0,
-    totalVisitors: 0,
     todayOrders: 0,
     todayRevenue: 0,
-    totalOrders: 0,
-    totalRevenue: 0,
+    todayProfit: 0,
   })
-  const [dailyStats, setDailyStats] = useState<DailyStats[]>([])
-  const [topPages, setTopPages] = useState<{ page: string; count: number }[]>([])
+  const [visitors, setVisitors] = useState<Visitor[]>([])
+  const [selectedVisitor, setSelectedVisitor] = useState<Visitor | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [products, setProducts] = useState<ProductInfo[]>([])
+  const [ipLocations, setIpLocations] = useState<Record<string, string>>({})
 
   const supabase = createClient()
 
   useEffect(() => {
     fetchAnalytics()
-  }, [dateRange])
+    fetchProducts()
+  }, [])
+
+  async function fetchProducts() {
+    const { data } = await supabase.from("products").select("id, name")
+    if (data) setProducts(data)
+  }
 
   async function fetchAnalytics() {
     setLoading(true)
@@ -54,98 +75,115 @@ export default function AnalyticsPage() {
       )
       todayStart.setTime(todayStart.getTime() - beijingOffset)
 
-      // 获取今日访客（去重）
-      const { data: todayVisitorData } = await supabase
-        .from("visitor_stats")
-        .select("ip_address")
-        .gte("visited_at", todayStart.toISOString())
-      
-      const todayUniqueIPs = new Set(todayVisitorData?.map(v => v.ip_address) || [])
-
-      // 获取范围内的访客数据
-      const daysAgo = parseInt(dateRange)
-      const rangeStart = new Date(todayStart.getTime() - daysAgo * 24 * 60 * 60 * 1000)
-
+      // 获取今日访客
       const { data: visitorData } = await supabase
         .from("visitor_stats")
-        .select("ip_address, page_url, visited_at")
-        .gte("visited_at", rangeStart.toISOString())
-
-      const totalUniqueIPs = new Set(visitorData?.map(v => v.ip_address) || [])
-
-      // 统计热门页面
-      const pageCount: Record<string, number> = {}
+        .select("*")
+        .gte("visited_at", todayStart.toISOString())
+        .order("visited_at", { ascending: true })
+      
+      // 去重计数（同一IP只算一次）
+      const uniqueVisitors: Visitor[] = []
+      const seenIPs = new Set<string>()
       visitorData?.forEach(v => {
-        const page = v.page_url || "/"
-        pageCount[page] = (pageCount[page] || 0) + 1
+        if (!seenIPs.has(v.ip_address)) {
+          seenIPs.add(v.ip_address)
+          uniqueVisitors.push(v)
+        }
       })
-      const topPagesArray = Object.entries(pageCount)
-        .map(([page, count]) => ({ page, count }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 5)
+
+      setVisitors(uniqueVisitors)
 
       // 获取今日订单
       const { data: todayOrderData } = await supabase
         .from("orders")
-        .select("total_amount, status")
+        .select("total_amount, status, quantity, unit_price")
+        .gte("created_at", todayStart.toISOString())
+        .in("status", ["paid", "delivered"])
+
+      // 获取产品成本价用于计算利润
+      const { data: productsData } = await supabase
+        .from("products")
+        .select("id, cost_price")
+
+      const costMap: Record<string, number> = {}
+      productsData?.forEach(p => {
+        costMap[p.id] = p.cost_price || 0
+      })
+
+      // 获取订单对应的产品ID
+      const { data: orderProductData } = await supabase
+        .from("orders")
+        .select("product_id, quantity, unit_price, total_amount")
         .gte("created_at", todayStart.toISOString())
         .in("status", ["paid", "delivered"])
 
       const todayOrders = todayOrderData?.length || 0
       const todayRevenue = todayOrderData?.reduce((sum, o) => sum + (o.total_amount || 0), 0) || 0
-
-      // 获取范围内的订单数据
-      const { data: orderData } = await supabase
-        .from("orders")
-        .select("total_amount, status, created_at")
-        .gte("created_at", rangeStart.toISOString())
-        .in("status", ["paid", "delivered"])
-
-      const totalOrders = orderData?.length || 0
-      const totalRevenue = orderData?.reduce((sum, o) => sum + (o.total_amount || 0), 0) || 0
-
-      // 计算每日统计
-      const dailyMap: Record<string, DailyStats> = {}
       
-      // 初始化每天
-      for (let i = 0; i < daysAgo; i++) {
-        const date = new Date(todayStart.getTime() - i * 24 * 60 * 60 * 1000)
-        const dateStr = date.toISOString().split("T")[0]
-        dailyMap[dateStr] = { date: dateStr, visitors: 0, orders: 0, revenue: 0 }
-      }
-
-      // 统计访客
-      visitorData?.forEach(v => {
-        const dateStr = new Date(v.visited_at).toISOString().split("T")[0]
-        if (dailyMap[dateStr]) {
-          dailyMap[dateStr].visitors++
-        }
-      })
-
-      // 统计订单
-      orderData?.forEach(o => {
-        const dateStr = new Date(o.created_at).toISOString().split("T")[0]
-        if (dailyMap[dateStr]) {
-          dailyMap[dateStr].orders++
-          dailyMap[dateStr].revenue += o.total_amount || 0
-        }
+      // 计算今日利润
+      let todayProfit = 0
+      orderProductData?.forEach(o => {
+        const cost = costMap[o.product_id] || 0
+        const profit = (o.unit_price - cost) * o.quantity
+        todayProfit += profit
       })
 
       setStats({
-        todayVisitors: todayUniqueIPs.size,
-        totalVisitors: totalUniqueIPs.size,
+        todayVisitors: uniqueVisitors.length,
         todayOrders,
         todayRevenue,
-        totalOrders,
-        totalRevenue,
+        todayProfit,
       })
-      setDailyStats(Object.values(dailyMap).sort((a, b) => a.date.localeCompare(b.date)))
-      setTopPages(topPagesArray)
+
+      // 解析IP地址位置（对于没有location的）
+      const ipsToResolve = uniqueVisitors
+        .filter(v => !v.ip_location || v.ip_location === "未知")
+        .map(v => v.ip_address)
+        .filter((ip, i, arr) => arr.indexOf(ip) === i)
+        .slice(0, 10) // 限制请求数量
+
+      const locationMap: Record<string, string> = {}
+      await Promise.all(
+        ipsToResolve.map(async (ip) => {
+          try {
+            const res = await fetch(`/api/ip-location?ip=${ip}`)
+            const data = await res.json()
+            locationMap[ip] = data.location || "未知"
+          } catch {
+            locationMap[ip] = "未知"
+          }
+        })
+      )
+      setIpLocations(locationMap)
+
     } catch (error) {
       console.error("获取统计失败:", error)
     } finally {
       setLoading(false)
     }
+  }
+
+  // 获取产品名称
+  function getProductName(productId: string): string {
+    const product = products.find(p => p.id === productId)
+    return product?.name || productId
+  }
+
+  // 获取设备图标
+  function getDeviceIcon(deviceType: string | null) {
+    if (!deviceType) return <Monitor className="w-4 h-4" />
+    const type = deviceType.toLowerCase()
+    if (type.includes("phone") || type.includes("iphone") || type.includes("android")) {
+      return <Smartphone className="w-4 h-4" />
+    }
+    return <Monitor className="w-4 h-4" />
+  }
+
+  // 打开访客详情弹窗
+  function openVisitorDetail(visitor: Visitor) {
+    setSelectedVisitor(visitor)
+    setIsModalOpen(true)
   }
 
   if (loading) {
@@ -159,38 +197,24 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-6">
       {/* 页面标题 */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-[24px] font-semibold text-[#e3e3e3]">数据统计</h1>
-          <p className="text-[14px] text-[#9aa0a6] mt-1 font-medium">
-            网站前端访问数据和销售统计
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-[#6e6e73]" />
-          <select
-            value={dateRange}
-            onChange={(e) => setDateRange(e.target.value as "7" | "30" | "90")}
-            className="px-3 py-2 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[13px] text-[#e3e3e3] focus:outline-none focus:border-[#8ab4f8]"
-          >
-            <option value="7">最近7天</option>
-            <option value="30">最近30天</option>
-            <option value="90">最近90天</option>
-          </select>
-        </div>
+      <div>
+        <h1 className="text-[24px] font-semibold text-[#e3e3e3]">数据统计</h1>
+        <p className="text-[14px] text-[#9aa0a6] mt-1 font-medium">
+          实时网站访问和销售数据
+        </p>
       </div>
 
-      {/* 今日数据 */}
+      {/* 今日数据仪表盘 */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-gradient-to-br from-[#c58af9]/20 to-[#c58af9]/5 rounded-xl border border-[#c58af9]/30 p-5">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 rounded-xl bg-[#c58af9]/20 flex items-center justify-center">
               <Users className="w-5 h-5 text-[#c58af9]" />
             </div>
-            <span className="text-[13px] text-[#9aa0a6] font-medium">今日访客</span>
+            <span className="text-[13px] text-[#9aa0a6] font-medium">访客数量</span>
           </div>
           <p className="text-[28px] font-bold text-[#c58af9]">{stats.todayVisitors}</p>
-          <p className="text-[11px] text-[#6e6e73] mt-1">独立IP，12小时去重</p>
+          <p className="text-[11px] text-[#6e6e73] mt-1">今日独立IP</p>
         </div>
 
         <div className="bg-gradient-to-br from-[#8ab4f8]/20 to-[#8ab4f8]/5 rounded-xl border border-[#8ab4f8]/30 p-5">
@@ -201,6 +225,7 @@ export default function AnalyticsPage() {
             <span className="text-[13px] text-[#9aa0a6] font-medium">今日订单</span>
           </div>
           <p className="text-[28px] font-bold text-[#8ab4f8]">{stats.todayOrders}</p>
+          <p className="text-[11px] text-[#6e6e73] mt-1">已支付订单</p>
         </div>
 
         <div className="bg-gradient-to-br from-[#81c995]/20 to-[#81c995]/5 rounded-xl border border-[#81c995]/30 p-5">
@@ -218,122 +243,183 @@ export default function AnalyticsPage() {
             <div className="w-10 h-10 rounded-xl bg-[#fdd663]/20 flex items-center justify-center">
               <TrendingUp className="w-5 h-5 text-[#fdd663]" />
             </div>
-            <span className="text-[13px] text-[#9aa0a6] font-medium">{dateRange}天销售额</span>
+            <span className="text-[13px] text-[#9aa0a6] font-medium">今日利润</span>
           </div>
-          <p className="text-[28px] font-bold text-[#fdd663]">¥{stats.totalRevenue.toFixed(2)}</p>
+          <p className="text-[28px] font-bold text-[#fdd663]">¥{stats.todayProfit.toFixed(2)}</p>
         </div>
       </div>
 
-      {/* 累计数据 */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-[#1e1f20] rounded-xl border border-[#3c3c3f] p-5">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-[#c58af9]/10 flex items-center justify-center">
-              <Eye className="w-6 h-6 text-[#c58af9]" />
-            </div>
-            <div>
-              <p className="text-[13px] text-[#6e6e73] font-medium">{dateRange}天总访客</p>
-              <p className="text-[24px] font-bold text-[#e3e3e3]">{stats.totalVisitors}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-[#1e1f20] rounded-xl border border-[#3c3c3f] p-5">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-[#8ab4f8]/10 flex items-center justify-center">
-              <Package className="w-6 h-6 text-[#8ab4f8]" />
-            </div>
-            <div>
-              <p className="text-[13px] text-[#6e6e73] font-medium">{dateRange}天总订单</p>
-              <p className="text-[24px] font-bold text-[#e3e3e3]">{stats.totalOrders}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-[#1e1f20] rounded-xl border border-[#3c3c3f] p-5">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-[#81c995]/10 flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-[#81c995]" />
-            </div>
-            <div>
-              <p className="text-[13px] text-[#6e6e73] font-medium">转化率</p>
-              <p className="text-[24px] font-bold text-[#e3e3e3]">
-                {stats.totalVisitors > 0 
-                  ? ((stats.totalOrders / stats.totalVisitors) * 100).toFixed(1) 
-                  : 0}%
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 每日趋势 */}
+      {/* 访客详情列表 */}
       <div className="bg-[#1e1f20] rounded-xl border border-[#3c3c3f] overflow-hidden">
-        <div className="px-5 py-4 border-b border-[#3c3c3f]">
-          <h2 className="text-[16px] font-semibold text-[#e3e3e3]">每日数据趋势</h2>
+        <div className="px-5 py-4 border-b border-[#3c3c3f] flex items-center justify-between">
+          <h2 className="text-[16px] font-semibold text-[#e3e3e3]">今日访客详情</h2>
+          <span className="text-[13px] text-[#6e6e73]">共 {visitors.length} 位访客</span>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-[#3c3c3f]">
-                <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">日期</th>
-                <th className="px-4 py-3 text-right text-[12px] font-semibold text-[#9aa0a6] uppercase">访客数</th>
-                <th className="px-4 py-3 text-right text-[12px] font-semibold text-[#9aa0a6] uppercase">订单数</th>
-                <th className="px-4 py-3 text-right text-[12px] font-semibold text-[#9aa0a6] uppercase">销售额</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#3c3c3f]">
-              {dailyStats.slice(-7).reverse().map((day) => (
-                <tr key={day.date} className="hover:bg-[#2d2e30]/50">
-                  <td className="px-4 py-3 text-[13px] text-[#e3e3e3]">{day.date}</td>
-                  <td className="px-4 py-3 text-[13px] text-[#c58af9] text-right">{day.visitors}</td>
-                  <td className="px-4 py-3 text-[13px] text-[#8ab4f8] text-right">{day.orders}</td>
-                  <td className="px-4 py-3 text-[13px] text-[#81c995] text-right">¥{day.revenue.toFixed(2)}</td>
+        
+        {visitors.length === 0 ? (
+          <div className="px-5 py-12 text-center">
+            <Users className="w-12 h-12 text-[#3c3c3f] mx-auto mb-3" />
+            <p className="text-[14px] text-[#6e6e73]">今日暂无访客</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-[#3c3c3f]">
+                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">访客编号</th>
+                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">IP地址</th>
+                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">设备</th>
+                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">访问时间</th>
+                  <th className="px-4 py-3 text-center text-[12px] font-semibold text-[#9aa0a6] uppercase">操作</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-[#3c3c3f]">
+                {visitors.map((visitor, index) => {
+                  const location = visitor.ip_location || ipLocations[visitor.ip_address] || "未知"
+                  return (
+                    <tr key={visitor.id} className="hover:bg-[#2d2e30]/50">
+                      <td className="px-4 py-3">
+                        <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#c58af9]/20 text-[#c58af9] font-bold text-[13px]">
+                          {index + 1}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div>
+                          <p className="text-[13px] font-mono text-[#e3e3e3]">{visitor.ip_address}</p>
+                          <p className="text-[11px] text-[#6e6e73] mt-0.5">{location}</p>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          {getDeviceIcon(visitor.device_type)}
+                          <span className="text-[13px] text-[#9aa0a6]">{visitor.device_type || "未知"}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-[13px] text-[#9aa0a6]">
+                        {new Date(visitor.visited_at).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <button
+                          onClick={() => openVisitorDetail(visitor)}
+                          className="px-3 py-1.5 bg-[#8ab4f8]/10 hover:bg-[#8ab4f8]/20 text-[#8ab4f8] rounded-lg text-[12px] font-medium transition-colors"
+                        >
+                          详情
+                        </button>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
-      {/* 热门页面 */}
-      <div className="bg-[#1e1f20] rounded-xl border border-[#3c3c3f] overflow-hidden">
-        <div className="px-5 py-4 border-b border-[#3c3c3f]">
-          <h2 className="text-[16px] font-semibold text-[#e3e3e3]">热门访问页面</h2>
-        </div>
-        <div className="divide-y divide-[#3c3c3f]">
-          {topPages.length === 0 ? (
-            <div className="px-5 py-8 text-center">
-              <p className="text-[14px] text-[#6e6e73]">暂无数据</p>
-            </div>
-          ) : (
-            topPages.map((page, index) => (
-              <div key={page.page} className="px-5 py-3 flex items-center gap-4">
-                <div 
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-[14px] ${
-                    index === 0 
-                      ? "bg-[#fdd663]/20 text-[#fdd663]" 
-                      : index === 1 
-                      ? "bg-[#9aa0a6]/20 text-[#9aa0a6]" 
-                      : index === 2 
-                      ? "bg-[#ee675c]/20 text-[#ee675c]" 
-                      : "bg-[#3c3c3f] text-[#6e6e73]"
-                  }`}
-                >
-                  {index + 1}
+      {/* 访客详情弹窗 */}
+      {isModalOpen && selectedVisitor && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] w-full max-w-lg max-h-[90vh] overflow-hidden">
+            {/* 弹窗头部 */}
+            <div className="px-6 py-4 border-b border-[#3c3c3f] flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#c58af9]/20 flex items-center justify-center">
+                  <Eye className="w-5 h-5 text-[#c58af9]" />
                 </div>
-                <div className="flex-1">
-                  <p className="text-[14px] font-mono text-[#e3e3e3]">{page.page}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-[14px] font-semibold text-[#c58af9]">{page.count}</p>
-                  <p className="text-[11px] text-[#6e6e73]">访问次数</p>
+                <div>
+                  <h3 className="text-[16px] font-semibold text-[#e3e3e3]">访客详情</h3>
+                  <p className="text-[12px] text-[#6e6e73]">
+                    编号 #{visitors.findIndex(v => v.id === selectedVisitor.id) + 1}
+                  </p>
                 </div>
               </div>
-            ))
-          )}
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="p-2 hover:bg-[#3c3c3f] rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-[#9aa0a6]" />
+              </button>
+            </div>
+
+            {/* 弹窗内容 */}
+            <div className="p-6 space-y-4 overflow-y-auto max-h-[calc(90vh-120px)]">
+              {/* 访客编号 */}
+              <div className="bg-[#2d2e30] rounded-xl p-4">
+                <label className="text-[12px] text-[#6e6e73] font-medium">访客编号</label>
+                <p className="text-[18px] font-bold text-[#c58af9] mt-1">
+                  #{visitors.findIndex(v => v.id === selectedVisitor.id) + 1}
+                </p>
+              </div>
+
+              {/* IP地址和位置 */}
+              <div className="bg-[#2d2e30] rounded-xl p-4">
+                <label className="text-[12px] text-[#6e6e73] font-medium">IP地址</label>
+                <p className="text-[15px] font-mono text-[#e3e3e3] mt-1">{selectedVisitor.ip_address}</p>
+                <p className="text-[13px] text-[#9aa0a6] mt-1">
+                  {selectedVisitor.ip_location || ipLocations[selectedVisitor.ip_address] || "未知"}
+                </p>
+              </div>
+
+              {/* 设备信息 */}
+              <div className="bg-[#2d2e30] rounded-xl p-4">
+                <label className="text-[12px] text-[#6e6e73] font-medium">访客设备</label>
+                <div className="flex items-center gap-3 mt-2">
+                  <div className="w-10 h-10 rounded-lg bg-[#8ab4f8]/10 flex items-center justify-center">
+                    {getDeviceIcon(selectedVisitor.device_type)}
+                  </div>
+                  <div>
+                    <p className="text-[14px] text-[#e3e3e3] font-medium">{selectedVisitor.device_type || "未知设备"}</p>
+                    <p className="text-[12px] text-[#6e6e73]">{selectedVisitor.device_info || "未知系统"}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 浏览的商品 */}
+              <div className="bg-[#2d2e30] rounded-xl p-4">
+                <label className="text-[12px] text-[#6e6e73] font-medium">浏览商品</label>
+                {selectedVisitor.viewed_products && selectedVisitor.viewed_products.length > 0 ? (
+                  <div className="mt-2 space-y-2">
+                    {selectedVisitor.viewed_products.map((productId, idx) => (
+                      <div key={idx} className="flex items-center gap-2 p-2 bg-[#1e1f20] rounded-lg">
+                        <Package className="w-4 h-4 text-[#81c995]" />
+                        <span className="text-[13px] text-[#e3e3e3]">{getProductName(productId)}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-[13px] text-[#6e6e73] mt-2">暂无浏览记录</p>
+                )}
+              </div>
+
+              {/* 订单信息 */}
+              {selectedVisitor.order_no && (
+                <div className="bg-gradient-to-r from-[#81c995]/10 to-transparent rounded-xl p-4 border border-[#81c995]/30">
+                  <label className="text-[12px] text-[#81c995] font-medium">已下单</label>
+                  <div className="flex items-center justify-between mt-2">
+                    <p className="text-[15px] font-mono text-[#e3e3e3]">{selectedVisitor.order_no}</p>
+                    <a
+                      href={`/admin/orders?search=${selectedVisitor.order_no}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 px-3 py-1.5 bg-[#81c995]/20 hover:bg-[#81c995]/30 text-[#81c995] rounded-lg text-[12px] font-medium transition-colors"
+                    >
+                      查看订单
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {/* 访问时间 */}
+              <div className="bg-[#2d2e30] rounded-xl p-4">
+                <label className="text-[12px] text-[#6e6e73] font-medium">访问时间</label>
+                <p className="text-[14px] text-[#e3e3e3] mt-1">
+                  {new Date(selectedVisitor.visited_at).toLocaleString("zh-CN")}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
