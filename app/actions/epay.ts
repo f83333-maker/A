@@ -2,7 +2,7 @@
 
 import { createEpayOrder } from "@/lib/epay"
 import { createClient } from "@/lib/supabase/server"
-import crypto from "crypto"
+import { encryptData } from "@/lib/encryption"
 
 // 生产域名 - 直接硬编码确保回调地址正确
 const PRODUCTION_URL = "https://e88.vercel.app"
@@ -64,10 +64,15 @@ export async function createEpayCheckout(options: {
     const orderNo = `ZH${dateStr}${randomStr}`
     const totalAmount = (product.price * quantity)
 
-    // 创建订单记录（包含查询密码的哈希）
-    const passwordHash = queryPassword 
-      ? crypto.createHash("sha256").update(queryPassword).digest("hex")
-      : null
+    // 创建订单记录（使用超强加密密码）
+    let passwordEncrypted = null
+    let passwordSalt = null
+    
+    if (queryPassword) {
+      const { encrypted, salt } = await encryptData(queryPassword)
+      passwordEncrypted = encrypted
+      passwordSalt = salt
+    }
 
     const { data: order, error: orderError } = await supabase
       .from("orders")
@@ -81,7 +86,8 @@ export async function createEpayCheckout(options: {
         buyer_email: buyerEmail,
         buyer_name: buyerName,
         status: "pending",
-        query_password: passwordHash,
+        query_password: passwordEncrypted,
+        query_password_salt: passwordSalt,
       })
       .select()
       .single()
