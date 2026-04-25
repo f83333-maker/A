@@ -101,11 +101,13 @@ function CategoryLogo({
   size?: "sm" | "md" | "lg"
 }) {
   const sizeMap = {
-    sm: { box: "w-8 h-8", img: "w-5 h-5", text: "text-[16px]" },
-    md: { box: "w-9 h-9", img: "w-6 h-6", text: "text-[18px]" },
-    lg: { box: "w-10 h-10", img: "w-7 h-7", text: "text-[22px]" },
+    sm: { box: "w-8 h-8", img: "w-5 h-5" },
+    md: { box: "w-9 h-9", img: "w-6 h-6" },
+    lg: { box: "w-10 h-10", img: "w-7 h-7" },
   }
   const s = sizeMap[size]
+  
+  // 有logo_data时显示logo图片
   if (category.logo_data) {
     return (
       <div
@@ -116,13 +118,12 @@ function CategoryLogo({
       </div>
     )
   }
+  
+  // 没有logo_data时显示空白占位符（不显示emoji）
   return (
     <div
-      className={`${s.box} rounded-xl flex items-center justify-center shrink-0 ${s.text}`}
-      style={{ backgroundColor: `${category.color}22` }}
-    >
-      <span>{category.icon}</span>
-    </div>
+      className={`${s.box} rounded-xl flex items-center justify-center shrink-0 bg-[#2d2e30]`}
+    />
   )
 }
 
