@@ -1,28 +1,23 @@
-import { scrypt } from 'crypto'
+import { scrypt, randomBytes, createHash } from 'crypto'
 import { promisify } from 'util'
-import { sha3_512 } from '@noble/hashes/sha3'
-import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
 
 const scryptAsync = promisify(scrypt)
 
 /**
- * 超强加密方案：scrypt(N=131072) + SHA3-512
+ * 超强加密方案：scrypt(N=131072) + SHA-512 三次哈希
  * - scrypt: 参数N=131072, r=8, p=1，需要>500ms计算时间
- * - SHA3-512: NIST标准3次哈希
+ * - SHA-512: 3次哈希提高安全性
  * 破解难度：按当前GPU算力需要10000年以上
  */
 
-export async function encryptData(data: string, salt?: Buffer): Promise<{
+export async function encryptData(data: string, existingSalt?: string): Promise<{
   encrypted: string
   salt: string
 }> {
   // 使用随机盐或提供的盐
-  const saltBuffer = salt || Buffer.alloc(32)
-  if (!salt) {
-    for (let i = 0; i < saltBuffer.length; i++) {
-      saltBuffer[i] = Math.floor(Math.random() * 256)
-    }
-  }
+  const saltBuffer = existingSalt 
+    ? Buffer.from(existingSalt, 'hex') 
+    : randomBytes(32)
 
   try {
     // scrypt 派生密钥 (N=131072, r=8, p=1)
@@ -34,19 +29,19 @@ export async function encryptData(data: string, salt?: Buffer): Promise<{
       maxmem: 256 * 1024 * 1024,
     }) as Buffer
 
-    // 第一次 SHA3-512 哈希
-    let hashed = sha3_512(derivedKey)
+    // 第一次 SHA-512 哈希
+    let hash = createHash('sha512').update(derivedKey).digest()
 
-    // 再进行 2 次 SHA3-512，共 3 次哈希（提高安全性）
-    hashed = sha3_512(hashed)
-    hashed = sha3_512(hashed)
+    // 再进行 2 次 SHA-512，共 3 次哈希（提高安全性）
+    hash = createHash('sha512').update(hash).digest()
+    hash = createHash('sha512').update(hash).digest()
 
-    const encrypted = bytesToHex(hashed)
-    const saltHex = saltBuffer.toString('hex')
+    const encrypted = hash.toString('hex')
+    const salt = saltBuffer.toString('hex')
 
     return {
       encrypted,
-      salt: saltHex,
+      salt,
     }
   } catch (error) {
     console.error('[v0] 加密失败:', error)
@@ -60,8 +55,8 @@ export async function verifyData(
   salt: string
 ): Promise<boolean> {
   try {
-    const saltBuffer = Buffer.from(salt, 'hex')
-    const { encrypted: newEncrypted } = await encryptData(data, saltBuffer)
+    if (!salt || !encrypted) return false
+    const { encrypted: newEncrypted } = await encryptData(data, salt)
     return newEncrypted === encrypted
   } catch (error) {
     console.error('[v0] 验证失败:', error)
@@ -70,11 +65,11 @@ export async function verifyData(
 }
 
 /**
- * 获取 SHA3-512 哈希（用于快速哈希，不需要盐）
+ * 快速 SHA-512 三次哈希（用于不需要盐的场景）
  */
-export function hashSHA3(data: string): string {
-  let hashed = sha3_512(data)
-  hashed = sha3_512(hashed)
-  hashed = sha3_512(hashed)
-  return bytesToHex(hashed)
+export function hashData(data: string): string {
+  let hash = createHash('sha512').update(data).digest()
+  hash = createHash('sha512').update(hash).digest()
+  hash = createHash('sha512').update(hash).digest()
+  return hash.toString('hex')
 }
