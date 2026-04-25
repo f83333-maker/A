@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
-import { Package, TrendingUp, ShoppingCart, DollarSign, Wallet, Clock, CheckCircle, XCircle } from "lucide-react"
+import { Package, TrendingUp, ShoppingCart, DollarSign, Wallet, Clock, CheckCircle, XCircle, Users } from "lucide-react"
 import Link from "next/link"
 
 async function getStats() {
@@ -32,6 +32,32 @@ async function getStats() {
   }
 }
 
+async function getTodayVisitors() {
+  const supabase = await createClient()
+  
+  // 获取北京时间今天的起始时间
+  const now = new Date()
+  const beijingOffset = 8 * 60 * 60 * 1000
+  const beijingNow = new Date(now.getTime() + beijingOffset)
+  const todayStart = new Date(
+    beijingNow.getFullYear(),
+    beijingNow.getMonth(),
+    beijingNow.getDate()
+  )
+  todayStart.setTime(todayStart.getTime() - beijingOffset)
+  
+  // 统计今日独立IP数
+  const { data } = await supabase
+    .from("visitor_stats")
+    .select("ip_address")
+    .gte("visited_at", todayStart.toISOString())
+  
+  // 去重计数
+  const uniqueIPs = new Set(data?.map(v => v.ip_address) || [])
+  
+  return uniqueIPs.size
+}
+
 async function getTopSellingProducts() {
   const supabase = await createClient()
   const { data } = await supabase
@@ -48,7 +74,7 @@ async function getRecentOrders() {
     .from("orders")
     .select("*")
     .order("created_at", { ascending: false })
-    .limit(10)
+    .limit(5)  // 只显示5条
   return data || []
 }
 
@@ -62,10 +88,18 @@ const statusConfig: Record<string, { icon: typeof Clock; color: string; text: st
 
 export default async function AdminDashboard() {
   const stats = await getStats()
+  const todayVisitors = await getTodayVisitors()
   const topSellingProducts = await getTopSellingProducts()
   const recentOrders = await getRecentOrders()
 
   const statCards = [
+    { 
+      name: "今日访客", 
+      value: todayVisitors, 
+      icon: Users, 
+      color: "#c58af9",
+      href: "/admin/analytics"
+    },
     { 
       name: "产品总数", 
       value: stats.products, 
@@ -84,13 +118,6 @@ export default async function AdminDashboard() {
       name: "总销量", 
       value: stats.totalSales, 
       icon: TrendingUp, 
-      color: "#af87c9",
-      href: "/admin/products"
-    },
-    { 
-      name: "总库存", 
-      value: stats.totalStock, 
-      icon: Package, 
       color: "#fdd663",
       href: "/admin/products"
     },
@@ -104,57 +131,6 @@ export default async function AdminDashboard() {
         <p className="text-[14px] text-[#9aa0a6] mt-1 font-medium">
           欢迎回来，这里是您的数据概览
         </p>
-      </div>
-
-      {/* 销售额与利润统计 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-[#8ab4f8]/20 to-[#8ab4f8]/5 rounded-xl border border-[#8ab4f8]/30 p-5">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-[#8ab4f8]/20 flex items-center justify-center">
-              <DollarSign className="w-5 h-5 text-[#8ab4f8]" />
-            </div>
-            <span className="text-[13px] text-[#9aa0a6] font-medium">今日销售额</span>
-          </div>
-          <p className="text-[28px] font-bold text-[#8ab4f8]">
-            ¥{stats.totalRevenue.toFixed(2)}
-          </p>
-        </div>
-        
-        <div className="bg-gradient-to-br from-[#81c995]/20 to-[#81c995]/5 rounded-xl border border-[#81c995]/30 p-5">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-[#81c995]/20 flex items-center justify-center">
-              <Wallet className="w-5 h-5 text-[#81c995]" />
-            </div>
-            <span className="text-[13px] text-[#9aa0a6] font-medium">今日利润</span>
-          </div>
-          <p className="text-[28px] font-bold text-[#81c995]">
-            ¥{stats.totalProfit.toFixed(2)}
-          </p>
-        </div>
-        
-        <div className="bg-gradient-to-br from-[#fdd663]/20 to-[#fdd663]/5 rounded-xl border border-[#fdd663]/30 p-5">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-[#fdd663]/20 flex items-center justify-center">
-              <DollarSign className="w-5 h-5 text-[#fdd663]" />
-            </div>
-            <span className="text-[13px] text-[#9aa0a6] font-medium">本月销售额</span>
-          </div>
-          <p className="text-[28px] font-bold text-[#fdd663]">
-            ¥{stats.totalRevenue.toFixed(2)}
-          </p>
-        </div>
-        
-        <div className="bg-gradient-to-br from-[#ee675c]/20 to-[#ee675c]/5 rounded-xl border border-[#ee675c]/30 p-5">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-[#ee675c]/20 flex items-center justify-center">
-              <Wallet className="w-5 h-5 text-[#ee675c]" />
-            </div>
-            <span className="text-[13px] text-[#9aa0a6] font-medium">本月利润</span>
-          </div>
-          <p className="text-[28px] font-bold text-[#ee675c]">
-            ¥{stats.totalProfit.toFixed(2)}
-          </p>
-        </div>
       </div>
 
       {/* 统计卡片 */}
@@ -181,12 +157,65 @@ export default async function AdminDashboard() {
         ))}
       </div>
 
+      {/* 销售额与利润统计 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-gradient-to-br from-[#8ab4f8]/20 to-[#8ab4f8]/5 rounded-xl border border-[#8ab4f8]/30 p-5">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-[#8ab4f8]/20 flex items-center justify-center">
+              <DollarSign className="w-5 h-5 text-[#8ab4f8]" />
+            </div>
+            <span className="text-[13px] text-[#9aa0a6] font-medium">总销售额</span>
+          </div>
+          <p className="text-[28px] font-bold text-[#8ab4f8]">
+            ¥{stats.totalRevenue.toFixed(2)}
+          </p>
+        </div>
+        
+        <div className="bg-gradient-to-br from-[#81c995]/20 to-[#81c995]/5 rounded-xl border border-[#81c995]/30 p-5">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-[#81c995]/20 flex items-center justify-center">
+              <Wallet className="w-5 h-5 text-[#81c995]" />
+            </div>
+            <span className="text-[13px] text-[#9aa0a6] font-medium">总利润</span>
+          </div>
+          <p className="text-[28px] font-bold text-[#81c995]">
+            ¥{stats.totalProfit.toFixed(2)}
+          </p>
+        </div>
+        
+        <div className="bg-gradient-to-br from-[#fdd663]/20 to-[#fdd663]/5 rounded-xl border border-[#fdd663]/30 p-5">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-[#fdd663]/20 flex items-center justify-center">
+              <Package className="w-5 h-5 text-[#fdd663]" />
+            </div>
+            <span className="text-[13px] text-[#9aa0a6] font-medium">总库存</span>
+          </div>
+          <p className="text-[28px] font-bold text-[#fdd663]">
+            {stats.totalStock}
+          </p>
+        </div>
+        
+        <div className="bg-gradient-to-br from-[#c58af9]/20 to-[#c58af9]/5 rounded-xl border border-[#c58af9]/30 p-5">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-[#c58af9]/20 flex items-center justify-center">
+              <Users className="w-5 h-5 text-[#c58af9]" />
+            </div>
+            <span className="text-[13px] text-[#9aa0a6] font-medium">今日访客</span>
+          </div>
+          <p className="text-[28px] font-bold text-[#c58af9]">
+            {todayVisitors}
+          </p>
+          <p className="text-[11px] text-[#6e6e73] mt-1">独立IP，12小时去重</p>
+        </div>
+      </div>
+
       {/* 最近订单 */}
       <div className="bg-[#1e1f20] rounded-xl border border-[#3c3c3f] overflow-hidden">
         <div className="px-5 py-4 border-b border-[#3c3c3f] flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ShoppingCart className="w-5 h-5 text-[#8ab4f8]" />
             <h2 className="text-[16px] font-semibold text-[#e3e3e3]">最近订单</h2>
+            <span className="text-[12px] text-[#6e6e73] ml-2">最新5条</span>
           </div>
           <Link 
             href="/admin/orders"

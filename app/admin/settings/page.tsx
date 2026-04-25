@@ -2,25 +2,29 @@
 
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Save, Plus, Trash2, Loader2, Search, Tag, Link as LinkIcon, Truck, ArrowUp, ArrowDown, Settings, GripVertical } from "lucide-react"
+import { Save, Plus, Trash2, Loader2, Search, Tag, Link as LinkIcon, Truck, Settings, Type, Navigation } from "lucide-react"
 
 interface FooterLink {
   name: string
   url: string
 }
 
-interface Category {
-  id: string
+interface NavLink {
   name: string
-  icon: string
-  color: string
-  sort_order: number
+  url: string
 }
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [activeTab, setActiveTab] = useState<"search" | "categories" | "footer" | "basic">("search")
+  const [activeTab, setActiveTab] = useState<"banner" | "nav" | "search" | "footer" | "basic">("banner")
+  
+  // Banner设置
+  const [bannerTitle, setBannerTitle] = useState("")
+  const [bannerSubtitle, setBannerSubtitle] = useState("")
+  
+  // 导航设置
+  const [navLinks, setNavLinks] = useState<NavLink[]>([])
   
   // 基本设置
   const [siteName, setSiteName] = useState("")
@@ -34,9 +38,6 @@ export default function SettingsPage() {
   const [newTag, setNewTag] = useState("")
   const [deliveryText, setDeliveryText] = useState("")
   
-  // 分类设置
-  const [categories, setCategories] = useState<Category[]>([])
-  
   // 底部链接设置
   const [footerLinks, setFooterLinks] = useState<FooterLink[]>([])
 
@@ -44,7 +45,6 @@ export default function SettingsPage() {
 
   useEffect(() => {
     fetchSettings()
-    fetchCategories()
   }, [])
 
   async function fetchSettings() {
@@ -58,7 +58,10 @@ export default function SettingsPage() {
         data.forEach((item) => {
           try {
             const value = JSON.parse(item.value)
-            if (item.key === "search_placeholder") setSearchPlaceholder(value || "")
+            if (item.key === "banner_title") setBannerTitle(value || "")
+            else if (item.key === "banner_subtitle") setBannerSubtitle(value || "")
+            else if (item.key === "nav_links") setNavLinks(value || [])
+            else if (item.key === "search_placeholder") setSearchPlaceholder(value || "")
             else if (item.key === "hot_search_tags") setHotSearchTags(value || [])
             else if (item.key === "footer_links") setFooterLinks(value || [])
             else if (item.key === "delivery_text") setDeliveryText(value || "自动发货")
@@ -75,17 +78,6 @@ export default function SettingsPage() {
       console.error("获取设置失败:", error)
     } finally {
       setLoading(false)
-    }
-  }
-
-  async function fetchCategories() {
-    const { data } = await supabase
-      .from("categories")
-      .select("*")
-      .order("sort_order", { ascending: true })
-    
-    if (data) {
-      setCategories(data)
     }
   }
 
@@ -131,31 +123,6 @@ export default function SettingsPage() {
     }
   }
 
-  async function updateCategoryOrder(id: string, newOrder: number) {
-    await supabase
-      .from("categories")
-      .update({ sort_order: newOrder })
-      .eq("id", id)
-  }
-
-  function moveCategory(index: number, direction: "up" | "down") {
-    const newCategories = [...categories]
-    const targetIndex = direction === "up" ? index - 1 : index + 1
-    
-    if (targetIndex < 0 || targetIndex >= newCategories.length) return
-    
-    const tempOrder = newCategories[index].sort_order
-    newCategories[index].sort_order = newCategories[targetIndex].sort_order
-    newCategories[targetIndex].sort_order = tempOrder
-    
-    ;[newCategories[index], newCategories[targetIndex]] = [newCategories[targetIndex], newCategories[index]]
-    
-    setCategories(newCategories)
-    
-    updateCategoryOrder(newCategories[index].id, newCategories[index].sort_order)
-    updateCategoryOrder(newCategories[targetIndex].id, newCategories[targetIndex].sort_order)
-  }
-
   function addTag() {
     if (newTag.trim() && !hotSearchTags.includes(newTag.trim())) {
       setHotSearchTags([...hotSearchTags, newTag.trim()])
@@ -181,6 +148,20 @@ export default function SettingsPage() {
     setFooterLinks(footerLinks.filter((_, i) => i !== index))
   }
 
+  function addNavLink() {
+    setNavLinks([...navLinks, { name: "", url: "" }])
+  }
+
+  function updateNavLink(index: number, field: "name" | "url", value: string) {
+    const newLinks = [...navLinks]
+    newLinks[index][field] = value
+    setNavLinks(newLinks)
+  }
+
+  function removeNavLink(index: number) {
+    setNavLinks(navLinks.filter((_, i) => i !== index))
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -196,8 +177,9 @@ export default function SettingsPage() {
       {/* 选项卡 */}
       <div className="flex gap-1 mb-6 bg-[#1e1f20] p-1 rounded-xl border border-[#3c3c3f] overflow-x-auto">
         {[
+          { id: "banner", label: "Banner设置", icon: Type },
+          { id: "nav", label: "顶部导航", icon: Navigation },
           { id: "search", label: "搜索与标签", icon: Search },
-          { id: "categories", label: "分类排序", icon: GripVertical },
           { id: "footer", label: "底部导航", icon: LinkIcon },
           { id: "basic", label: "基本设置", icon: Settings },
         ].map((tab) => (
@@ -215,6 +197,120 @@ export default function SettingsPage() {
           </button>
         ))}
       </div>
+
+      {/* Banner设置 */}
+      {activeTab === "banner" && (
+        <div className="space-y-6">
+          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-[#8ab4f8]/10 flex items-center justify-center">
+                <Type className="w-5 h-5 text-[#8ab4f8]" />
+              </div>
+              <div>
+                <h2 className="text-[15px] font-semibold text-[#e3e3e3]">首页Banner标题</h2>
+                <p className="text-[12px] text-[#6e6e73]">设置首页顶部的主标题和副标题</p>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">主标题</label>
+                <input
+                  type="text"
+                  value={bannerTitle}
+                  onChange={(e) => setBannerTitle(e.target.value)}
+                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                  placeholder="如：账号 批发平台"
+                />
+                <p className="text-[11px] text-[#6e6e73] mt-1">提示：可用空格分隔，第二部分会显示为蓝色</p>
+              </div>
+              
+              <div>
+                <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">副标题</label>
+                <input
+                  type="text"
+                  value={bannerSubtitle}
+                  onChange={(e) => setBannerSubtitle(e.target.value)}
+                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                  placeholder="如：专业、安全、便捷的一站式账号服务平台"
+                />
+              </div>
+            </div>
+
+            <button
+              onClick={() => saveMultipleSettings([
+                { key: "banner_title", value: bannerTitle },
+                { key: "banner_subtitle", value: bannerSubtitle },
+              ])}
+              disabled={saving}
+              className="mt-4 px-4 py-2 bg-[#8ab4f8] hover:bg-[#aecbfa] text-[#131314] font-semibold rounded-lg text-[13px] transition-colors disabled:opacity-50 flex items-center gap-2"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              保存
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 顶部导航设置 */}
+      {activeTab === "nav" && (
+        <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#81c995]/10 flex items-center justify-center">
+                <Navigation className="w-5 h-5 text-[#81c995]" />
+              </div>
+              <div>
+                <h2 className="text-[15px] font-semibold text-[#e3e3e3]">顶部导航链接</h2>
+                <p className="text-[12px] text-[#6e6e73]">网站顶部显示的导航菜单</p>
+              </div>
+            </div>
+            <button
+              onClick={addNavLink}
+              className="px-3 py-1.5 bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#e3e3e3] rounded-lg text-[13px] flex items-center gap-1.5"
+            >
+              <Plus className="w-4 h-4" />
+              添加链接
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            {navLinks.map((link, index) => (
+              <div key={index} className="flex items-center gap-3">
+                <input
+                  type="text"
+                  value={link.name}
+                  onChange={(e) => updateNavLink(index, "name", e.target.value)}
+                  className="w-32 h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8]"
+                  placeholder="链接名称"
+                />
+                <input
+                  type="text"
+                  value={link.url}
+                  onChange={(e) => updateNavLink(index, "url", e.target.value)}
+                  className="flex-1 h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8]"
+                  placeholder="链接地址，如 / 或 /order-query"
+                />
+                <button onClick={() => removeNavLink(index)} className="p-2 text-[#6e6e73] hover:text-[#ee675c]">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+            {navLinks.length === 0 && (
+              <p className="text-[13px] text-[#6e6e73] text-center py-4">暂无链接，点击上方按钮添加</p>
+            )}
+          </div>
+
+          <button
+            onClick={() => saveSetting("nav_links", navLinks)}
+            disabled={saving}
+            className="mt-4 px-4 py-2 bg-[#8ab4f8] hover:bg-[#aecbfa] text-[#131314] font-semibold rounded-lg text-[13px] disabled:opacity-50 flex items-center gap-2"
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            保存
+          </button>
+        </div>
+      )}
 
       {/* 搜索与标签设置 */}
       {activeTab === "search" && (
@@ -324,48 +420,6 @@ export default function SettingsPage() {
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               保存
             </button>
-          </div>
-        </div>
-      )}
-
-      {/* 分类排序设置 */}
-      {activeTab === "categories" && (
-        <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] overflow-hidden">
-          <div className="px-6 py-4 border-b border-[#3c3c3f]">
-            <h2 className="text-[15px] font-semibold text-[#e3e3e3]">分类排序</h2>
-            <p className="text-[12px] text-[#6e6e73] mt-1">调整分类在首页的显示顺序，点击箭头上下移动</p>
-          </div>
-          <div className="divide-y divide-[#3c3c3f]">
-            {categories.map((category, index) => (
-              <div key={category.id} className="flex items-center gap-4 px-6 py-4 hover:bg-[#2d2e30]/50">
-                <div className="flex flex-col gap-1">
-                  <button
-                    onClick={() => moveCategory(index, "up")}
-                    disabled={index === 0}
-                    className="p-1 text-[#9aa0a6] hover:text-[#e3e3e3] disabled:opacity-30 disabled:cursor-not-allowed"
-                  >
-                    <ArrowUp className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => moveCategory(index, "down")}
-                    disabled={index === categories.length - 1}
-                    className="p-1 text-[#9aa0a6] hover:text-[#e3e3e3] disabled:opacity-30 disabled:cursor-not-allowed"
-                  >
-                    <ArrowDown className="w-4 h-4" />
-                  </button>
-                </div>
-                <div 
-                  className="w-10 h-10 rounded-xl flex items-center justify-center text-[20px]"
-                  style={{ backgroundColor: `${category.color}20` }}
-                >
-                  {category.icon}
-                </div>
-                <div className="flex-1">
-                  <p className="text-[14px] font-medium text-[#e3e3e3]">{category.name}</p>
-                </div>
-                <span className="text-[13px] text-[#6e6e73] bg-[#2d2e30] px-2 py-1 rounded">#{index + 1}</span>
-              </div>
-            ))}
           </div>
         </div>
       )}

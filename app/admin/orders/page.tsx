@@ -51,12 +51,17 @@ export default function OrdersPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [dateFilter, setDateFilter] = useState<string>("all")
+  const [productFilter, setProductFilter] = useState<string>("all")
+  const [amountFilter, setAmountFilter] = useState<string>("all")
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [deliverContent, setDeliverContent] = useState("")
   const [isDelivering, setIsDelivering] = useState(false)
   const [selectedOrders, setSelectedOrders] = useState<string[]>([])
   const [isDeleting, setIsDeleting] = useState(false)
+  
+  // 获取所有产品名称用于筛选
+  const productNames = [...new Set(orders.map(o => o.product_name))].sort()
 
   // 日期筛选
   const getDateFilteredOrders = (orderList: Order[]) => {
@@ -90,8 +95,33 @@ export default function OrdersPage() {
       (order.buyer_email?.toLowerCase().includes(searchQuery.toLowerCase()) || false)
 
     const matchesStatus = statusFilter === "all" || order.status === statusFilter
+    
+    const matchesProduct = productFilter === "all" || order.product_name === productFilter
+    
+    // 金额筛选
+    let matchesAmount = true
+    if (amountFilter !== "all") {
+      const amount = order.total_amount
+      switch (amountFilter) {
+        case "0-10":
+          matchesAmount = amount >= 0 && amount < 10
+          break
+        case "10-50":
+          matchesAmount = amount >= 10 && amount < 50
+          break
+        case "50-100":
+          matchesAmount = amount >= 50 && amount < 100
+          break
+        case "100-500":
+          matchesAmount = amount >= 100 && amount < 500
+          break
+        case "500+":
+          matchesAmount = amount >= 500
+          break
+      }
+    }
 
-    return matchesSearch && matchesStatus
+    return matchesSearch && matchesStatus && matchesProduct && matchesAmount
   })
 
   const openModal = (order: Order) => {
@@ -269,6 +299,35 @@ export default function OrdersPage() {
             <option value="month">本月</option>
           </select>
         </div>
+        
+        {/* 产品筛选 */}
+        <div className="flex items-center gap-2">
+          <Filter className="w-4 h-4 text-[#6e6e73]" />
+          <select
+            value={productFilter}
+            onChange={(e) => setProductFilter(e.target.value)}
+            className="px-3 py-2 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[13px] text-[#e3e3e3] focus:outline-none focus:border-[#8ab4f8] max-w-[150px]"
+          >
+            <option value="all">全部产品</option>
+            {productNames.map((name) => (
+              <option key={name} value={name}>{name}</option>
+            ))}
+          </select>
+        </div>
+        
+        {/* 金额筛选 */}
+        <select
+          value={amountFilter}
+          onChange={(e) => setAmountFilter(e.target.value)}
+          className="px-3 py-2 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[13px] text-[#e3e3e3] focus:outline-none focus:border-[#8ab4f8]"
+        >
+          <option value="all">全部金额</option>
+          <option value="0-10">¥0 - ¥10</option>
+          <option value="10-50">¥10 - ¥50</option>
+          <option value="50-100">¥50 - ¥100</option>
+          <option value="100-500">¥100 - ¥500</option>
+          <option value="500+">¥500+</option>
+        </select>
       </div>
 
       {/* 搜索框和批量操作 */}

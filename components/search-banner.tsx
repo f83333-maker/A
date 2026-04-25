@@ -12,6 +12,8 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
   const [isFocused, setIsFocused] = useState(false)
   const [searchPlaceholder, setSearchPlaceholder] = useState("搜索产品名称、价格、库存、标签...")
   const [hotSearchTags, setHotSearchTags] = useState<string[]>(["社交账号", "邮箱账号", "游戏账号", "海外账号"])
+  const [bannerTitle, setBannerTitle] = useState("账号 批发平台")
+  const [bannerSubtitle, setBannerSubtitle] = useState("专业、安全、便捷的一站式账号服务平台")
 
   useEffect(() => {
     // 从API获取设置
@@ -20,8 +22,17 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
       .then(data => {
         if (data.search_placeholder) setSearchPlaceholder(data.search_placeholder)
         if (data.hot_search_tags && data.hot_search_tags.length > 0) setHotSearchTags(data.hot_search_tags)
+        if (data.banner_title) setBannerTitle(data.banner_title)
+        if (data.banner_subtitle) setBannerSubtitle(data.banner_subtitle)
       })
       .catch(err => console.error("获取设置失败:", err))
+    
+    // 记录访客
+    fetch("/api/visitor", { 
+      method: "POST", 
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ page: window.location.pathname })
+    }).catch(() => {})
   }, [])
 
   const scrollToCategory = () => {
@@ -63,11 +74,15 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
         
         {/* 标题 */}
         <h1 className="text-[36px] sm:text-[48px] lg:text-[56px] font-semibold text-[#e3e3e3] mb-5 tracking-[-0.02em] leading-[1.1] animate-fade-in-up delay-100">
-          账号<span className="text-[#8ab4f8]"> 批发平台</span>
+          {bannerTitle.includes(" ") ? (
+            <>
+              {bannerTitle.split(" ")[0]}<span className="text-[#8ab4f8]"> {bannerTitle.split(" ").slice(1).join(" ")}</span>
+            </>
+          ) : bannerTitle}
         </h1>
         
         <p className="text-[16px] sm:text-[18px] text-[#9aa0a6] mb-10 max-w-xl mx-auto leading-relaxed font-medium animate-fade-in-up delay-200">
-          专业、安全、便捷的一站式账号服务平台
+          {bannerSubtitle}
         </p>
         
         {/* 搜索框 */}
