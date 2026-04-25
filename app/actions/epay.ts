@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server"
 import { encryptData } from "@/lib/encryption"
 
 // 生产域名 - 直接硬编码确保回调地址正确
-const PRODUCTION_URL = "https://e88.vercel.app"
+const PRODUCTION_URL = "https://pcccc.cc"
 
 async function getBaseUrl(): Promise<string> {
   // 生产环境直接返回硬编码域名

@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { NextRequest, NextResponse } from "next/server"
 
 // 生产域名
-const PRODUCTION_URL = "https://e88.vercel.app"
+const PRODUCTION_URL = "https://pcccc.cc"
 
 async function processPayment(data: Record<string, any>): Promise<boolean> {
   console.log("[v0] 易支付回调数据:", JSON.stringify(data))
