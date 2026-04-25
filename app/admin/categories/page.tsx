@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, Pencil, Trash2, Loader2, X } from "lucide-react"
+import { Plus, Pencil, Trash2, Loader2, X, ArrowUp, ArrowDown } from "lucide-react"
 
 interface Category {
   id: string
@@ -107,6 +107,56 @@ export default function CategoriesPage() {
     }
   }
 
+  const handleMoveUp = async (index: number) => {
+    if (index === 0) return
+    const sortedCategories = [...categories].sort((a, b) => a.sort_order - b.sort_order)
+    const current = sortedCategories[index]
+    const prev = sortedCategories[index - 1]
+    
+    try {
+      await Promise.all([
+        fetch(`/api/admin/categories/${current.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...current, sort_order: prev.sort_order }),
+        }),
+        fetch(`/api/admin/categories/${prev.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...prev, sort_order: current.sort_order }),
+        }),
+      ])
+      fetchCategories()
+    } catch (error) {
+      console.error("Failed to move category:", error)
+    }
+  }
+
+  const handleMoveDown = async (index: number) => {
+    const sortedCategories = [...categories].sort((a, b) => a.sort_order - b.sort_order)
+    if (index === sortedCategories.length - 1) return
+    const current = sortedCategories[index]
+    const next = sortedCategories[index + 1]
+    
+    try {
+      await Promise.all([
+        fetch(`/api/admin/categories/${current.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...current, sort_order: next.sort_order }),
+        }),
+        fetch(`/api/admin/categories/${next.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...next, sort_order: current.sort_order }),
+        }),
+      ])
+      fetchCategories()
+    } catch (error) {
+      console.error("Failed to move category:", error)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -139,6 +189,7 @@ export default function CategoriesPage() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-[#3c3c3f]">
+              <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6]">排序</th>
               <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6]">图标</th>
               <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6]">名称</th>
               <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6] hidden md:table-cell">描述</th>
@@ -147,8 +198,26 @@ export default function CategoriesPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-[#3c3c3f]">
-            {categories.map((category) => (
+            {[...categories].sort((a, b) => a.sort_order - b.sort_order).map((category, index) => (
               <tr key={category.id} className="hover:bg-[#2d2e30]/50 transition-colors">
+                <td className="px-5 py-4">
+                  <div className="flex flex-col gap-1">
+                    <button
+                      onClick={() => handleMoveUp(index)}
+                      disabled={index === 0}
+                      className="p-1 text-[#9aa0a6] hover:text-[#8ab4f8] hover:bg-[#8ab4f8]/10 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    >
+                      <ArrowUp className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleMoveDown(index)}
+                      disabled={index === categories.length - 1}
+                      className="p-1 text-[#9aa0a6] hover:text-[#8ab4f8] hover:bg-[#8ab4f8]/10 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    >
+                      <ArrowDown className="w-4 h-4" />
+                    </button>
+                  </div>
+                </td>
                 <td className="px-5 py-4">
                   <div 
                     className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"

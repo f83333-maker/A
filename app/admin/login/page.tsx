@@ -2,11 +2,11 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Eye, EyeOff, Lock, Mail, Loader2 } from "lucide-react"
+import { Eye, EyeOff, Lock, User, Loader2 } from "lucide-react"
 
 export default function AdminLoginPage() {
   const router = useRouter()
-  const [email, setEmail] = useState("")
+  const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
@@ -21,7 +21,7 @@ export default function AdminLoginPage() {
       const response = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, password }),
       })
 
       const data = await response.json()
@@ -32,7 +32,7 @@ export default function AdminLoginPage() {
         return
       }
 
-      // 使用 localStorage 存储登录状态（v0预览环境cookie不可靠）
+      // 使用 localStorage 存储登录状态
       localStorage.setItem("admin_session", JSON.stringify(data.admin))
       
       // 跳转到后台
@@ -69,18 +69,18 @@ export default function AdminLoginPage() {
               </div>
             )}
 
-            {/* 邮箱输入 */}
+            {/* 用户名输入 */}
             <div>
               <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
-                邮箱地址
+                用户名
               </label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6e6e73]" />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6e6e73]" />
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@example.com"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="请输入用户名"
                   className="w-full h-12 pl-11 pr-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
                   required
                 />
@@ -133,10 +133,10 @@ export default function AdminLoginPage() {
             </button>
           </form>
 
-          {/* 提示信息 */}
+          {/* 安全提示 */}
           <div className="mt-6 pt-6 border-t border-[#3c3c3f]">
-            <p className="text-[12px] text-[#6e6e73] text-center font-medium">
-              默认账号: admin@admin.com / admin123
+            <p className="text-[11px] text-[#6e6e73] text-center font-medium">
+              密码使用 scrypt + SHA3-512 加密存储
             </p>
           </div>
         </div>

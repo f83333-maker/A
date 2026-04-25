@@ -1,7 +1,7 @@
 "use client"
 
 import { Search, Sparkles, ArrowRight, X } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 interface SearchBannerProps {
   searchQuery: string
@@ -10,6 +10,19 @@ interface SearchBannerProps {
 
 export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
   const [isFocused, setIsFocused] = useState(false)
+  const [searchPlaceholder, setSearchPlaceholder] = useState("搜索产品名称、价格、库存、标签...")
+  const [hotSearchTags, setHotSearchTags] = useState<string[]>(["社交账号", "邮箱账号", "游戏账号", "海外账号"])
+
+  useEffect(() => {
+    // 从API获取设置
+    fetch("/api/site-settings")
+      .then(res => res.json())
+      .then(data => {
+        if (data.search_placeholder) setSearchPlaceholder(data.search_placeholder)
+        if (data.hot_search_tags && data.hot_search_tags.length > 0) setHotSearchTags(data.hot_search_tags)
+      })
+      .catch(err => console.error("获取设置失败:", err))
+  }, [])
 
   const scrollToCategory = () => {
     const el = document.getElementById("category-browser")
@@ -73,7 +86,7 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
               onChange={(e) => onSearch(e.target.value)}
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
-              placeholder="搜索产品名称、价格、库存、标签..."
+              placeholder={searchPlaceholder}
               className="flex-1 h-11 px-3 bg-transparent text-[#e3e3e3] placeholder-[#6e6e73] focus:outline-none text-[14px] font-medium"
             />
             {/* 清除按钮 */}
@@ -99,7 +112,7 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
         {/* 热门搜索 */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-2 text-[13px] animate-fade-in-up delay-400">
           <span className="text-[#6e6e73]">热门:</span>
-          {["社交账号", "邮箱账号", "游戏账号", "海外账号"].map((tag) => (
+          {hotSearchTags.map((tag) => (
             <button
               key={tag}
               onClick={() => handleTagClick(tag)}

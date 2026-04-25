@@ -1,174 +1,497 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Loader2, Save } from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
+import { Save, Plus, Trash2, Loader2, Search, Tag, Link as LinkIcon, Truck, ArrowUp, ArrowDown, Settings, GripVertical } from "lucide-react"
 
-interface Settings {
-  site_name: string
-  site_description: string
-  contact_email: string
-  contact_telegram: string
+interface FooterLink {
+  name: string
+  url: string
+}
+
+interface Category {
+  id: string
+  name: string
+  icon: string
+  color: string
+  sort_order: number
 }
 
 export default function SettingsPage() {
-  const [settings, setSettings] = useState<Settings>({
-    site_name: "",
-    site_description: "",
-    contact_email: "",
-    contact_telegram: "",
-  })
-  const [isLoading, setIsLoading] = useState(true)
-  const [isSaving, setIsSaving] = useState(false)
-  const [message, setMessage] = useState("")
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [activeTab, setActiveTab] = useState<"search" | "categories" | "footer" | "basic">("search")
+  
+  // 基本设置
+  const [siteName, setSiteName] = useState("")
+  const [siteDescription, setSiteDescription] = useState("")
+  const [contactEmail, setContactEmail] = useState("")
+  const [contactTelegram, setContactTelegram] = useState("")
+  
+  // 搜索设置
+  const [searchPlaceholder, setSearchPlaceholder] = useState("")
+  const [hotSearchTags, setHotSearchTags] = useState<string[]>([])
+  const [newTag, setNewTag] = useState("")
+  const [deliveryText, setDeliveryText] = useState("")
+  
+  // 分类设置
+  const [categories, setCategories] = useState<Category[]>([])
+  
+  // 底部链接设置
+  const [footerLinks, setFooterLinks] = useState<FooterLink[]>([])
+
+  const supabase = createClient()
 
   useEffect(() => {
     fetchSettings()
+    fetchCategories()
   }, [])
 
-  const fetchSettings = async () => {
+  async function fetchSettings() {
+    setLoading(true)
     try {
-      const res = await fetch("/api/admin/settings")
-      const data = await res.json()
-      
-      const settingsObj: Settings = {
-        site_name: "",
-        site_description: "",
-        contact_email: "",
-        contact_telegram: "",
+      const { data } = await supabase
+        .from("site_settings")
+        .select("*")
+
+      if (data) {
+        data.forEach((item) => {
+          try {
+            const value = JSON.parse(item.value)
+            if (item.key === "search_placeholder") setSearchPlaceholder(value || "")
+            else if (item.key === "hot_search_tags") setHotSearchTags(value || [])
+            else if (item.key === "footer_links") setFooterLinks(value || [])
+            else if (item.key === "delivery_text") setDeliveryText(value || "自动发货")
+            else if (item.key === "site_name") setSiteName(value || "")
+            else if (item.key === "site_description") setSiteDescription(value || "")
+            else if (item.key === "contact_email") setContactEmail(value || "")
+            else if (item.key === "contact_telegram") setContactTelegram(value || "")
+          } catch (e) {
+            console.error("解析设置失败:", item.key, e)
+          }
+        })
       }
-      
-      data.forEach((item: { key: string; value: string }) => {
-        if (item.key in settingsObj) {
-          settingsObj[item.key as keyof Settings] = JSON.parse(item.value || '""')
-        }
-      })
-      
-      setSettings(settingsObj)
     } catch (error) {
-      console.error("Failed to fetch settings:", error)
+      console.error("获取设置失败:", error)
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSaving(true)
-    setMessage("")
-
-    try {
-      const res = await fetch("/api/admin/settings", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(settings),
-      })
-
-      if (res.ok) {
-        setMessage("设置已保存")
-        setTimeout(() => setMessage(""), 3000)
-      }
-    } catch (error) {
-      console.error("Failed to save settings:", error)
-      setMessage("保存失败")
-    } finally {
-      setIsSaving(false)
+  async function fetchCategories() {
+    const { data } = await supabase
+      .from("categories")
+      .select("*")
+      .order("sort_order", { ascending: true })
+    
+    if (data) {
+      setCategories(data)
     }
   }
 
-  if (isLoading) {
+  async function saveSetting(key: string, value: any) {
+    setSaving(true)
+    try {
+      const { error } = await supabase
+        .from("site_settings")
+        .upsert({
+          key,
+          value: JSON.stringify(value),
+          updated_at: new Date().toISOString()
+        }, { onConflict: "key" })
+
+      if (error) throw error
+      alert("保存成功")
+    } catch (error) {
+      console.error("保存失败:", error)
+      alert("保存失败")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function saveMultipleSettings(settings: { key: string; value: any }[]) {
+    setSaving(true)
+    try {
+      for (const setting of settings) {
+        await supabase
+          .from("site_settings")
+          .upsert({
+            key: setting.key,
+            value: JSON.stringify(setting.value),
+            updated_at: new Date().toISOString()
+          }, { onConflict: "key" })
+      }
+      alert("保存成功")
+    } catch (error) {
+      console.error("保存失败:", error)
+      alert("保存失败")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function updateCategoryOrder(id: string, newOrder: number) {
+    await supabase
+      .from("categories")
+      .update({ sort_order: newOrder })
+      .eq("id", id)
+  }
+
+  function moveCategory(index: number, direction: "up" | "down") {
+    const newCategories = [...categories]
+    const targetIndex = direction === "up" ? index - 1 : index + 1
+    
+    if (targetIndex < 0 || targetIndex >= newCategories.length) return
+    
+    const tempOrder = newCategories[index].sort_order
+    newCategories[index].sort_order = newCategories[targetIndex].sort_order
+    newCategories[targetIndex].sort_order = tempOrder
+    
+    ;[newCategories[index], newCategories[targetIndex]] = [newCategories[targetIndex], newCategories[index]]
+    
+    setCategories(newCategories)
+    
+    updateCategoryOrder(newCategories[index].id, newCategories[index].sort_order)
+    updateCategoryOrder(newCategories[targetIndex].id, newCategories[targetIndex].sort_order)
+  }
+
+  function addTag() {
+    if (newTag.trim() && !hotSearchTags.includes(newTag.trim())) {
+      setHotSearchTags([...hotSearchTags, newTag.trim()])
+      setNewTag("")
+    }
+  }
+
+  function removeTag(index: number) {
+    setHotSearchTags(hotSearchTags.filter((_, i) => i !== index))
+  }
+
+  function addFooterLink() {
+    setFooterLinks([...footerLinks, { name: "", url: "" }])
+  }
+
+  function updateFooterLink(index: number, field: "name" | "url", value: string) {
+    const newLinks = [...footerLinks]
+    newLinks[index][field] = value
+    setFooterLinks(newLinks)
+  }
+
+  function removeFooterLink(index: number) {
+    setFooterLinks(footerLinks.filter((_, i) => i !== index))
+  }
+
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-[#8ab4f8]" />
+        <Loader2 className="w-8 h-8 text-[#8ab4f8] animate-spin" />
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-[24px] font-semibold text-[#e3e3e3]">网站设置</h1>
-        <p className="text-[14px] text-[#9aa0a6] mt-1 font-medium">
-          配置网站基本信息
-        </p>
+    <div className="max-w-4xl mx-auto">
+      <h1 className="text-[22px] font-bold text-[#e3e3e3] mb-6">网站设置</h1>
+      
+      {/* 选项卡 */}
+      <div className="flex gap-1 mb-6 bg-[#1e1f20] p-1 rounded-xl border border-[#3c3c3f] overflow-x-auto">
+        {[
+          { id: "search", label: "搜索与标签", icon: Search },
+          { id: "categories", label: "分类排序", icon: GripVertical },
+          { id: "footer", label: "底部导航", icon: LinkIcon },
+          { id: "basic", label: "基本设置", icon: Settings },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id as typeof activeTab)}
+            className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all whitespace-nowrap ${
+              activeTab === tab.id
+                ? "bg-[#8ab4f8] text-[#131314]"
+                : "text-[#9aa0a6] hover:text-[#e3e3e3] hover:bg-[#2d2e30]"
+            }`}
+          >
+            <tab.icon className="w-4 h-4" />
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      <form onSubmit={handleSubmit} className="max-w-2xl">
-        <div className="bg-[#1e1f20] rounded-xl border border-[#3c3c3f] p-6 space-y-5">
-          <div>
-            <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
-              网站名称
-            </label>
+      {/* 搜索与标签设置 */}
+      {activeTab === "search" && (
+        <div className="space-y-6">
+          {/* 搜索框文字 */}
+          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-[#8ab4f8]/10 flex items-center justify-center">
+                <Search className="w-5 h-5 text-[#8ab4f8]" />
+              </div>
+              <div>
+                <h2 className="text-[15px] font-semibold text-[#e3e3e3]">搜索框默认文字</h2>
+                <p className="text-[12px] text-[#6e6e73]">用户未输入时显示的提示文字</p>
+              </div>
+            </div>
             <input
               type="text"
-              value={settings.site_name}
-              onChange={(e) => setSettings({ ...settings, site_name: e.target.value })}
-              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+              value={searchPlaceholder}
+              onChange={(e) => setSearchPlaceholder(e.target.value)}
+              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
+              placeholder="如：搜索你想要的商品..."
+            />
+            <button
+              onClick={() => saveSetting("search_placeholder", searchPlaceholder)}
+              disabled={saving}
+              className="mt-4 px-4 py-2 bg-[#8ab4f8] hover:bg-[#aecbfa] text-[#131314] font-semibold rounded-lg text-[13px] transition-colors disabled:opacity-50 flex items-center gap-2"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              保存
+            </button>
+          </div>
+
+          {/* 热门搜索标签 */}
+          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-[#fdd663]/10 flex items-center justify-center">
+                <Tag className="w-5 h-5 text-[#fdd663]" />
+              </div>
+              <div>
+                <h2 className="text-[15px] font-semibold text-[#e3e3e3]">热门搜索标签</h2>
+                <p className="text-[12px] text-[#6e6e73]">搜索框下方显示的快捷标签</p>
+              </div>
+            </div>
+            
+            <div className="flex flex-wrap gap-2 mb-4">
+              {hotSearchTags.map((tag, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2d2e30] rounded-full text-[13px] text-[#e3e3e3]"
+                >
+                  {tag}
+                  <button onClick={() => removeTag(index)} className="text-[#6e6e73] hover:text-[#ee675c]">
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+            
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newTag}
+                onChange={(e) => setNewTag(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && addTag()}
+                className="flex-1 h-10 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                placeholder="输入标签名称，按回车添加"
+              />
+              <button onClick={addTag} className="px-4 h-10 bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#e3e3e3] rounded-lg text-[13px] flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                添加
+              </button>
+            </div>
+            
+            <button
+              onClick={() => saveSetting("hot_search_tags", hotSearchTags)}
+              disabled={saving}
+              className="mt-4 px-4 py-2 bg-[#8ab4f8] hover:bg-[#aecbfa] text-[#131314] font-semibold rounded-lg text-[13px] transition-colors disabled:opacity-50 flex items-center gap-2"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              保存
+            </button>
+          </div>
+
+          {/* 发货方式文字 */}
+          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-[#81c995]/10 flex items-center justify-center">
+                <Truck className="w-5 h-5 text-[#81c995]" />
+              </div>
+              <div>
+                <h2 className="text-[15px] font-semibold text-[#e3e3e3]">发货方式文字</h2>
+                <p className="text-[12px] text-[#6e6e73]">商品卡片和购买弹窗显示的发货方式</p>
+              </div>
+            </div>
+            <input
+              type="text"
+              value={deliveryText}
+              onChange={(e) => setDeliveryText(e.target.value)}
+              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
+              placeholder="如：自动发货"
+            />
+            <button
+              onClick={() => saveSetting("delivery_text", deliveryText)}
+              disabled={saving}
+              className="mt-4 px-4 py-2 bg-[#8ab4f8] hover:bg-[#aecbfa] text-[#131314] font-semibold rounded-lg text-[13px] transition-colors disabled:opacity-50 flex items-center gap-2"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              保存
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 分类排序设置 */}
+      {activeTab === "categories" && (
+        <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] overflow-hidden">
+          <div className="px-6 py-4 border-b border-[#3c3c3f]">
+            <h2 className="text-[15px] font-semibold text-[#e3e3e3]">分类排序</h2>
+            <p className="text-[12px] text-[#6e6e73] mt-1">调整分类在首页的显示顺序，点击箭头上下移动</p>
+          </div>
+          <div className="divide-y divide-[#3c3c3f]">
+            {categories.map((category, index) => (
+              <div key={category.id} className="flex items-center gap-4 px-6 py-4 hover:bg-[#2d2e30]/50">
+                <div className="flex flex-col gap-1">
+                  <button
+                    onClick={() => moveCategory(index, "up")}
+                    disabled={index === 0}
+                    className="p-1 text-[#9aa0a6] hover:text-[#e3e3e3] disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    <ArrowUp className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => moveCategory(index, "down")}
+                    disabled={index === categories.length - 1}
+                    className="p-1 text-[#9aa0a6] hover:text-[#e3e3e3] disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    <ArrowDown className="w-4 h-4" />
+                  </button>
+                </div>
+                <div 
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-[20px]"
+                  style={{ backgroundColor: `${category.color}20` }}
+                >
+                  {category.icon}
+                </div>
+                <div className="flex-1">
+                  <p className="text-[14px] font-medium text-[#e3e3e3]">{category.name}</p>
+                </div>
+                <span className="text-[13px] text-[#6e6e73] bg-[#2d2e30] px-2 py-1 rounded">#{index + 1}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 底部导航设置 */}
+      {activeTab === "footer" && (
+        <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#c58af9]/10 flex items-center justify-center">
+                <LinkIcon className="w-5 h-5 text-[#c58af9]" />
+              </div>
+              <div>
+                <h2 className="text-[15px] font-semibold text-[#e3e3e3]">底部导航链接</h2>
+                <p className="text-[12px] text-[#6e6e73]">页面底部显示的导航链接</p>
+              </div>
+            </div>
+            <button
+              onClick={addFooterLink}
+              className="px-3 py-1.5 bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#e3e3e3] rounded-lg text-[13px] flex items-center gap-1.5"
+            >
+              <Plus className="w-4 h-4" />
+              添加链接
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            {footerLinks.map((link, index) => (
+              <div key={index} className="flex items-center gap-3">
+                <input
+                  type="text"
+                  value={link.name}
+                  onChange={(e) => updateFooterLink(index, "name", e.target.value)}
+                  className="w-32 h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8]"
+                  placeholder="链接名称"
+                />
+                <input
+                  type="text"
+                  value={link.url}
+                  onChange={(e) => updateFooterLink(index, "url", e.target.value)}
+                  className="flex-1 h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8]"
+                  placeholder="链接地址，如 /about"
+                />
+                <button onClick={() => removeFooterLink(index)} className="p-2 text-[#6e6e73] hover:text-[#ee675c]">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+            {footerLinks.length === 0 && (
+              <p className="text-[13px] text-[#6e6e73] text-center py-4">暂无链接，点击上方按钮添加</p>
+            )}
+          </div>
+
+          <button
+            onClick={() => saveSetting("footer_links", footerLinks)}
+            disabled={saving}
+            className="mt-4 px-4 py-2 bg-[#8ab4f8] hover:bg-[#aecbfa] text-[#131314] font-semibold rounded-lg text-[13px] disabled:opacity-50 flex items-center gap-2"
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            保存
+          </button>
+        </div>
+      )}
+
+      {/* 基本设置 */}
+      {activeTab === "basic" && (
+        <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] p-6 space-y-5">
+          <div>
+            <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">网站名称</label>
+            <input
+              type="text"
+              value={siteName}
+              onChange={(e) => setSiteName(e.target.value)}
+              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8]"
               placeholder="如：账号批发平台"
             />
           </div>
 
           <div>
-            <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
-              网站描述
-            </label>
+            <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">网站描述</label>
             <textarea
-              value={settings.site_description}
-              onChange={(e) => setSettings({ ...settings, site_description: e.target.value })}
+              value={siteDescription}
+              onChange={(e) => setSiteDescription(e.target.value)}
               rows={3}
-              className="w-full px-4 py-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors resize-none"
+              className="w-full px-4 py-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8] resize-none"
               placeholder="网站简短描述..."
             />
           </div>
 
           <div>
-            <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
-              联系邮箱
-            </label>
+            <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">联系邮箱</label>
             <input
               type="email"
-              value={settings.contact_email}
-              onChange={(e) => setSettings({ ...settings, contact_email: e.target.value })}
-              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+              value={contactEmail}
+              onChange={(e) => setContactEmail(e.target.value)}
+              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8]"
               placeholder="support@example.com"
             />
           </div>
 
           <div>
-            <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
-              Telegram 联系方式
-            </label>
+            <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">Telegram 联系方式</label>
             <input
               type="text"
-              value={settings.contact_telegram}
-              onChange={(e) => setSettings({ ...settings, contact_telegram: e.target.value })}
-              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+              value={contactTelegram}
+              onChange={(e) => setContactTelegram(e.target.value)}
+              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8]"
               placeholder="@username"
             />
           </div>
 
-          <div className="pt-4 flex items-center gap-4">
-            <button
-              type="submit"
-              disabled={isSaving}
-              className="flex items-center gap-2 px-6 py-2.5 bg-[#8ab4f8] hover:bg-[#aecbfa] disabled:opacity-50 text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px]"
-            >
-              {isSaving ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Save className="w-4 h-4" />
-              )}
-              保存设置
-            </button>
-            {message && (
-              <span className={`text-[14px] font-medium ${
-                message.includes("失败") ? "text-[#ee675c]" : "text-[#81c995]"
-              }`}>
-                {message}
-              </span>
-            )}
-          </div>
+          <button
+            onClick={() => saveMultipleSettings([
+              { key: "site_name", value: siteName },
+              { key: "site_description", value: siteDescription },
+              { key: "contact_email", value: contactEmail },
+              { key: "contact_telegram", value: contactTelegram },
+            ])}
+            disabled={saving}
+            className="px-4 py-2 bg-[#8ab4f8] hover:bg-[#aecbfa] text-[#131314] font-semibold rounded-lg text-[13px] disabled:opacity-50 flex items-center gap-2"
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            保存设置
+          </button>
         </div>
-      </form>
+      )}
     </div>
   )
 }

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, Pencil, Trash2, Loader2, X, Package } from "lucide-react"
+import { Plus, Pencil, Trash2, Loader2, X, Package, ArrowUp, ArrowDown } from "lucide-react"
 import Link from "next/link"
 
 interface Category {
@@ -27,6 +27,7 @@ interface Product {
   logo_url: string
   logo_data: string | null
   logo_bg_color: string | null
+  sort_order: number
   categories: { name: string } | null
 }
 
@@ -169,6 +170,56 @@ export default function ProductsPage() {
     }
   }
 
+  const handleMoveUp = async (index: number) => {
+    if (index === 0) return
+    const sortedProducts = [...products].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+    const current = sortedProducts[index]
+    const prev = sortedProducts[index - 1]
+    
+    try {
+      await Promise.all([
+        fetch(`/api/admin/products/${current.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sort_order: prev.sort_order || index - 1 }),
+        }),
+        fetch(`/api/admin/products/${prev.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sort_order: current.sort_order || index }),
+        }),
+      ])
+      fetchData()
+    } catch (error) {
+      console.error("Failed to move product:", error)
+    }
+  }
+
+  const handleMoveDown = async (index: number) => {
+    const sortedProducts = [...products].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+    if (index === sortedProducts.length - 1) return
+    const current = sortedProducts[index]
+    const next = sortedProducts[index + 1]
+    
+    try {
+      await Promise.all([
+        fetch(`/api/admin/products/${current.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sort_order: next.sort_order || index + 1 }),
+        }),
+        fetch(`/api/admin/products/${next.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sort_order: current.sort_order || index }),
+        }),
+      ])
+      fetchData()
+    } catch (error) {
+      console.error("Failed to move product:", error)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -202,6 +253,7 @@ export default function ProductsPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-[#3c3c3f]">
+                <th className="px-3 py-4 text-left text-[13px] font-semibold text-[#9aa0a6]">排序</th>
                 <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6]">产品名称</th>
                 <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6] hidden md:table-cell">分类</th>
                 <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6]">价格</th>
@@ -211,8 +263,26 @@ export default function ProductsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#3c3c3f]">
-              {products.map((product) => (
+              {[...products].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)).map((product, index) => (
                 <tr key={product.id} className="hover:bg-[#2d2e30]/50 transition-colors">
+                  <td className="px-3 py-4">
+                    <div className="flex flex-col gap-1">
+                      <button
+                        onClick={() => handleMoveUp(index)}
+                        disabled={index === 0}
+                        className="p-1 text-[#9aa0a6] hover:text-[#8ab4f8] hover:bg-[#8ab4f8]/10 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                      >
+                        <ArrowUp className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleMoveDown(index)}
+                        disabled={index === products.length - 1}
+                        className="p-1 text-[#9aa0a6] hover:text-[#8ab4f8] hover:bg-[#8ab4f8]/10 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                      >
+                        <ArrowDown className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
                   <td className="px-5 py-4">
                     <div>
                       <p className="text-[14px] font-medium text-[#e3e3e3]">{product.name}</p>
