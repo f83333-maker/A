@@ -136,25 +136,13 @@ export default function AnalyticsPage() {
         todayProfit,
       })
 
-      // 解析IP地址位置（对于没有location的）
-      const ipsToResolve = uniqueVisitors
-        .filter(v => !v.ip_location || v.ip_location === "未知")
-        .map(v => v.ip_address)
-        .filter((ip, i, arr) => arr.indexOf(ip) === i)
-        .slice(0, 10) // 限制请求数量
-
+      // IP位置直接使用数据库存储的位置信息，不再调用外部API
       const locationMap: Record<string, string> = {}
-      await Promise.all(
-        ipsToResolve.map(async (ip) => {
-          try {
-            const res = await fetch(`/api/ip-location?ip=${ip}`)
-            const data = await res.json()
-            locationMap[ip] = data.location || "未知"
-          } catch {
-            locationMap[ip] = "未知"
-          }
-        })
-      )
+      uniqueVisitors.forEach(v => {
+        if (v.ip_location && v.ip_location !== "未知") {
+          locationMap[v.ip_address] = v.ip_location
+        }
+      })
       setIpLocations(locationMap)
 
     } catch (error) {
