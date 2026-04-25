@@ -49,8 +49,15 @@ async function processPayment(data: Record<string, any>): Promise<{ success: boo
 
   // 检查订单是否已经处理过（防止重复发货）
   if (order.status === "delivered" || order.status === "paid") {
-    console.log("[v0] 订单已处理过，跳过:", orderNo)
-    return { success: true }
+    console.log("[v0] 订单已处理过，获取已有token:", orderNo)
+    // 获取已存在的 token 或生成新的
+    try {
+      const token = await generateOrderToken(order.id)
+      return { success: true, token }
+    } catch (error) {
+      console.error("[v0] 获取订单 token 失败:", error)
+      return { success: true }
+    }
   }
 
   // 从库存表获取可用的账号
