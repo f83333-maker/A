@@ -2,10 +2,31 @@ import { createClient } from "@/lib/supabase/server"
 import crypto from "crypto"
 
 /**
- * 为订单生成安全的查询令牌
+ * 为订单生成安全的查询令牌（如果已存在则返回已有的）
  */
 export async function generateOrderToken(orderId: string): Promise<string> {
   const supabase = await createClient()
+  
+  // 先检查是否已有 token
+  const { data: existingToken } = await supabase
+    .from("order_tokens")
+    .select("token, expires_at")
+    .eq("order_id", orderId)
+    .single()
+  
+  // 如果已有未过期的 token，直接返回
+  if (existingToken && new Date(existingToken.expires_at) > new Date()) {
+    console.log("[v0] 返回已有订单 token")
+    return existingToken.token
+  }
+  
+  // 如果有过期的 token，删除它
+  if (existingToken) {
+    await supabase
+      .from("order_tokens")
+      .delete()
+      .eq("order_id", orderId)
+  }
   
   // 生成随机 token - 使用高强度随机数
   const token = crypto.randomBytes(32).toString("hex")
@@ -24,6 +45,7 @@ export async function generateOrderToken(orderId: string): Promise<string> {
     throw new Error("Failed to generate order token")
   }
   
+  console.log("[v0] 生成新订单 token")
   return token
 }
 
