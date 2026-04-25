@@ -85,19 +85,9 @@ export async function POST(request: NextRequest) {
   // 解析设备信息
   const { type: deviceType, info: deviceInfo } = parseDevice(userAgent)
   
-  // 获取IP地理位置
+  // 获取IP地理位置 - 异步处理，不阻塞主流程
   let ipLocation = "未知"
-  try {
-    if (ip && ip !== "unknown" && !ip.startsWith("192.168.") && !ip.startsWith("10.") && ip !== "127.0.0.1") {
-      const locationRes = await fetch(`http://ip-api.com/json/${ip}?lang=zh-CN&fields=status,regionName,city`)
-      const locationData = await locationRes.json()
-      if (locationData.status === "success") {
-        ipLocation = `${locationData.regionName || ""}${locationData.city || ""}` || "未知"
-      }
-    }
-  } catch {
-    // 忽略地理位置解析错误
-  }
+  // 注意：IP地理位置解析改为后台异步更新，避免阻塞页面加载
   
   // 检查12小时内是否已记录过此IP+页面组合
   const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString()
