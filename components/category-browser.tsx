@@ -80,9 +80,17 @@ interface CategoryBrowserProps {
 }
 
 export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
+  // SWR 获取数据
+  const { data: categoriesData, isLoading: categoriesLoading } = useSWR<Category[]>("/api/categories", fetcher)
+  const { data: productsData, isLoading: productsLoading } = useSWR<Product[]>("/api/products", fetcher)
+  
+  const categories = categoriesData || []
+  const products = productsData || []
+
   const [activeCategoryId, setActiveCategoryId] = useState<string>("")
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [deliveryText, setDeliveryText] = useState("自动发货")
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   // 获取站点设置
   useEffect(() => {
@@ -93,7 +101,6 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
       })
       .catch(err => console.error("获取设置失败:", err))
   }, [])
-  const [isModalOpen, setIsModalOpen] = useState(false)
 
   // 当分类加载完成时，设置默认分类
   useEffect(() => {
