@@ -36,23 +36,24 @@ export async function GET(request: Request) {
 
     const supabase = await createClient()
 
-    // 获取所有管理员的最后登录时间
-    const { data: admins, error: adminError } = await supabase
-      .from("admin_users")
-      .select("id, username, last_login_at")
-      .order("last_login_at", { ascending: false })
+    // 从 admin_login_log 表获取最后登录时间
+    const { data: loginLogs, error: logError } = await supabase
+      .from("admin_login_log")
+      .select("login_at")
+      .order("login_at", { ascending: false })
       .limit(1)
 
-    if (adminError || !admins || admins.length === 0) {
+    if (logError) {
+      console.error("[Cleanup] 查询登录日志失败:", logError)
       return NextResponse.json({ 
-        message: "没有管理员账号",
-        ordersDeleted: false 
-      })
+        error: "查询登录日志失败",
+        details: logError.message 
+      }, { status: 500 })
     }
 
-    const latestAdmin = admins[0]
-    const lastLoginAt = latestAdmin.last_login_at 
-      ? new Date(latestAdmin.last_login_at) 
+    // 如果没有登录记录，视为从未登录
+    const lastLoginAt = loginLogs && loginLogs.length > 0 
+      ? new Date(loginLogs[0].login_at) 
       : new Date(0)
     
     const now = new Date()
@@ -67,17 +68,17 @@ export async function GET(request: Request) {
     if (daysSinceLastLogin >= INACTIVE_DAYS_THRESHOLD) {
       console.log(`[Cleanup] 超过 ${INACTIVE_DAYS_THRESHOLD} 天未登录，开始删除所有订单...`)
       
-      // 彻底删除所有订单（使用 TRUNCATE 级别的删除）
+      // 彻底删除所有订单
       // 1. 先获取订单数量
       const { count: orderCount } = await supabase
         .from("orders")
         .select("*", { count: "exact", head: true })
       
-      // 2. 删除所有订单
+      // 2. 删除所有订单 - 使用 gte 条件删除所有记录
       const { error: deleteError } = await supabase
         .from("orders")
         .delete()
-        .neq("id", "00000000-0000-0000-0000-000000000000") // 删除所有记录的技巧
+        .gte("created_at", "1970-01-01")
       
       if (deleteError) {
         console.error("[Cleanup] 删除订单失败:", deleteError)
@@ -87,7 +88,7 @@ export async function GET(request: Request) {
         }, { status: 500 })
       }
 
-      // 3. 记录删除日志（可选：存到单独的审计表）
+      // 3. 记录删除日志
       console.log(`[Cleanup] 已删除 ${orderCount || 0} 条订单`)
 
       return NextResponse.json({
