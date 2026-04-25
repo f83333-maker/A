@@ -80,7 +80,7 @@ interface CategoryBrowserProps {
 }
 
 export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
-  const [activeCategory, setActiveCategory] = useState<string>("all")
+  const [activeCategoryId, setActiveCategoryId] = useState<string>("")
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [deliveryText, setDeliveryText] = useState("自动发货")
 
