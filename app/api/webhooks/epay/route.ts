@@ -52,7 +52,9 @@ async function processPayment(data: Record<string, any>): Promise<{ success: boo
     console.log("[v0] 订单已处理过，获取已有token:", orderNo)
     // 获取已存在的 token 或生成新的
     try {
+      console.log("[v0] 为已处理订单生成 token:", order.id)
       const token = await generateOrderToken(order.id)
+      console.log("[v0] 获取/生成成功，token:", token.substring(0, 10) + "...")
       return { success: true, token }
     } catch (error) {
       console.error("[v0] 获取订单 token 失败:", error)
@@ -135,11 +137,11 @@ async function processPayment(data: Record<string, any>): Promise<{ success: boo
     })
     .eq("id", order.product_id)
 
-  console.log(`[v0] 订单 ${orderNo} 已完成并发放账号`)
-  
   // 生成安全的订单查询 token
   try {
+    console.log("[v0] 为订单生成 token:", order.id)
     const token = await generateOrderToken(order.id)
+    console.log("[v0] 生成成功，token:", token.substring(0, 10) + "...")
     return { success: true, token }
   } catch (error) {
     console.error("[v0] 生成订单 token 失败:", error)
