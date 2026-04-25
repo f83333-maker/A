@@ -193,11 +193,37 @@ export async function GET(request: NextRequest) {
     const orderNo = data.out_trade_no
     if (orderNo && result.token) {
       // 使用加密 token 重定向到安全地址
+      console.log("[v0] 使用token重定向")
       return NextResponse.redirect(`${PRODUCTION_URL}/order-success?token=${result.token}`)
     }
     
-    // 如果没有 token 但订单处理成功，用订单号重定向
+    // 如果没有 token，生成一个作为后备方案
+    if (orderNo && !result.token) {
+      console.log("[v0] 没有token，尝试生成后备token")
+      try {
+        // 查询订单以获取订单ID
+        const supabase = await createClient()
+        const { data: order } = await supabase
+          .from("orders")
+          .select("id")
+          .eq("order_no", orderNo)
+          .single()
+        
+        if (order) {
+          const token = await generateOrderToken(order.id)
+          if (token) {
+            console.log("[v0] 生成后备token成功，重定向")
+            return NextResponse.redirect(`${PRODUCTION_URL}/order-success?token=${token}`)
+          }
+        }
+      } catch (error) {
+        console.error("[v0] 生成后备token失败:", error)
+      }
+    }
+    
+    // 所有token方式都失败，回到旧的订单号重定向方式
     if (orderNo) {
+      console.log("[v0] 所有token方式失败，使用旧方式重定向")
       return NextResponse.redirect(`${PRODUCTION_URL}/order/${orderNo}?trade_no=${data.trade_no || ""}`)
     }
     
