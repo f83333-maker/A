@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextRequest, NextResponse } from "next/server"
-import crypto from "crypto"
+import { verifyData } from "@/lib/encryption"
 
 export async function POST(
   request: NextRequest,
@@ -26,11 +26,11 @@ export async function POST(
     return NextResponse.json({ success: false, error: "订单不存在" }, { status: 404 })
   }
 
-  // 计算密码哈希
-  const passwordHash = crypto.createHash("sha256").update(password).digest("hex")
+  // 使用超强加密验证密码
+  const passwordValid = await verifyData(password, order.query_password, order.query_password_salt || "")
 
   // 验证密码
-  if (order.query_password !== passwordHash) {
+  if (!passwordValid) {
     return NextResponse.json({ success: false, error: "密码错误" })
   }
 
