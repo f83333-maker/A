@@ -80,17 +80,19 @@ interface CategoryBrowserProps {
 }
 
 export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
-  const { data: categories = [], isLoading: categoriesLoading } = useSWR<Category[]>(
-    "/api/categories",
-    fetcher
-  )
-  const { data: products = [], isLoading: productsLoading } = useSWR<Product[]>(
-    "/api/products",
-    fetcher
-  )
-
-  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null)
+  const [activeCategory, setActiveCategory] = useState<string>("all")
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [deliveryText, setDeliveryText] = useState("自动发货")
+
+  // 获取站点设置
+  useEffect(() => {
+    fetch("/api/site-settings")
+      .then(res => res.json())
+      .then(data => {
+        if (data.delivery_text) setDeliveryText(data.delivery_text)
+      })
+      .catch(err => console.error("获取设置失败:", err))
+  }, [])
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   // 当分类加载完成时，设置默认分类
@@ -329,12 +331,14 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                           </button>
                         </div>
 
-                        {/* 库存 */}
-                        <div className="mt-3 pt-3 border-t border-[#3c3c3f]/40 flex justify-between text-[11px] font-medium">
+                        {/* 库存 & 发货方式 */}
+                        <div className="mt-3 pt-3 border-t border-[#3c3c3f]/40 flex justify-between items-center text-[11px] font-medium">
                           <span className="text-[#6e6e73]">
                             库存 <Highlight text={String(product.stock || 0)} query={searchQuery} />
                           </span>
-                          <span className="text-[#81c995]">即时发货</span>
+                          <span className="px-2 py-0.5 bg-[#81c995]/15 text-[#81c995] rounded-full text-[10px]">
+                            {deliveryText}
+                          </span>
                         </div>
                       </div>
                     </div>

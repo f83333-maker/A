@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { X, Copy, Check, Minus, Plus, Info, Zap, Loader2, Smartphone, RefreshCw } from "lucide-react"
+import { X, Copy, Check, Minus, Plus, Info, Loader2, Smartphone, RefreshCw } from "lucide-react"
 import { createEpayCheckout } from "@/app/actions/epay"
 
 interface Product {
@@ -45,6 +45,17 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [paymentType, setPaymentType] = useState<"wxpay" | "alipay">("wxpay")
+  const [deliveryText, setDeliveryText] = useState("自动发货")
+
+  // 获取站点设置
+  useEffect(() => {
+    fetch("/api/site-settings")
+      .then(res => res.json())
+      .then(data => {
+        if (data.delivery_text) setDeliveryText(data.delivery_text)
+      })
+      .catch(err => console.error("获取设置失败:", err))
+  }, [])
 
   // 重置状态
   useEffect(() => {
@@ -158,13 +169,13 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
         {/* 可滚动内容区 */}
         <div className="overflow-y-auto flex-1 p-6">
           
-          {/* 商品标题 + 自动发货图标 */}
+          {/* 商品标题 + 发货方式 */}
           <div className="flex items-center gap-2 pr-10 mb-4">
             <h2 className="text-[18px] font-semibold text-[#e3e3e3] leading-relaxed">
               {product.name}
             </h2>
-            <span className="inline-flex items-center justify-center w-5 h-5 bg-[#81c995]/15 rounded-md" title="自动发货">
-              <Zap className="w-3 h-3 text-[#81c995]" />
+            <span className="inline-flex items-center px-2 py-0.5 bg-[#81c995]/15 rounded-full text-[11px] font-medium text-[#81c995]">
+              {deliveryText}
             </span>
           </div>
 
