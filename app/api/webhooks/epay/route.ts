@@ -1,17 +1,18 @@
 import { verifyEpaySign } from "@/lib/epay"
 import { createClient } from "@/lib/supabase/server"
+import { generateOrderToken } from "@/lib/order-token"
 import { NextRequest, NextResponse } from "next/server"
 
 // 生产域名
 const PRODUCTION_URL = "https://pcccc.cc"
 
-async function processPayment(data: Record<string, any>): Promise<boolean> {
+async function processPayment(data: Record<string, any>): Promise<{ success: boolean; token?: string }> {
   console.log("[v0] 易支付回调数据:", JSON.stringify(data))
 
   // 验证签名
   if (!verifyEpaySign(data)) {
     console.error("[v0] 易支付签名验证失败")
-    return false
+    return { success: false }
   }
 
   // 获取订单号和状态
@@ -23,13 +24,13 @@ async function processPayment(data: Record<string, any>): Promise<boolean> {
 
   if (!orderNo) {
     console.error("[v0] 缺少订单号")
-    return false
+    return { success: false }
   }
 
   // 只处理支付成功的通知
   if (tradeStatus !== "TRADE_SUCCESS") {
     console.log("[v0] 非成功状态，跳过处理:", tradeStatus)
-    return true // 返回成功避免重试
+    return { success: true } // 返回成功避免重试
   }
 
   const supabase = await createClient()
@@ -43,13 +44,13 @@ async function processPayment(data: Record<string, any>): Promise<boolean> {
 
   if (queryError || !order) {
     console.error("[v0] 订单不存在:", orderNo)
-    return false
+    return { success: false }
   }
 
   // 检查订单是否已经处理过（防止重复发货）
   if (order.status === "delivered" || order.status === "paid") {
     console.log("[v0] 订单已处理过，跳过:", orderNo)
-    return true
+    return { success: true }
   }
 
   // 从库存表获取可用的账号
@@ -101,7 +102,7 @@ async function processPayment(data: Record<string, any>): Promise<boolean> {
 
   if (updateError) {
     console.error("[v0] 更新订单状态失败:", updateError)
-    return false
+    return { success: false }
   }
 
   console.log("[v0] 订单状态已更新为 delivered")
@@ -128,7 +129,15 @@ async function processPayment(data: Record<string, any>): Promise<boolean> {
     .eq("id", order.product_id)
 
   console.log(`[v0] 订单 ${orderNo} 已完成并发放账号`)
-  return true
+  
+  // 生成安全的订单查询 token
+  try {
+    const token = await generateOrderToken(order.id)
+    return { success: true, token }
+  } catch (error) {
+    console.error("[v0] 生成订单 token 失败:", error)
+    return { success: true, token: null } // token 生成失败但订单处理成功
+  }
 }
 
 // POST 请求处理（异步回调 notify_url）
@@ -143,10 +152,10 @@ export async function POST(request: NextRequest) {
       data[key] = value
     })
     
-    const success = await processPayment(data)
+    const result = await processPayment(data)
     
     // 易支付要求返回纯文本 "success"
-    return new NextResponse(success ? "success" : "fail", {
+    return new NextResponse(result.success ? "success" : "fail", {
       headers: { "Content-Type": "text/plain" }
     })
   } catch (error) {
@@ -169,10 +178,16 @@ export async function GET(request: NextRequest) {
     console.log("[v0] GET 同步回调数据:", JSON.stringify(data))
     
     // 同步回调也处理支付状态
-    await processPayment(data)
+    const result = await processPayment(data)
     
-    // 获取订单号并跳转到订单详情页
+    // 获取订单号
     const orderNo = data.out_trade_no
+    if (orderNo && result.token) {
+      // 使用加密 token 重定向到安全地址
+      return NextResponse.redirect(`${PRODUCTION_URL}/order-success?token=${result.token}`)
+    }
+    
+    // 如果没有 token 但订单处理成功，用订单号重定向
     if (orderNo) {
       return NextResponse.redirect(`${PRODUCTION_URL}/order/${orderNo}?trade_no=${data.trade_no || ""}`)
     }
