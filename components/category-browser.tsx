@@ -13,6 +13,9 @@ interface Category {
   icon: string
   color: string
   description: string
+  logo_url: string | null
+  logo_data: string | null
+  logo_bg_color: string | null
 }
 
 interface Product {
@@ -89,7 +92,7 @@ function StockBadge({ stock }: { stock: number }) {
   )
 }
 
-// 分类图标组件
+// 分类图标组件（支持logo图片）
 function CategoryLogo({
   category,
   size = "md",
@@ -97,42 +100,28 @@ function CategoryLogo({
   category: Category
   size?: "sm" | "md" | "lg"
 }) {
-  const sizeMap = { sm: "w-8 h-8 text-[18px]", md: "w-10 h-10 text-[22px]", lg: "w-12 h-12 text-[26px]" }
-  return (
-    <div
-      className={`${sizeMap[size]} rounded-xl flex items-center justify-center shrink-0`}
-      style={{ backgroundColor: `${category.color}22` }}
-    >
-      <span>{category.icon}</span>
-    </div>
-  )
-}
-
-// 产品图标组件
-function ProductLogo({ product, category }: { product: Product; category?: Category }) {
-  const fallback = category?.icon || "📦"
-  if (product.logo_data) {
+  const sizeMap = {
+    sm: { box: "w-8 h-8", img: "w-5 h-5", text: "text-[16px]" },
+    md: { box: "w-9 h-9", img: "w-6 h-6", text: "text-[18px]" },
+    lg: { box: "w-10 h-10", img: "w-7 h-7", text: "text-[22px]" },
+  }
+  const s = sizeMap[size]
+  if (category.logo_data) {
     return (
       <div
-        className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 overflow-hidden"
-        style={{ backgroundColor: product.logo_bg_color || "#2d2e30" }}
+        className={`${s.box} rounded-xl flex items-center justify-center shrink-0 overflow-hidden`}
+        style={{ backgroundColor: category.logo_bg_color || "#2d2e30" }}
       >
-        <img
-          src={product.logo_data}
-          alt={product.name}
-          className="w-6 h-6 object-contain"
-          onError={(e) => {
-            const t = e.target as HTMLImageElement
-            t.style.display = "none"
-            if (t.parentElement) t.parentElement.innerHTML = `<span class="text-[18px]">${fallback}</span>`
-          }}
-        />
+        <img src={category.logo_data} alt={category.name} className={`${s.img} object-contain`} />
       </div>
     )
   }
   return (
-    <div className="w-9 h-9 rounded-xl bg-[#2d2e30] flex items-center justify-center shrink-0">
-      <span className="text-[18px]">{fallback}</span>
+    <div
+      className={`${s.box} rounded-xl flex items-center justify-center shrink-0 ${s.text}`}
+      style={{ backgroundColor: `${category.color}22` }}
+    >
+      <span>{category.icon}</span>
     </div>
   )
 }
@@ -280,12 +269,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
             {activeCategory && (
               <div className="flex items-center justify-between mb-4 pb-3 border-b-2" style={{ borderColor: activeCategory.color }}>
                 <div className="flex items-center gap-2.5">
-                  <div
-                    className="w-9 h-9 rounded-xl flex items-center justify-center text-[20px] shrink-0"
-                    style={{ backgroundColor: `${activeCategory.color}20` }}
-                  >
-                    {activeCategory.icon}
-                  </div>
+                  <CategoryLogo category={activeCategory} size="md" />
                   <h2 className="text-[16px] sm:text-[18px] font-bold text-[#e3e3e3] truncate">
                     {activeCategory.name}
                   </h2>
@@ -323,10 +307,9 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                     }`}
                   >
                     {/* 中大屏：单行表格布局 */}
-                    <div className="hidden sm:grid grid-cols-[1fr_80px_90px_70px_88px] gap-2 items-center px-4 py-3">
+                    <div className="hidden sm:grid grid-cols-[1fr_80px_90px_70px_88px] gap-2 items-center px-4 py-2">
                       {/* 商品名称 */}
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <ProductLogo product={product} category={activeCategory} />
+                      <div className="flex items-center min-w-0">
                         <span className="text-[13px] text-[#e3e3e3] font-medium leading-snug truncate">
                           <Highlight text={product.name} query={searchQuery} />
                         </span>
@@ -364,8 +347,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                     </div>
 
                     {/* 小屏：紧凑卡片布局 */}
-                    <div className="flex sm:hidden items-center gap-3 px-3 py-3">
-                      <ProductLogo product={product} category={activeCategory} />
+                    <div className="flex sm:hidden items-center gap-2 px-3 py-2">
                       <div className="flex-1 min-w-0">
                         <p className="text-[12px] text-[#e3e3e3] font-medium leading-snug line-clamp-2 mb-1">
                           <Highlight text={product.name} query={searchQuery} />
