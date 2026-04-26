@@ -27,6 +27,7 @@ interface Product {
   logo_url: string
   logo_data: string | null
   logo_bg_color: string | null
+  delivery_type: string
   sort_order: number
   categories: { name: string } | null
 }
@@ -54,6 +55,7 @@ export default function ProductsPage() {
     logo_url: "",
     logo_data: "",
     logo_bg_color: "#2d2e30",
+    delivery_type: "自动发货",
   })
   const [isSaving, setIsSaving] = useState(false)
   const [isFetchingLogo, setIsFetchingLogo] = useState(false)
@@ -109,6 +111,7 @@ export default function ProductsPage() {
         logo_url: product.logo_url || "",
         logo_data: product.logo_data || "",
         logo_bg_color: product.logo_bg_color || "#2d2e30",
+        delivery_type: product.delivery_type || "自动发货",
       })
       setLogoPreview(product.logo_data || null)
     } else {
@@ -130,6 +133,7 @@ export default function ProductsPage() {
         logo_url: "",
         logo_data: "",
         logo_bg_color: "#2d2e30",
+        delivery_type: "自动发货",
       })
       setLogoPreview(null)
     }
@@ -676,6 +680,20 @@ export default function ProductsPage() {
                   <span className="text-[14px] font-medium text-[#e3e3e3]">上架产品</span>
                 </label>
               </div>
+              
+              {/* 发货类型 */}
+              <div className="space-y-2">
+                <label className="text-[14px] font-medium text-[#e3e3e3]">发货类型</label>
+                <select
+                  value={formData.delivery_type}
+                  onChange={(e) => setFormData({ ...formData, delivery_type: e.target.value })}
+                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                >
+                  <option value="自动发货">自动发货</option>
+                  <option value="人工发货">人工发货</option>
+                </select>
+              </div>
+
               <div className="flex gap-3 pt-4">
                 <button
                   type="button"
