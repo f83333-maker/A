@@ -7,7 +7,7 @@ export async function GET() {
     .from("products")
     .select("*, categories(name, icon, color)")
     .eq("is_active", true)
-    .order("created_at", { ascending: false })
+    .order("sort_order", { ascending: true })
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
