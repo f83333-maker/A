@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import useSWR from "swr"
-import { PackageSearch, Loader2, ShoppingCart, Star, ChevronLeft, ChevronRight } from "lucide-react"
+import { PackageSearch, Loader2, ChevronLeft, ChevronRight } from "lucide-react"
 import { PurchaseModal } from "./purchase-modal"
 
 // ── 类型定义 ──────────────────────────────────────────────────────────────────
@@ -74,53 +74,15 @@ function matchesQuery(p: Product, q: string) {
 // 库存状态显示
 function StockStatus({ stock }: { stock: number }) {
   if (stock <= 0) {
-    return <span className="text-[#ff4d6a] text-[13px] font-medium">售罄</span>
+    return <span className="text-[#ff4d6a] text-[12px] font-medium">售罄</span>
   }
-  if (stock <= 10) {
-    return (
-      <span className="text-[13px]">
-        <span className="text-[#ff4d6a] font-medium">{stock}</span>
-        <span className="text-[#ff4d6a]/60 text-[11px] ml-0.5">紧张</span>
-      </span>
-    )
+  if (stock < 10) {
+    return <span className="text-[#ff4d6a] text-[12px] font-medium">库存紧张</span>
   }
-  if (stock <= 50) {
-    return (
-      <span className="text-[13px]">
-        <span className="text-[#ffd700] font-medium">{stock}</span>
-        <span className="text-[#ffd700]/60 text-[11px] ml-0.5">一般</span>
-      </span>
-    )
+  if (stock < 30) {
+    return <span className="text-[#ffd700] text-[12px] font-medium">库存一般</span>
   }
-  return (
-    <span className="text-[13px]">
-      <span className="text-[#00d26a] font-medium">{stock}</span>
-      <span className="text-[#00d26a]/60 text-[11px] ml-0.5">充足</span>
-    </span>
-  )
-}
-
-// 产品Logo组件
-function ProductLogo({ product }: { product: Product }) {
-  if (product.logo_data) {
-    return (
-      <div
-        className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 overflow-hidden"
-        style={{ backgroundColor: product.logo_bg_color || "#1a1a1a" }}
-      >
-        <img src={product.logo_data} alt={product.name} className="w-6 h-6 object-contain" />
-      </div>
-    )
-  }
-  
-  // 默认显示产品名首字
-  return (
-    <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] border border-[#333]">
-      <span className="text-[14px] font-bold text-[#8c8c8c]">
-        {product.name.charAt(0)}
-      </span>
-    </div>
-  )
+  return <span className="text-[#00d26a] text-[12px] font-medium">库存充足</span>
 }
 
 // 折扣标签
@@ -151,44 +113,28 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
   const [activeCategoryId, setActiveCategoryId] = useState<string>("all")
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [favorites, setFavorites] = useState<Set<string>>(new Set())
   const categoryScrollRef = useRef<HTMLDivElement>(null)
 
-  // 初始化
+  // 初始化：默认选中第一个分类
   useEffect(() => {
     if (categories.length > 0 && activeCategoryId === "all") {
-      // 默认显示全部
+      setActiveCategoryId(categories[0].id)
     }
   }, [categories, activeCategoryId])
 
-  // 搜索时切换到全部
-  useEffect(() => {
-    if (searchQuery.trim()) {
-      setActiveCategoryId("all")
-    }
-  }, [searchQuery])
+  // 搜索时在当前分类内搜索
 
   const handlePurchase = (product: Product) => {
     setSelectedProduct(product)
     setIsModalOpen(true)
   }
 
-  const toggleFavorite = (productId: string) => {
-    setFavorites(prev => {
-      const newSet = new Set(prev)
-      if (newSet.has(productId)) {
-        newSet.delete(productId)
-      } else {
-        newSet.add(productId)
-      }
-      return newSet
-    })
-  }
+
 
   // 过滤产品
   const filteredProducts = products.filter(p => {
     const matchesSearch = matchesQuery(p, searchQuery)
-    const matchesCategory = activeCategoryId === "all" || p.category_id === activeCategoryId
+    const matchesCategory = p.category_id === activeCategoryId
     return matchesSearch && matchesCategory
   })
 
@@ -251,21 +197,6 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
             className="flex gap-2 overflow-x-auto scrollbar-hide mx-10 py-2"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {/* 全部标签 */}
-            <button
-              onClick={() => setActiveCategoryId("all")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-[13px] font-medium whitespace-nowrap transition-all duration-200 border ${
-                activeCategoryId === "all"
-                  ? "bg-[#1a1a1a] border-[#00d26a] text-white"
-                  : "bg-transparent border-[#333] text-[#8c8c8c] hover:border-[#555] hover:text-white"
-              }`}
-            >
-              <span className="w-5 h-5 rounded-full bg-gradient-to-br from-[#00d26a] to-[#00a855] flex items-center justify-center text-[10px] text-white font-bold">
-                ALL
-              </span>
-              全部
-            </button>
-
             {categories.map((cat) => {
               const isActive = cat.id === activeCategoryId
               const catProductCount = products.filter(p => p.category_id === cat.id).length
@@ -273,21 +204,21 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                 <button
                   key={cat.id}
                   onClick={() => setActiveCategoryId(cat.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-[13px] font-medium whitespace-nowrap transition-all duration-200 border ${
+                  className={`flex items-center gap-3 px-6 py-3 rounded-full text-[15px] font-medium whitespace-nowrap transition-all duration-200 border ${
                     isActive
                       ? "bg-[#1a1a1a] border-[#00d26a] text-white"
                       : "bg-transparent border-[#333] text-[#8c8c8c] hover:border-[#555] hover:text-white"
                   }`}
                 >
                   {cat.logo_data ? (
-                    <img src={cat.logo_data} alt={cat.name} className="w-5 h-5 rounded-full object-contain" />
+                    <img src={cat.logo_data} alt={cat.name} className="w-6 h-6 rounded-full object-contain" />
                   ) : (
-                    <span className="w-5 h-5 rounded-full bg-[#1a1a1a] flex items-center justify-center text-[10px]">
+                    <span className="w-6 h-6 rounded-full bg-[#1a1a1a] flex items-center justify-center text-[12px]">
                       {cat.icon || cat.name.charAt(0)}
                     </span>
                   )}
                   {cat.name}
-                  <span className="text-[11px] text-[#595959]">{catProductCount}</span>
+                  <span className="text-[12px] text-[#595959]">{catProductCount}</span>
                 </button>
               )
             })}
@@ -324,9 +255,8 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
         {/* ── 产品表格 ── */}
         <div className="border border-[#1a1a1a] rounded-lg overflow-hidden">
           {/* 表头 */}
-          <div className="hidden md:grid grid-cols-[40px_40px_1fr_100px_100px_100px_80px_100px] gap-4 px-4 py-3 bg-[#0a0a0a] border-b border-[#1a1a1a] text-[12px] text-[#595959] font-medium">
+          <div className="hidden md:grid grid-cols-[40px_1fr_100px_100px_100px_80px_100px] gap-4 px-4 py-2 bg-[#0a0a0a] border-b border-[#1a1a1a] text-[11px] text-[#595959] font-medium">
             <span>排名</span>
-            <span></span>
             <span>商品名称</span>
             <span className="text-right">单价</span>
             <span className="text-center">库存</span>
@@ -349,11 +279,11 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                   className="group border-b border-[#1a1a1a] last:border-b-0 hover:bg-[#0a0a0a] transition-colors"
                 >
                   {/* 桌面端 */}
-                  <div className="hidden md:grid grid-cols-[40px_40px_1fr_100px_100px_100px_80px_100px] gap-4 items-center px-4 py-3">
+                  <div className="hidden md:grid grid-cols-[40px_1fr_100px_100px_100px_80px_100px] gap-4 items-center px-4 py-2">
                     {/* 排名 */}
                     <div className="flex items-center justify-center">
                       {index < 3 ? (
-                        <span className={`text-[14px] font-bold ${
+                        <span className={`text-[13px] font-bold ${
                           index === 0 ? "text-[#ffd700]" : 
                           index === 1 ? "text-[#c0c0c0]" : 
                           "text-[#cd7f32]"
@@ -361,45 +291,30 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                           {index + 1}
                         </span>
                       ) : (
-                        <span className="text-[13px] text-[#595959]">{index + 1}</span>
+                        <span className="text-[12px] text-[#595959]">{index + 1}</span>
                       )}
                     </div>
 
-                    {/* 收藏 */}
-                    <button
-                      onClick={() => toggleFavorite(product.id)}
-                      className="flex items-center justify-center"
-                    >
-                      <Star
-                        className={`w-4 h-4 transition-colors ${
-                          favorites.has(product.id)
-                            ? "text-[#ffd700] fill-[#ffd700]"
-                            : "text-[#333] hover:text-[#595959]"
-                        }`}
-                      />
-                    </button>
-
                     {/* 商品信息 */}
-                    <div className="flex items-center gap-3 min-w-0">
-                      <ProductLogo product={product} />
+                    <div className="flex items-center gap-2 min-w-0">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-[14px] text-white font-medium truncate">
+                          <span className="text-[13px] text-white font-medium truncate">
                             <Highlight text={product.name} query={searchQuery} />
                           </span>
                           {product.is_hot && (
-                            <span className="px-1.5 py-0.5 text-[10px] font-bold rounded bg-[#ff4d6a]/20 text-[#ff4d6a]">
+                            <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-[#ff4d6a]/20 text-[#ff4d6a]">
                               HOT
                             </span>
                           )}
                           <DiscountBadge price={product.price} originalPrice={product.original_price} />
                         </div>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-[11px] text-[#595959] truncate">
+                          <span className="text-[10px] text-[#595959] truncate">
                             {product.categories?.name || "未分类"}
                           </span>
                           {product.tags && product.tags.length > 0 && (
-                            <span className="text-[10px] text-[#00d26a]/60">
+                            <span className="text-[9px] text-[#00d26a]/60">
                               {product.tags[0]}
                             </span>
                           )}
@@ -409,11 +324,11 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
 
                     {/* 单价 */}
                     <div className="text-right">
-                      <span className="text-[15px] font-bold text-[#ffd700]">¥{product.price}</span>
+                      <span className="text-[13px] font-bold text-[#ffd700]">¥{product.price}</span>
                       {product.original_price > product.price && (
-                        <div className="text-[11px] text-[#595959] line-through">
+                        <span className="text-[10px] text-[#595959] line-through ml-1">
                           ¥{product.original_price}
-                        </div>
+                        </span>
                       )}
                     </div>
 
@@ -424,7 +339,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
 
                     {/* 销量 */}
                     <div className="text-center">
-                      <span className="text-[13px] text-[#8c8c8c]">
+                      <span className="text-[12px] text-[#8c8c8c]">
                         {(product.sales || 0).toLocaleString()}
                       </span>
                     </div>
@@ -434,12 +349,12 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                       {product.stock > 0 ? (
                         <span className="inline-flex items-center gap-1">
                           <span className="w-1.5 h-1.5 rounded-full bg-[#00d26a] animate-pulse" />
-                          <span className="text-[11px] text-[#00d26a]">在售</span>
+                          <span className="text-[10px] text-[#00d26a]">在售</span>
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1">
                           <span className="w-1.5 h-1.5 rounded-full bg-[#ff4d6a]" />
-                          <span className="text-[11px] text-[#ff4d6a]">售罄</span>
+                          <span className="text-[10px] text-[#ff4d6a]">售罄</span>
                         </span>
                       )}
                     </div>
@@ -449,24 +364,23 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                       <button
                         onClick={() => handlePurchase(product)}
                         disabled={product.stock <= 0}
-                        className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[12px] font-bold transition-all duration-200 ${
+                        className={`flex items-center gap-1 px-3 py-1 rounded text-[11px] font-bold transition-all duration-200 ${
                           product.stock > 0
                             ? "bg-[#00d26a] hover:bg-[#00e676] text-black"
                             : "bg-[#333] text-[#595959] cursor-not-allowed"
                         }`}
                       >
-                        <ShoppingCart className="w-3 h-3" />
-                        买入
+                        购买
                       </button>
                     </div>
                   </div>
 
                   {/* 移动端 */}
-                  <div className="md:hidden flex items-center gap-3 px-3 py-3">
+                  <div className="md:hidden flex items-center gap-2 px-3 py-2">
                     {/* 排名 */}
-                    <div className="w-6 text-center shrink-0">
+                    <div className="w-5 text-center shrink-0">
                       {index < 3 ? (
-                        <span className={`text-[12px] font-bold ${
+                        <span className={`text-[11px] font-bold ${
                           index === 0 ? "text-[#ffd700]" : 
                           index === 1 ? "text-[#c0c0c0]" : 
                           "text-[#cd7f32]"
@@ -474,29 +388,26 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                           {index + 1}
                         </span>
                       ) : (
-                        <span className="text-[11px] text-[#595959]">{index + 1}</span>
+                        <span className="text-[10px] text-[#595959]">{index + 1}</span>
                       )}
                     </div>
-
-                    {/* Logo */}
-                    <ProductLogo product={product} />
 
                     {/* 信息 */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[13px] text-white font-medium truncate">
+                        <span className="text-[12px] text-white font-medium truncate">
                           <Highlight text={product.name} query={searchQuery} />
                         </span>
                         {product.is_hot && (
-                          <span className="px-1 py-0.5 text-[9px] font-bold rounded bg-[#ff4d6a]/20 text-[#ff4d6a]">
+                          <span className="px-1 py-0.5 text-[8px] font-bold rounded bg-[#ff4d6a]/20 text-[#ff4d6a]">
                             HOT
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-[13px] font-bold text-[#ffd700]">¥{product.price}</span>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[12px] font-bold text-[#ffd700]">¥{product.price}</span>
                         <StockStatus stock={product.stock} />
-                        <span className="text-[11px] text-[#595959]">售{product.sales || 0}</span>
+                        <span className="text-[10px] text-[#595959]">售{product.sales || 0}</span>
                       </div>
                     </div>
 
@@ -504,14 +415,13 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                     <button
                       onClick={() => handlePurchase(product)}
                       disabled={product.stock <= 0}
-                      className={`shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all ${
+                      className={`shrink-0 px-2.5 py-1 rounded text-[10px] font-bold transition-all ${
                         product.stock > 0
                           ? "bg-[#00d26a] hover:bg-[#00e676] text-black"
                           : "bg-[#333] text-[#595959] cursor-not-allowed"
                       }`}
                     >
-                      <ShoppingCart className="w-3 h-3" />
-                      买入
+                      购买
                     </button>
                   </div>
                 </div>
