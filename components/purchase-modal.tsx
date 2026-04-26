@@ -207,7 +207,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
             {/* 价格 */}
             <div className="flex items-center gap-3">
               <span className="text-[13px] font-semibold text-[#e3e3e3] w-20 shrink-0">商品单价:</span>
-              <span className="text-[18px] font-semibold text-[#ee675c]">¥{product.price}</span>
+              <span className="text-[18px] font-semibold text-[#ca3f64]">¥{product.price}</span>
             </div>
 
             {/* 联系方式 + 查询密码 同行 */}
@@ -223,7 +223,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
                 />
               </div>
               <div className="flex-1 flex flex-col gap-1.5">
-                <span className="text-[13px] font-semibold text-[#e3e3e3]">查询密码 <span className="text-[#f28b82] font-medium text-[12px]">(6位以上，请牢记)</span></span>
+                <span className="text-[13px] font-semibold text-[#e3e3e3]">查询密码 <span className="text-[#ca3f64] font-medium text-[12px]">(6位以上，请牢记)</span></span>
                 <input
                   type="text"
                   value={queryPassword}
@@ -259,7 +259,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
                         className="font-black"
                         style={{
                           fontSize: "20px",
-                          color: ["#7CFF00", "#81c995", "#f28b82", "#fdd663"][i % 4],
+                          color: ["#7CFF00", "#81c995", "#ca3f64", "#fdd663"][i % 4],
                           transform: `rotate(${(i % 2 === 0 ? 1 : -1) * (5 + i * 2)}deg)`,
                           display: "inline-block",
                           lineHeight: 1,
@@ -280,7 +280,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
                   </button>
                 </div>
                 {captchaError && (
-                  <p className="mt-1 text-[11px] text-[#ee675c]">{captchaError}</p>
+                  <p className="mt-1 text-[11px] text-[#ca3f64]">{captchaError}</p>
                 )}
               </div>
             </div>
@@ -316,7 +316,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
                 </div>
                 <span className="flex items-center gap-1 text-[13px]">
                   <span className="text-[#9aa0a6]">库存: </span>
-                  <span className={`font-semibold ${product.stock <= 0 ? "text-[#ee675c]" : product.stock <= 10 ? "text-[#ee675c]" : product.stock <= 20 ? "text-[#fdd663]" : "text-[#81c995]"}`}>
+                  <span className={`font-semibold ${product.stock <= 0 ? "text-[#ca3f64]" : product.stock <= 10 ? "text-[#ca3f64]" : product.stock <= 20 ? "text-[#fdd663]" : "text-[#81c995]"}`}>
                     {product.stock <= 0 ? "售罄" : product.stock <= 10 ? "库存紧张" : product.stock <= 20 ? "库存一般" : "库存充足"}
                   </span>
                 </span>
@@ -326,7 +326,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
             {/* 订单金额 */}
             <div className="flex items-center gap-3 pt-2 border-t border-[#3c3c3f]/50">
               <span className="text-[13px] font-semibold text-[#e3e3e3] w-20 shrink-0">订单金额:</span>
-              <span className="text-[22px] font-semibold text-[#ee675c]">¥{totalPrice}</span>
+              <span className="text-[22px] font-semibold text-[#ca3f64]">¥{totalPrice}</span>
             </div>
           </div>
 
@@ -380,8 +380,8 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
 
           {/* 错误提示 */}
           {error && (
-            <div className="mb-4 p-3 bg-[#ee675c]/10 border border-[#ee675c]/30 rounded-xl">
-              <p className="text-[13px] text-[#ee675c] font-medium">{error}</p>
+            <div className="mb-4 p-3 bg-[#ca3f64]/10 border border-[#ca3f64]/30 rounded-xl">
+              <p className="text-[13px] text-[#ca3f64] font-medium">{error}</p>
             </div>
           )}
         </div>
