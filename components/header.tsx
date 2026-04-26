@@ -7,7 +7,7 @@ import { useRouter, usePathname } from "next/navigation"
 
 const navItems = [
   { name: "首页", href: "#top", isAnchor: true },
-  { name: "资源分类", href: "#categories", isAnchor: true },
+  { name: "资源分类", href: "#category-browser", isAnchor: true },
   { name: "订单查询", href: "/order-query" },
   { name: "2FA验证", href: "/2fa" },
   { name: "使用教程", href: "/tutorial" },
