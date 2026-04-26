@@ -255,9 +255,9 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
           {/* ── 右侧产品区域 ── */}
           <div className="flex-1 min-w-0">
 
-            {/* 右侧顶部：分类名 + 产品数量 */}
+            {/* 右侧顶部：分类名 + 产品数量（粘性定位） */}
             {activeCategory && (
-              <div className="flex items-center justify-between mb-4 pb-3 border-b-2" style={{ borderColor: activeCategory.color }}>
+              <div className="sticky top-0 z-10 flex items-center justify-between mb-4 pb-3 border-b-2 bg-[#0f0f10]" style={{ borderColor: activeCategory.color }}>
                 <div className="flex items-center gap-2.5">
                   <CategoryLogo category={activeCategory} size="md" />
                   <h2 className="text-[16px] sm:text-[18px] font-bold text-[#e3e3e3] truncate">
