@@ -74,20 +74,33 @@ function matchesQuery(p: Product, q: string) {
 // 库存状态显示
 function StockBadge({ stock }: { stock: number }) {
   if (stock <= 0) {
-    return <span className="text-[#ee675c] text-[12px] font-medium">售罄</span>
+    return (
+      <span className="flex items-center gap-1">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#ee675c] inline-block" />
+        <span className="text-[#ee675c] text-[12px] font-medium">售罄</span>
+      </span>
+    )
   }
-  if (stock < 50) {
+  if (stock <= 10) {
+    return (
+      <span className="flex items-center gap-1">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#ee675c] inline-block" />
+        <span className="text-[#ee675c] text-[12px] font-medium">库存紧张</span>
+      </span>
+    )
+  }
+  if (stock <= 20) {
     return (
       <span className="flex items-center gap-1">
         <span className="w-1.5 h-1.5 rounded-full bg-[#fdd663] inline-block" />
-        <span className="text-[#fdd663] text-[12px] font-medium">库存紧张</span>
+        <span className="text-[#fdd663] text-[12px] font-medium">库存一般</span>
       </span>
     )
   }
   return (
     <span className="flex items-center gap-1">
       <span className="w-1.5 h-1.5 rounded-full bg-[#81c995] inline-block" />
-      <span className="text-[#9aa0a6] text-[12px]">{stock.toLocaleString()}</span>
+      <span className="text-[#81c995] text-[12px] font-medium">库存充足</span>
     </span>
   )
 }

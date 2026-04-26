@@ -93,7 +93,9 @@ export function CheckoutModal({ product, isOpen, onClose }: CheckoutModalProps) 
           </div>
           <div className="flex items-center justify-between mt-1">
             <span className="text-[14px] text-[#9aa0a6]">库存</span>
-            <span className="text-[14px] text-[#81c995]">{product.stock} 件</span>
+            <span className={`text-[14px] font-semibold ${product.stock <= 0 ? "text-[#ee675c]" : product.stock <= 10 ? "text-[#ee675c]" : product.stock <= 20 ? "text-[#fdd663]" : "text-[#81c995]"}`}>
+              {product.stock <= 0 ? "售罄" : product.stock <= 10 ? "库存紧张" : product.stock <= 20 ? "库存一般" : "库存充足"}
+            </span>
           </div>
         </div>
 
