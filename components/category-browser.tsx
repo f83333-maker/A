@@ -143,7 +143,9 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
   const [activeCategoryId, setActiveCategoryId] = useState<string>("")
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isHeaderSticky, setIsHeaderSticky] = useState(false)
   const sidebarRef = useRef<HTMLDivElement>(null)
+  const headerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (categories.length > 0 && !activeCategoryId) {
@@ -158,6 +160,18 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
     )
     if (firstMatch) setActiveCategoryId(firstMatch.id)
   }, [searchQuery, categories, products])
+
+  // 监听滚动，当分类标题滚出视口时显示固定标题
+  useEffect(() => {
+    const handleScroll = () => {
+      if (headerRef.current) {
+        const rect = headerRef.current.getBoundingClientRect()
+        setIsHeaderSticky(rect.top < 0)
+      }
+    }
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   const handlePurchase = (product: Product) => {
     setSelectedProduct(product)
@@ -253,27 +267,41 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
           </div>
 
           {/* ── 右侧产品区域 ── */}
-          <div className="flex-1 min-w-0 flex flex-col">
+          <div className="flex-1 min-w-0">
 
-            {/* 右侧顶部：分类名 + 产品数量（sticky定位） */}
-            {activeCategory && (
-              <div className="sticky top-0 z-20 bg-[#131314]">
-                <div className="flex items-center justify-between py-3 px-3 border-b-2" style={{ borderColor: activeCategory.color }}>
-                  <div className="flex items-center gap-2.5">
-                    <CategoryLogo category={activeCategory} size="md" />
-                    <h2 className="text-[16px] sm:text-[18px] font-bold text-[#e3e3e3] truncate">
-                      {activeCategory.name}
-                    </h2>
+            {/* 固定在顶部的分类标题（滚动后显示） */}
+            {activeCategory && isHeaderSticky && (
+              <div className="fixed top-0 left-0 right-0 z-50 bg-[#131314] border-b-2 shadow-lg" style={{ borderColor: activeCategory.color }}>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                  <div className="flex items-center justify-between py-3">
+                    <div className="flex items-center gap-2.5">
+                      <CategoryLogo category={activeCategory} size="sm" />
+                      <h2 className="text-[14px] sm:text-[16px] font-bold text-[#e3e3e3] truncate">
+                        {activeCategory.name}
+                      </h2>
+                    </div>
+                    <span className="text-[11px] sm:text-[12px] text-[#9aa0a6] shrink-0 ml-2">
+                      {visibleProducts.length} 个产品
+                    </span>
                   </div>
-                  <span className="text-[12px] sm:text-[13px] text-[#9aa0a6] shrink-0 ml-2">
-                    {visibleProducts.length} 个产品{searchQuery && " · 搜索结果"}
-                  </span>
                 </div>
               </div>
             )}
 
-            {/* 产品列表容器 */}
-            <div className="flex-1 min-w-0 overflow-y-auto">
+            {/* 原始分类标题（用于检测滚动位置） */}
+            {activeCategory && (
+              <div ref={headerRef} className="flex items-center justify-between py-3 px-1 border-b-2 mb-4" style={{ borderColor: activeCategory.color }}>
+                <div className="flex items-center gap-2.5">
+                  <CategoryLogo category={activeCategory} size="md" />
+                  <h2 className="text-[16px] sm:text-[18px] font-bold text-[#e3e3e3] truncate">
+                    {activeCategory.name}
+                  </h2>
+                </div>
+                <span className="text-[12px] sm:text-[13px] text-[#9aa0a6] shrink-0 ml-2">
+                  {visibleProducts.length} 个产品{searchQuery && " · 搜索结果"}
+                </span>
+              </div>
+            )}
             {visibleProducts.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-24 gap-3">
                 <PackageSearch className="w-10 h-10 text-[#3c3c3f]" />
@@ -362,7 +390,6 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                 ))}
               </div>
             )}
-            </div>
           </div>
         </div>
       </div>
