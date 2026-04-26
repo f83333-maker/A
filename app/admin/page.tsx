@@ -81,7 +81,7 @@ async function getRecentOrders() {
 const statusConfig: Record<string, { icon: typeof Clock; color: string; text: string }> = {
   pending: { icon: Clock, color: "#fdd663", text: "待支付" },
   paid: { icon: CheckCircle, color: "#81c995", text: "已支付" },
-  delivered: { icon: Package, color: "#8ab4f8", text: "已发放" },
+  delivered: { icon: Package, color: "#7CFF00", text: "已发放" },
   cancelled: { icon: XCircle, color: "#ee675c", text: "已取消" },
   refunded: { icon: XCircle, color: "#9aa0a6", text: "已退款" },
 }
@@ -111,7 +111,7 @@ export default async function AdminDashboard() {
       name: "订单总数", 
       value: stats.orders, 
       icon: ShoppingCart, 
-      color: "#8ab4f8",
+      color: "#7CFF00",
       href: "/admin/orders"
     },
     { 
@@ -159,14 +159,14 @@ export default async function AdminDashboard() {
 
       {/* 销售额与利润统计 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-[#8ab4f8]/20 to-[#8ab4f8]/5 rounded-xl border border-[#8ab4f8]/30 p-5">
+        <div className="bg-gradient-to-br from-[#7CFF00]/20 to-[#7CFF00]/5 rounded-xl border border-[#7CFF00]/30 p-5">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-[#8ab4f8]/20 flex items-center justify-center">
-              <DollarSign className="w-5 h-5 text-[#8ab4f8]" />
+            <div className="w-10 h-10 rounded-xl bg-[#7CFF00]/20 flex items-center justify-center">
+              <DollarSign className="w-5 h-5 text-[#7CFF00]" />
             </div>
             <span className="text-[13px] text-[#9aa0a6] font-medium">总销售额</span>
           </div>
-          <p className="text-[28px] font-bold text-[#8ab4f8]">
+          <p className="text-[28px] font-bold text-[#7CFF00]">
             ¥{stats.totalRevenue.toFixed(2)}
           </p>
         </div>
@@ -213,13 +213,13 @@ export default async function AdminDashboard() {
       <div className="bg-[#1e1f20] rounded-xl border border-[#3c3c3f] overflow-hidden">
         <div className="px-5 py-4 border-b border-[#3c3c3f] flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <ShoppingCart className="w-5 h-5 text-[#8ab4f8]" />
+            <ShoppingCart className="w-5 h-5 text-[#7CFF00]" />
             <h2 className="text-[16px] font-semibold text-[#e3e3e3]">最近订单</h2>
             <span className="text-[12px] text-[#6e6e73] ml-2">最新5条</span>
           </div>
           <Link 
             href="/admin/orders"
-            className="text-[13px] text-[#8ab4f8] hover:text-[#aecbfa] font-medium transition-colors"
+            className="text-[13px] text-[#7CFF00] hover:text-[#9FFF40] font-medium transition-colors"
           >
             查看全部
           </Link>
@@ -247,7 +247,7 @@ export default async function AdminDashboard() {
                     <p className="text-[14px] font-medium text-[#e3e3e3] truncate">{order.product_name}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-[14px] font-semibold text-[#8ab4f8]">¥{order.total_amount}</p>
+                    <p className="text-[14px] font-semibold text-[#7CFF00]">¥{order.total_amount}</p>
                     <p className="text-[11px] text-[#6e6e73]">
                       {new Date(order.created_at).toLocaleString("zh-CN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                     </p>
@@ -275,7 +275,7 @@ export default async function AdminDashboard() {
           </div>
           <Link 
             href="/admin/products"
-            className="text-[13px] text-[#8ab4f8] hover:text-[#aecbfa] font-medium transition-colors"
+            className="text-[13px] text-[#7CFF00] hover:text-[#9FFF40] font-medium transition-colors"
           >
             查看全部
           </Link>
@@ -318,7 +318,7 @@ export default async function AdminDashboard() {
                   <p className="text-[11px] text-[#6e6e73] font-medium">销量</p>
                 </div>
                 <div className="text-right min-w-[80px]">
-                  <p className="text-[14px] font-semibold text-[#8ab4f8]">¥{(product.price * product.sales).toFixed(2)}</p>
+                  <p className="text-[14px] font-semibold text-[#7CFF00]">¥{(product.price * product.sales).toFixed(2)}</p>
                   <p className="text-[11px] text-[#6e6e73] font-medium">销售额</p>
                 </div>
               </div>

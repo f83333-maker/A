@@ -25,7 +25,7 @@ export default function CategoriesPage() {
     name: "",
     icon: "",
     description: "",
-    color: "#8ab4f8",
+    color: "#7CFF00",
     sort_order: 0,
     is_active: true,
     logo_url: "",
@@ -73,7 +73,7 @@ export default function CategoriesPage() {
         name: "",
         icon: "",
         description: "",
-        color: "#8ab4f8",
+        color: "#7CFF00",
         sort_order: categories.length,
         is_active: true,
         logo_url: "",
@@ -202,7 +202,7 @@ export default function CategoriesPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-[#8ab4f8]" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#7CFF00]" />
       </div>
     )
   }
@@ -221,7 +221,7 @@ export default function CategoriesPage() {
         </div>
         <button
           onClick={() => openModal()}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#8ab4f8] hover:bg-[#aecbfa] text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px]"
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px]"
         >
           <Plus className="w-4 h-4" />
           添加分类
@@ -249,14 +249,14 @@ export default function CategoriesPage() {
                     <button
                       onClick={() => handleMoveUp(index)}
                       disabled={index === 0}
-                      className="p-1 text-[#9aa0a6] hover:text-[#8ab4f8] hover:bg-[#8ab4f8]/10 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                      className="p-1 text-[#9aa0a6] hover:text-[#7CFF00] hover:bg-[#7CFF00]/10 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                     >
                       <ArrowUp className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleMoveDown(index)}
                       disabled={index === sortedCategories.length - 1}
-                      className="p-1 text-[#9aa0a6] hover:text-[#8ab4f8] hover:bg-[#8ab4f8]/10 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                      className="p-1 text-[#9aa0a6] hover:text-[#7CFF00] hover:bg-[#7CFF00]/10 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                     >
                       <ArrowDown className="w-4 h-4" />
                     </button>
@@ -297,7 +297,7 @@ export default function CategoriesPage() {
                   <div className="flex items-center justify-end gap-2">
                     <button
                       onClick={() => openModal(category)}
-                      className="p-2 text-[#9aa0a6] hover:text-[#8ab4f8] hover:bg-[#8ab4f8]/10 rounded-lg transition-all"
+                      className="p-2 text-[#9aa0a6] hover:text-[#7CFF00] hover:bg-[#7CFF00]/10 rounded-lg transition-all"
                     >
                       <Pencil className="w-4 h-4" />
                     </button>
@@ -338,7 +338,7 @@ export default function CategoriesPage() {
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
                   required
                 />
               </div>
@@ -351,14 +351,14 @@ export default function CategoriesPage() {
                     type="text"
                     value={formData.logo_url}
                     onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
-                    className="flex-1 h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                    className="flex-1 h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
                     placeholder="如：instagram.com 或 t.me"
                   />
                   <button
                     type="button"
                     onClick={handleFetchLogo}
                     disabled={isFetchingLogo || !formData.logo_url}
-                    className="px-4 h-11 bg-[#8ab4f8] hover:bg-[#aecbfa] text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[13px] disabled:bg-[#3c3c3f] disabled:text-[#6e6e73] disabled:cursor-not-allowed flex items-center gap-2 shrink-0"
+                    className="px-4 h-11 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[13px] disabled:bg-[#3c3c3f] disabled:text-[#6e6e73] disabled:cursor-not-allowed flex items-center gap-2 shrink-0"
                   >
                     {isFetchingLogo ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                     获取Logo
@@ -403,7 +403,7 @@ export default function CategoriesPage() {
                   type="text"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
                 />
               </div>
 
@@ -421,7 +421,7 @@ export default function CategoriesPage() {
                       type="text"
                       value={formData.color}
                       onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                      className="flex-1 h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                      className="flex-1 h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
                     />
                   </div>
                 </div>
@@ -431,7 +431,7 @@ export default function CategoriesPage() {
                     type="number"
                     value={formData.sort_order}
                     onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) })}
-                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
                   />
                 </div>
               </div>
@@ -460,7 +460,7 @@ export default function CategoriesPage() {
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="flex-1 h-11 bg-[#8ab4f8] hover:bg-[#aecbfa] disabled:opacity-50 text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px] flex items-center justify-center gap-2"
+                  className="flex-1 h-11 bg-[#7CFF00] hover:bg-[#9FFF40] disabled:opacity-50 text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px] flex items-center justify-center gap-2"
                 >
                   {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
                   {editingCategory ? "保存" : "添加"}

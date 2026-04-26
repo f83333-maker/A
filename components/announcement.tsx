@@ -57,7 +57,7 @@ export function Announcement() {
     return (
       <section className="py-16 md:py-20 bg-[#000000]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 flex items-center justify-center min-h-[200px]">
-          <Loader2 className="w-6 h-6 animate-spin text-[#8ab4f8]" />
+          <Loader2 className="w-6 h-6 animate-spin text-[#7CFF00]" />
         </div>
       </section>
     )
@@ -66,13 +66,11 @@ export function Announcement() {
   return (
     <section className="py-16 md:py-20 bg-[#000000]">
       <div className="max-w-7xl mx-auto px-3 sm:px-6">
-        {/* 整体背景框 */}
-        <div className="bg-[#0D0D0D] rounded-2xl p-6 md:p-10">
           {/* 标题 */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#8ab4f8]/10 flex items-center justify-center">
-                <Bell className="w-5 h-5 text-[#8ab4f8]" />
+              <div className="w-10 h-10 rounded-xl bg-[#7CFF00]/10 flex items-center justify-center">
+                <Bell className="w-5 h-5 text-[#7CFF00]" />
               </div>
               <h2 className="text-[18px] font-semibold text-[#e3e3e3]">
                 平台公告
@@ -80,7 +78,7 @@ export function Announcement() {
             </div>
             <Link 
               href="/announcements" 
-              className="text-[14px] text-[#8ab4f8] hover:text-[#aecbfa] transition-colors flex items-center gap-1"
+              className="text-[14px] text-[#7CFF00] hover:text-[#9FFF40] transition-colors flex items-center gap-1"
             >
               全部
               <ChevronRight className="w-4 h-4" />
@@ -119,11 +117,10 @@ export function Announcement() {
                   <Clock className="w-3.5 h-3.5" />
                   {formatDate(item.created_at)}
                 </span>
-                <ChevronRight className="w-4 h-4 text-[#6e6e73] group-hover:text-[#8ab4f8] group-hover:translate-x-0.5 transition-all" />
+                <ChevronRight className="w-4 h-4 text-[#6e6e73] group-hover:text-[#7CFF00] group-hover:translate-x-0.5 transition-all" />
               </div>
             </Link>
           ))}
-          </div>
         </div>
       </div>
     </section>

@@ -108,7 +108,7 @@ export default function InventoryPage() {
           <Package className="w-16 h-16 mx-auto text-[#5f6368] mb-4" />
           <h2 className="text-xl font-semibold text-[#e3e3e3] mb-2">请选择商品</h2>
           <p className="text-[#9aa0a6] mb-4">从产品管理页面进入库存管理</p>
-          <Link href="/admin/products" className="text-[#8ab4f8] hover:underline">
+          <Link href="/admin/products" className="text-[#7CFF00] hover:underline">
             前往产品管理
           </Link>
         </div>
@@ -131,7 +131,7 @@ export default function InventoryPage() {
         </div>
         <button
           onClick={() => setShowAddForm(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#8ab4f8] text-[#131314] rounded-lg font-medium hover:bg-[#aecbfa] transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-[#7CFF00] text-[#131314] rounded-lg font-medium hover:bg-[#9FFF40] transition-colors"
         >
           <Plus className="w-4 h-4" />
           添加库存
@@ -166,7 +166,7 @@ export default function InventoryPage() {
             onClick={() => setFilter(item.key as typeof filter)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               filter === item.key
-                ? "bg-[#8ab4f8] text-[#131314]"
+                ? "bg-[#7CFF00] text-[#131314]"
                 : "bg-[#2d2e30] text-[#9aa0a6] hover:bg-[#3c3c3f]"
             }`}
           >
@@ -178,7 +178,7 @@ export default function InventoryPage() {
       {/* 库存列表 */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-[#8ab4f8]" />
+          <Loader2 className="w-8 h-8 animate-spin text-[#7CFF00]" />
         </div>
       ) : filteredInventory.length === 0 ? (
         <div className="text-center py-20 bg-[#1e1f20] border border-[#3c3c3f] rounded-xl">
@@ -248,7 +248,7 @@ export default function InventoryPage() {
               onChange={(e) => setNewContent(e.target.value)}
               placeholder="账号1&#10;账号2&#10;账号3"
               rows={10}
-              className="w-full px-4 py-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-sm font-mono focus:outline-none focus:border-[#8ab4f8] resize-none"
+              className="w-full px-4 py-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-sm font-mono focus:outline-none focus:border-[#7CFF00] resize-none"
             />
             <div className="flex justify-end gap-3 mt-4">
               <button
@@ -260,7 +260,7 @@ export default function InventoryPage() {
               <button
                 onClick={handleAddInventory}
                 disabled={adding || !newContent.trim()}
-                className="px-4 py-2 bg-[#8ab4f8] text-[#131314] rounded-lg font-medium hover:bg-[#aecbfa] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                className="px-4 py-2 bg-[#7CFF00] text-[#131314] rounded-lg font-medium hover:bg-[#9FFF40] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
               >
                 {adding && <Loader2 className="w-4 h-4 animate-spin" />}
                 添加

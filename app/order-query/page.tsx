@@ -121,12 +121,12 @@ export default function OrderQueryPage() {
                   onChange={(e) => setOrderNo(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                   placeholder="请输入订单号"
-                  className="flex-1 h-12 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] placeholder-[#6e6e73] focus:outline-none focus:border-[#8ab4f8]"
+                  className="flex-1 h-12 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] placeholder-[#6e6e73] focus:outline-none focus:border-[#7CFF00]"
                 />
                 <button
                   onClick={handleSearch}
                   disabled={loading}
-                  className="px-6 h-12 bg-[#8ab4f8] hover:bg-[#aecbfa] disabled:bg-[#3c3c3f] text-[#131314] font-semibold rounded-lg flex items-center gap-2 transition-colors"
+                  className="px-6 h-12 bg-[#7CFF00] hover:bg-[#9FFF40] disabled:bg-[#3c3c3f] text-[#131314] font-semibold rounded-lg flex items-center gap-2 transition-colors"
                 >
                   {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
                   查询
@@ -137,7 +137,7 @@ export default function OrderQueryPage() {
               {needPassword && (
                 <div className="pt-4 border-t border-[#3c3c3f]">
                   <div className="flex items-center gap-2 mb-3">
-                    <Lock className="w-4 h-4 text-[#8ab4f8]" />
+                    <Lock className="w-4 h-4 text-[#7CFF00]" />
                     <span className="text-sm text-[#e3e3e3]">此订单需要验证查询密码</span>
                   </div>
                   <div className="flex gap-3">
@@ -148,7 +148,7 @@ export default function OrderQueryPage() {
                         onChange={(e) => setQueryPassword(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleVerifyPassword()}
                         placeholder="请输入查询密码"
-                        className="w-full h-12 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] placeholder-[#6e6e73] focus:outline-none focus:border-[#8ab4f8]"
+                        className="w-full h-12 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] placeholder-[#6e6e73] focus:outline-none focus:border-[#7CFF00]"
                       />
                     </div>
                     <button
@@ -202,7 +202,7 @@ export default function OrderQueryPage() {
                   </div>
                   <div>
                     <span className="text-[#6e6e73]">总金额:</span>
-                    <span className="ml-2 text-[#8ab4f8] font-semibold">¥{order.total_amount}</span>
+                    <span className="ml-2 text-[#7CFF00] font-semibold">¥{order.total_amount}</span>
                   </div>
                   <div className="col-span-2">
                     <span className="text-[#6e6e73]">下单时间:</span>
@@ -233,9 +233,9 @@ export default function OrderQueryPage() {
 
               {order.usage_instructions && (
                 <div className="p-6">
-                  <h3 className="text-sm font-semibold text-[#8ab4f8] mb-3">使用说明</h3>
+                  <h3 className="text-sm font-semibold text-[#7CFF00] mb-3">使用说明</h3>
                   <div
-                    className="prose prose-invert prose-sm max-w-none text-[#e3e3e3] [&_img]:rounded-xl [&_img]:max-w-full [&_img]:h-auto [&_a]:text-[#8ab4f8] [&_a:hover]:underline"
+                    className="prose prose-invert prose-sm max-w-none text-[#e3e3e3] [&_img]:rounded-xl [&_img]:max-w-full [&_img]:h-auto [&_a]:text-[#7CFF00] [&_a:hover]:underline"
                     dangerouslySetInnerHTML={{ __html: order.usage_instructions }}
                   />
                 </div>

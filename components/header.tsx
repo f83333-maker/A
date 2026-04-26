@@ -1,13 +1,13 @@
 "use client"
 
 import Link from "next/link"
-import { Menu, X, ChevronRight } from "lucide-react"
+import { Menu, X } from "lucide-react"
 import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 
 const navItems = [
   { name: "首页", href: "#top", isAnchor: true },
-  { name: "账号类别", href: "#categories", isAnchor: true },
+  { name: "资源分类", href: "#categories", isAnchor: true },
   { name: "订单查询", href: "/order-query" },
   { name: "2FA验证", href: "/2fa" },
   { name: "使用教程", href: "/tutorial" },
@@ -58,48 +58,23 @@ export function Header() {
               </svg>
             </div>
             <span className="text-[17px] font-bold text-[#ffffff] tracking-tight">
-              CHUHAIZIYUAN
+              出海资源铺
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-1">
+          {/* Desktop Navigation - 右对齐，字体加大加粗 */}
+          <nav className="hidden md:flex items-center gap-2">
             {navItems.map((item) => (
               <a
                 key={item.name}
                 href={item.href}
                 onClick={(e) => handleNavClick(e, item)}
-                className="px-4 py-2 text-[14px] text-[#8c8c8c] hover:text-[#ffffff] transition-colors duration-200 rounded-full hover:bg-[#141414] font-medium cursor-pointer"
+                className="px-5 py-2 text-[15px] text-[#a0a0a0] hover:text-[#ffffff] transition-colors duration-200 rounded-full hover:bg-[#141414] font-semibold cursor-pointer"
               >
                 {item.name}
               </a>
             ))}
           </nav>
-
-          {/* Action Buttons */}
-          <div className="hidden md:flex items-center gap-3">
-            <a
-              href="#categories"
-              onClick={(e) => {
-                e.preventDefault()
-                const isHome = pathname === "/"
-                if (isHome) {
-                  const el = document.querySelector("#categories")
-                  if (el) el.scrollIntoView({ behavior: "smooth" })
-                } else {
-                  router.push("/#categories")
-                  setTimeout(() => {
-                    const el = document.querySelector("#categories")
-                    if (el) el.scrollIntoView({ behavior: "smooth" })
-                  }, 400)
-                }
-              }}
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-[14px] text-[#000000] bg-[#00d26a] hover:bg-[#00e676] rounded-full transition-all duration-200 font-semibold cursor-pointer"
-            >
-              开始使用
-              <ChevronRight className="w-3.5 h-3.5" />
-            </a>
-          </div>
 
           {/* Mobile Menu Button */}
           <button
@@ -128,29 +103,7 @@ export function Header() {
                   {item.name}
                 </a>
               ))}
-              <div className="flex gap-3 mt-4 px-4 pt-4 border-t border-[#262626]">
-                <a
-                  href="#categories"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    setMobileMenuOpen(false)
-                    const isHome = pathname === "/"
-                    if (isHome) {
-                      const el = document.querySelector("#categories")
-                      if (el) el.scrollIntoView({ behavior: "smooth" })
-                    } else {
-                      router.push("/#categories")
-                      setTimeout(() => {
-                        const el = document.querySelector("#categories")
-                        if (el) el.scrollIntoView({ behavior: "smooth" })
-                      }, 400)
-                    }
-                  }}
-                  className="flex-1 py-2.5 text-[14px] text-center bg-[#00d26a] text-[#000000] rounded-full font-semibold hover:bg-[#00e676] transition-all duration-200 cursor-pointer"
-                >
-                  开始使用
-                </a>
-              </div>
+
             </nav>
           </div>
         </div>

@@ -33,6 +33,7 @@ interface Product {
   logo_data: string | null
   logo_bg_color: string | null
   icon_url: string | null
+  delivery_type: string | null
   categories: {
     name: string
     icon: string
@@ -53,7 +54,7 @@ function Highlight({ text, query }: { text: string; query: string }) {
     <>
       {parts.map((part, i) =>
         regex.test(part) ? (
-          <mark key={i} className="bg-[#00B812]/20 text-[#00B812] rounded-[3px] px-[1px] not-italic">
+          <mark key={i} className="bg-[#7CFF00]/20 text-[#7CFF00] rounded-[3px] px-[1px] not-italic">
             {part}
           </mark>
         ) : (
@@ -83,7 +84,7 @@ function StockStatus({ stock }: { stock: number }) {
   if (stock < 30) {
     return <span className="text-[#F7931A] text-[12px] font-medium">库存一般</span>
   }
-  return <span className="text-[#00B812] text-[12px] font-medium">库存充足</span>
+  return <span className="text-[#7CFF00] text-[12px] font-medium">库存充足</span>
 }
 
 
@@ -146,7 +147,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
     return (
       <section className="py-8 bg-[#000000]">
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-center min-h-[400px]">
-          <Loader2 className="w-8 h-8 animate-spin text-[#00B812]" />
+          <Loader2 className="w-8 h-8 animate-spin text-[#7CFF00]" />
         </div>
       </section>
     )
@@ -166,76 +167,43 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
   return (
     <section id="category-browser" className="py-6 md:py-8 bg-[#000000]">
       <div className="max-w-7xl mx-auto px-3 sm:px-6">
-        {/* 整体背景框 */}
-        <div className="bg-[#0D0D0D] rounded-2xl p-6 md:p-10">
-          {/* ── 顶部分类标签栏 ── */}
-          <div className="relative mb-6">
-          {/* 左侧渐变遮罩 + 箭头 */}
-          <div className="absolute left-0 top-0 bottom-0 z-10 flex items-center">
-            <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[#0D0D0D] via-[#0D0D0D]/80 to-transparent pointer-events-none" />
-            <button
-              onClick={() => scrollCategories('left')}
-              className="relative z-10 w-8 h-8 flex items-center justify-center bg-[#000000] border border-[#333] rounded-full text-[#8c8c8c] hover:text-white hover:border-[#555] transition-colors ml-1"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
+          {/* ── 顶部分类标签栏（两行网格） ── */}
+          <div className="mb-6">
+            <div className="flex flex-wrap gap-2 justify-center">
+              {categories.map((cat) => {
+                const isActive = cat.id === activeCategoryId
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => setActiveCategoryId(cat.id)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-[14px] font-semibold whitespace-nowrap transition-all duration-200 border ${
+                      isActive
+                        ? "bg-[#7CFF00]/15 border-[#7CFF00] text-[#7CFF00] shadow-[0_0_12px_rgba(124,255,0,0.3)]"
+                        : "bg-transparent border-[#2A2A2A] text-[#8a8a8a] hover:border-[#404040] hover:text-white"
+                    }`}
+                  >
+                    {cat.logo_data ? (
+                      <img src={cat.logo_data} alt={cat.name} className="w-5 h-5 rounded-full object-contain" />
+                    ) : (
+                      <span className="w-5 h-5 rounded-full bg-[#1a1a1a] flex items-center justify-center text-[11px]">
+                        {cat.icon || cat.name.charAt(0)}
+                      </span>
+                    )}
+                    {cat.name}
+                  </button>
+                )
+              })}
+            </div>
           </div>
-
-          {/* 分类标签 */}
-          <div
-            ref={categoryScrollRef}
-            className="flex gap-2 overflow-x-auto scrollbar-hide mx-12 py-2"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            {categories.map((cat) => {
-              const isActive = cat.id === activeCategoryId
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setActiveCategoryId(cat.id)}
-                  className={`flex items-center gap-3 px-6 py-3 rounded-full text-[16px] font-medium whitespace-nowrap transition-all duration-200 border shrink-0 ${
-                    isActive
-                      ? "bg-[#181818] border-[#00B812] text-white"
-                      : "bg-transparent border-[#2A2A2A] text-[#737373] hover:border-[#404040] hover:text-white"
-                  }`}
-                >
-                  {cat.logo_data ? (
-                    <img src={cat.logo_data} alt={cat.name} className="w-6 h-6 rounded-full object-contain" />
-                  ) : (
-                    <span className="w-6 h-6 rounded-full bg-[#1a1a1a] flex items-center justify-center text-[13px]">
-                      {cat.icon || cat.name.charAt(0)}
-                    </span>
-                  )}
-                  {cat.name}
-                </button>
-              )
-            })}
-          </div>
-
-          {/* 右侧渐变遮罩 + 箭头 */}
-          <div className="absolute right-0 top-0 bottom-0 z-10 flex items-center">
-            <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#0D0D0D] via-[#0D0D0D]/80 to-transparent pointer-events-none" />
-            <button
-              onClick={() => scrollCategories('right')}
-              className="relative z-10 w-8 h-8 flex items-center justify-center bg-[#000000] border border-[#333] rounded-full text-[#8c8c8c] hover:text-white hover:border-[#555] transition-colors mr-1"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-        
-        {/* 移动端滑动提示 */}
-        <div className="md:hidden text-center text-[11px] text-[#525252] -mt-1 mb-4">
-          左右滑动查看更多分类
-        </div>
 
 
 
         {/* ── 产品表格 ── */}
         <div className="border border-[#2A2A2A] rounded-lg overflow-hidden">
           {/* 表头 */}
-          <div className="hidden md:grid grid-cols-[1fr_120px_120px_100px] gap-4 px-4 py-2 bg-[#0D0D0D] border-b border-[#2A2A2A] text-[13px] text-[#737373] font-medium">
+          <div className="hidden md:grid grid-cols-[1fr_90px_100px_100px_80px] gap-4 px-4 py-2 bg-[#0D0D0D] border-b border-[#2A2A2A] text-[13px] text-[#737373] font-medium">
             <span>商品名称</span>
+            <span className="text-center">发货方式</span>
             <span className="text-right">单价</span>
             <span className="text-center">库存</span>
             <span className="text-center">操作</span>
@@ -255,7 +223,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                   className="group border-b border-[#2A2A2A] last:border-b-0 hover:bg-[#121212] transition-colors"
                 >
                   {/* 桌面端 */}
-                  <div className="hidden md:grid grid-cols-[1fr_120px_120px_100px] gap-4 items-center px-4 py-1.5">
+                  <div className="hidden md:grid grid-cols-[1fr_90px_100px_100px_80px] gap-4 items-center px-4 py-1.5">
                     {/* 商品信息 */}
                     <div className="flex items-center gap-2 min-w-0">
                       {/* 国旗图标 */}
@@ -280,6 +248,17 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                       </div>
                     </div>
 
+                    {/* 发货类型 */}
+                    <div className="text-center">
+                      <span className={`px-2 py-0.5 text-[11px] font-medium rounded ${
+                        product.delivery_type === "自动发货" 
+                          ? "bg-[#7CFF00]/15 text-[#7CFF00]" 
+                          : "bg-[#F7931A]/15 text-[#F7931A]"
+                      }`}>
+                        {product.delivery_type || "自动发货"}
+                      </span>
+                    </div>
+
                     {/* 单价 */}
                     <div className="text-right">
                       <span className="text-[14px] font-bold text-white">¥{product.price}</span>
@@ -297,7 +276,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                         disabled={product.stock <= 0}
                         className={`px-4 py-1.5 rounded text-[12px] font-semibold transition-all duration-200 ${
                           product.stock > 0
-                            ? "bg-[#00B812] hover:bg-[#00D414] text-black"
+                            ? "bg-[#7CFF00] hover:bg-[#9FFF40] text-black"
                             : "bg-[#2A2A2A] text-[#525252] cursor-not-allowed"
                         }`}
                       >
@@ -330,6 +309,13 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                         )}
                       </div>
                       <div className="flex items-center gap-2 mt-0.5">
+                        <span className={`px-1.5 py-0.5 text-[9px] font-medium rounded ${
+                          product.delivery_type === "自动发货" 
+                            ? "bg-[#7CFF00]/15 text-[#7CFF00]" 
+                            : "bg-[#F7931A]/15 text-[#F7931A]"
+                        }`}>
+                          {product.delivery_type || "自动发货"}
+                        </span>
                         <span className="text-[13px] font-bold text-white">¥{product.price}</span>
                         <StockStatus stock={product.stock} />
                       </div>
@@ -341,7 +327,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                       disabled={product.stock <= 0}
                       className={`shrink-0 px-3 py-1.5 rounded text-[11px] font-semibold transition-all ${
                         product.stock > 0
-                          ? "bg-[#00B812] hover:bg-[#00D414] text-black"
+                          ? "bg-[#7CFF00] hover:bg-[#9FFF40] text-black"
                           : "bg-[#2A2A2A] text-[#525252] cursor-not-allowed"
                       }`}
                     >
@@ -354,13 +340,12 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
           )}
         </div>
 
-          {/* 底部提示 */}
-          {filteredProducts.length > 0 && (
-            <div className="mt-4 text-center text-[12px] text-[#525252]">
-              共 {filteredProducts.length} 个商品 · 数据实时更新
-            </div>
-          )}
-        </div>
+        {/* 底部提示 */}
+        {filteredProducts.length > 0 && (
+          <div className="mt-4 text-center text-[12px] text-[#525252]">
+            共 {filteredProducts.length} 个商品 · 数据实时更新
+          </div>
+        )}
       </div>
 
       {/* 购买弹窗 */}

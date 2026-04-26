@@ -184,8 +184,8 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
         <div className="overflow-y-auto flex-1 p-6">
           
           {/* 商品标题 + 发货方式 */}
-          <div className="flex items-center gap-2 pr-10 mb-4">
-            <h2 className="text-[18px] font-semibold text-[#e3e3e3] leading-relaxed">
+          <div className="pr-10 mb-4">
+            <h2 className="text-[18px] font-semibold text-[#e3e3e3] leading-relaxed mb-2">
               {product.name}
             </h2>
             <span className="inline-flex items-center px-2 py-0.5 bg-[#81c995]/15 rounded-full text-[11px] font-medium text-[#81c995]">
@@ -196,7 +196,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
           {/* 复制链接 */}
           <button
             onClick={handleCopyLink}
-            className="flex items-center gap-1.5 text-[13px] font-medium text-[#8ab4f8] hover:text-[#aecbfa] transition-colors mb-6"
+            className="flex items-center gap-1.5 text-[13px] font-medium text-[#7CFF00] hover:text-[#9FFF40] transition-colors mb-6"
           >
             {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
             {copied ? "已复制" : "复制商品链接"}
@@ -207,7 +207,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
             {/* 价格 */}
             <div className="flex items-center gap-3">
               <span className="text-[13px] font-semibold text-[#e3e3e3] w-20 shrink-0">商品单价:</span>
-              <span className="text-[18px] font-semibold text-[#ee675c]">¥{product.price}</span>
+              <span className="text-[18px] font-semibold text-[#ca3f64]">¥{product.price}</span>
             </div>
 
             {/* 联系方式 + 查询密码 同行 */}
@@ -219,18 +219,18 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
                   placeholder="邮箱或联系方式"
-                  className="w-full h-7 px-2.5 bg-[#2d2e30] border border-[#3c3c3f] rounded-md text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                  className="w-full h-7 px-2.5 bg-[#2d2e30] border border-[#3c3c3f] rounded-md text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] focus:outline-none focus:border-[#7CFF00] transition-colors"
                 />
               </div>
               <div className="flex-1 flex flex-col gap-1.5">
-                <span className="text-[13px] font-semibold text-[#e3e3e3]">查询密码 <span className="text-[#f28b82] font-medium text-[12px]">（≥6位，请牢记）</span></span>
+                <span className="text-[13px] font-semibold text-[#e3e3e3]">查询密码 <span className="text-[#ca3f64] font-medium text-[12px]">(6位以上，请牢记)</span></span>
                 <input
                   type="text"
                   value={queryPassword}
                   onChange={(e) => setQueryPassword(e.target.value)}
                   placeholder="设置6位以上密码"
                   minLength={6}
-                  className="w-full h-7 px-2.5 bg-[#2d2e30] border border-[#3c3c3f] rounded-md text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                  className="w-full h-7 px-2.5 bg-[#2d2e30] border border-[#3c3c3f] rounded-md text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] focus:outline-none focus:border-[#7CFF00] transition-colors"
                 />
               </div>
             </div>
@@ -246,7 +246,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
                     onChange={(e) => { setCaptchaInput(e.target.value.toUpperCase()); setCaptchaError("") }}
                     placeholder="输入右侧验证码"
                     maxLength={4}
-                    className="flex-1 h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-md text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] focus:outline-none focus:border-[#8ab4f8] transition-colors tracking-[0.3em] uppercase"
+                    className="flex-1 h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-md text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] focus:outline-none focus:border-[#7CFF00] transition-colors tracking-[0.3em] uppercase"
                   />
                   {/* 验证码图形 - 放大版 */}
                   <div
@@ -259,7 +259,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
                         className="font-black"
                         style={{
                           fontSize: "20px",
-                          color: ["#8ab4f8", "#81c995", "#f28b82", "#fdd663"][i % 4],
+                          color: ["#7CFF00", "#81c995", "#ca3f64", "#fdd663"][i % 4],
                           transform: `rotate(${(i % 2 === 0 ? 1 : -1) * (5 + i * 2)}deg)`,
                           display: "inline-block",
                           lineHeight: 1,
@@ -280,7 +280,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
                   </button>
                 </div>
                 {captchaError && (
-                  <p className="mt-1 text-[11px] text-[#ee675c]">{captchaError}</p>
+                  <p className="mt-1 text-[11px] text-[#ca3f64]">{captchaError}</p>
                 )}
               </div>
             </div>
@@ -316,7 +316,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
                 </div>
                 <span className="flex items-center gap-1 text-[13px]">
                   <span className="text-[#9aa0a6]">库存: </span>
-                  <span className={`font-semibold ${product.stock <= 0 ? "text-[#ee675c]" : product.stock <= 10 ? "text-[#ee675c]" : product.stock <= 20 ? "text-[#fdd663]" : "text-[#81c995]"}`}>
+                  <span className={`font-semibold ${product.stock <= 0 ? "text-[#ca3f64]" : product.stock <= 10 ? "text-[#ca3f64]" : product.stock <= 20 ? "text-[#fdd663]" : "text-[#81c995]"}`}>
                     {product.stock <= 0 ? "售罄" : product.stock <= 10 ? "库存紧张" : product.stock <= 20 ? "库存一般" : "库存充足"}
                   </span>
                 </span>
@@ -326,7 +326,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
             {/* 订单金额 */}
             <div className="flex items-center gap-3 pt-2 border-t border-[#3c3c3f]/50">
               <span className="text-[13px] font-semibold text-[#e3e3e3] w-20 shrink-0">订单金额:</span>
-              <span className="text-[22px] font-semibold text-[#ee675c]">¥{totalPrice}</span>
+              <span className="text-[22px] font-semibold text-[#ca3f64]">¥{totalPrice}</span>
             </div>
           </div>
 
@@ -370,20 +370,18 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
           {/* 商品介绍 */}
           <div className="mb-4">
             <div className="flex items-center gap-2 mb-3">
-              <Info className="w-4 h-4 text-[#8ab4f8]" />
+              <Info className="w-4 h-4 text-[#7CFF00]" />
               <span className="text-[13px] font-semibold text-[#e3e3e3]">商品介绍:</span>
             </div>
-            <div className="bg-[#2d2e30] rounded-xl p-4 text-[13px] text-[#9aa0a6] leading-relaxed font-medium space-y-2">
+            <div className="bg-[#2d2e30] rounded-xl p-4 text-[13px] text-[#9aa0a6] leading-relaxed font-medium">
               <p>{product.description}</p>
-              <p>购买后系统自动发货，请在订单中查看账号信息。</p>
-              <p>如遇问题请及时联系客服处理，24小时在线。</p>
             </div>
           </div>
 
           {/* 错误提示 */}
           {error && (
-            <div className="mb-4 p-3 bg-[#ee675c]/10 border border-[#ee675c]/30 rounded-xl">
-              <p className="text-[13px] text-[#ee675c] font-medium">{error}</p>
+            <div className="mb-4 p-3 bg-[#ca3f64]/10 border border-[#ca3f64]/30 rounded-xl">
+              <p className="text-[13px] text-[#ca3f64] font-medium">{error}</p>
             </div>
           )}
         </div>
@@ -413,7 +411,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
           {/* 免责声明 */}
           <p className="mt-3 text-[11px] text-[#6e6e73] text-center leading-relaxed">
             点击支付即表示您已阅读并同意本站
-            <span className="text-[#8ab4f8]">免责声明</span>
+            <span className="text-[#7CFF00]">免责声明</span>
             ：本店只提供账号用于出海学习与交流，如若用于其他任何非法用途与本店无关；本店不参与客户任何项目，也不教授任何软件使用方法；本店账号来源于正规海外资源，不涉及任何个人公民信息。
           </p>
         </div>

@@ -20,7 +20,7 @@ const defaultFeatures = [
     icon: "🛡️",
     title: "安全保障",
     description: "多重验证机制，确保交易安全",
-    color: "#8ab4f8",
+    color: "#7CFF00",
   },
   {
     id: "2",
@@ -54,7 +54,7 @@ export function Features() {
     return (
       <section className="py-16 md:py-20 bg-[#131314] border-y border-[#3c3c3f]/30">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-center min-h-[120px]">
-          <Loader2 className="w-6 h-6 animate-spin text-[#8ab4f8]" />
+          <Loader2 className="w-6 h-6 animate-spin text-[#7CFF00]" />
         </div>
       </section>
     )

@@ -89,7 +89,7 @@ export function CheckoutModal({ product, isOpen, onClose }: CheckoutModalProps) 
           )}
           <div className="flex items-center justify-between">
             <span className="text-[14px] text-[#9aa0a6]">单价</span>
-            <span className="text-[18px] font-bold text-[#8ab4f8]">${product.price}</span>
+            <span className="text-[18px] font-bold text-[#7CFF00]">${product.price}</span>
           </div>
           <div className="flex items-center justify-between mt-1">
             <span className="text-[14px] text-[#9aa0a6]">库存</span>
@@ -140,7 +140,7 @@ export function CheckoutModal({ product, isOpen, onClose }: CheckoutModalProps) 
         <button
           onClick={handleCheckout}
           disabled={isLoading || product.stock < 1}
-          className="w-full h-12 flex items-center justify-center gap-2 bg-[#8ab4f8] hover:bg-[#aecbfa] disabled:bg-[#3c3c3f] disabled:cursor-not-allowed rounded-xl text-[#131314] font-semibold text-[15px] transition-colors"
+          className="w-full h-12 flex items-center justify-center gap-2 bg-[#7CFF00] hover:bg-[#9FFF40] disabled:bg-[#3c3c3f] disabled:cursor-not-allowed rounded-xl text-[#131314] font-semibold text-[15px] transition-colors"
         >
           {isLoading ? (
             <>

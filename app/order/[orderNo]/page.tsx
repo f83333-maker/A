@@ -112,7 +112,7 @@ function OrderContent() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#131314] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#8ab4f8]" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#7CFF00]" />
       </div>
     )
   }
@@ -124,7 +124,7 @@ function OrderContent() {
           <XCircle className="w-16 h-16 mx-auto text-[#ee675c] mb-4" />
           <h1 className="text-xl font-semibold text-[#e3e3e3] mb-2">订单不存在</h1>
           <p className="text-[#9aa0a6] mb-6">请检查订单号是否正确</p>
-          <Link href="/" className="text-[#8ab4f8] hover:underline">返回首页</Link>
+          <Link href="/" className="text-[#7CFF00] hover:underline">返回首页</Link>
         </div>
       </div>
     )
@@ -147,9 +147,9 @@ function OrderContent() {
     },
     delivered: {
       icon: Package,
-      color: "#8ab4f8",
-      bgColor: "bg-[#8ab4f8]/10",
-      borderColor: "border-[#8ab4f8]/30",
+      color: "#7CFF00",
+      bgColor: "bg-[#7CFF00]/10",
+      borderColor: "border-[#7CFF00]/30",
       text: "已发放",
     },
     cancelled: {
@@ -245,7 +245,7 @@ function OrderContent() {
             {/* 总计 */}
             <div className="mt-6 pt-4 border-t border-[#3c3c3f] flex items-center justify-between">
               <span className="text-[15px] text-[#9aa0a6]">订单总计</span>
-              <span className="text-[22px] font-bold text-[#8ab4f8]">¥{order.total_amount}</span>
+              <span className="text-[22px] font-bold text-[#7CFF00]">¥{order.total_amount}</span>
             </div>
           </div>
         </div>
@@ -266,13 +266,13 @@ function OrderContent() {
                     onChange={(e) => setPassword(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleVerifyPassword()}
                     placeholder="请输入查询密码"
-                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-[14px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-[14px] focus:outline-none focus:border-[#7CFF00] transition-colors"
                   />
                 </div>
                 <button
                   onClick={handleVerifyPassword}
                   disabled={verifying || !password.trim()}
-                  className="h-11 px-6 bg-[#8ab4f8] hover:bg-[#aecbfa] disabled:bg-[#3c3c3f] text-[#131314] disabled:text-[#6e6e73] font-semibold rounded-xl transition-colors flex items-center gap-2 shrink-0"
+                  className="h-11 px-6 bg-[#7CFF00] hover:bg-[#9FFF40] disabled:bg-[#3c3c3f] text-[#131314] disabled:text-[#6e6e73] font-semibold rounded-xl transition-colors flex items-center gap-2 shrink-0"
                 >
                   {verifying ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -316,7 +316,7 @@ function OrderContent() {
             </div>
             <div className="p-6">
               <div 
-                className="prose prose-invert prose-sm max-w-none text-[#e3e3e3] [&_img]:rounded-xl [&_img]:max-w-full [&_img]:h-auto [&_a]:text-[#8ab4f8] [&_a:hover]:underline"
+                className="prose prose-invert prose-sm max-w-none text-[#e3e3e3] [&_img]:rounded-xl [&_img]:max-w-full [&_img]:h-auto [&_a]:text-[#7CFF00] [&_a:hover]:underline"
                 dangerouslySetInnerHTML={{ __html: order.usage_instructions }}
               />
             </div>
@@ -332,7 +332,7 @@ export default function OrderPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-[#131314] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#8ab4f8]" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#7CFF00]" />
       </div>
     }>
       <OrderContent />

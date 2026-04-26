@@ -165,7 +165,7 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 text-[#8ab4f8] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[#7CFF00] animate-spin" />
       </div>
     )
   }
@@ -188,7 +188,7 @@ export default function SettingsPage() {
             onClick={() => setActiveTab(tab.id as typeof activeTab)}
             className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all whitespace-nowrap ${
               activeTab === tab.id
-                ? "bg-[#8ab4f8] text-[#131314]"
+                ? "bg-[#7CFF00] text-[#131314]"
                 : "text-[#9aa0a6] hover:text-[#e3e3e3] hover:bg-[#2d2e30]"
             }`}
           >
@@ -203,8 +203,8 @@ export default function SettingsPage() {
         <div className="space-y-6">
           <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-[#8ab4f8]/10 flex items-center justify-center">
-                <Type className="w-5 h-5 text-[#8ab4f8]" />
+              <div className="w-10 h-10 rounded-xl bg-[#7CFF00]/10 flex items-center justify-center">
+                <Type className="w-5 h-5 text-[#7CFF00]" />
               </div>
               <div>
                 <h2 className="text-[15px] font-semibold text-[#e3e3e3]">首页Banner标题</h2>
@@ -219,7 +219,7 @@ export default function SettingsPage() {
                   type="text"
                   value={bannerTitle}
                   onChange={(e) => setBannerTitle(e.target.value)}
-                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00] transition-colors"
                   placeholder="如：账号 批发平台"
                 />
                 <p className="text-[11px] text-[#6e6e73] mt-1">提示：可用空格分隔，第二部分会显示为蓝色</p>
@@ -231,7 +231,7 @@ export default function SettingsPage() {
                   type="text"
                   value={bannerSubtitle}
                   onChange={(e) => setBannerSubtitle(e.target.value)}
-                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00] transition-colors"
                   placeholder="如：专业、安全、便捷的一站式账号服务平台"
                 />
               </div>
@@ -243,7 +243,7 @@ export default function SettingsPage() {
                 { key: "banner_subtitle", value: bannerSubtitle },
               ])}
               disabled={saving}
-              className="mt-4 px-4 py-2 bg-[#8ab4f8] hover:bg-[#aecbfa] text-[#131314] font-semibold rounded-lg text-[13px] transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="mt-4 px-4 py-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[13px] transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               保存
@@ -281,14 +281,14 @@ export default function SettingsPage() {
                   type="text"
                   value={link.name}
                   onChange={(e) => updateNavLink(index, "name", e.target.value)}
-                  className="w-32 h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8]"
+                  className="w-32 h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00]"
                   placeholder="链接名称"
                 />
                 <input
                   type="text"
                   value={link.url}
                   onChange={(e) => updateNavLink(index, "url", e.target.value)}
-                  className="flex-1 h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8]"
+                  className="flex-1 h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00]"
                   placeholder="链接地址，如 / 或 /order-query"
                 />
                 <button onClick={() => removeNavLink(index)} className="p-2 text-[#6e6e73] hover:text-[#ee675c]">
@@ -304,7 +304,7 @@ export default function SettingsPage() {
           <button
             onClick={() => saveSetting("nav_links", navLinks)}
             disabled={saving}
-            className="mt-4 px-4 py-2 bg-[#8ab4f8] hover:bg-[#aecbfa] text-[#131314] font-semibold rounded-lg text-[13px] disabled:opacity-50 flex items-center gap-2"
+            className="mt-4 px-4 py-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[13px] disabled:opacity-50 flex items-center gap-2"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             保存
@@ -318,8 +318,8 @@ export default function SettingsPage() {
           {/* 搜索框文字 */}
           <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-[#8ab4f8]/10 flex items-center justify-center">
-                <Search className="w-5 h-5 text-[#8ab4f8]" />
+              <div className="w-10 h-10 rounded-xl bg-[#7CFF00]/10 flex items-center justify-center">
+                <Search className="w-5 h-5 text-[#7CFF00]" />
               </div>
               <div>
                 <h2 className="text-[15px] font-semibold text-[#e3e3e3]">搜索框默认文字</h2>
@@ -330,13 +330,13 @@ export default function SettingsPage() {
               type="text"
               value={searchPlaceholder}
               onChange={(e) => setSearchPlaceholder(e.target.value)}
-              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
+              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00] transition-colors"
               placeholder="如：搜索你想要的商品..."
             />
             <button
               onClick={() => saveSetting("search_placeholder", searchPlaceholder)}
               disabled={saving}
-              className="mt-4 px-4 py-2 bg-[#8ab4f8] hover:bg-[#aecbfa] text-[#131314] font-semibold rounded-lg text-[13px] transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="mt-4 px-4 py-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[13px] transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               保存
@@ -375,7 +375,7 @@ export default function SettingsPage() {
                 value={newTag}
                 onChange={(e) => setNewTag(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && addTag()}
-                className="flex-1 h-10 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                className="flex-1 h-10 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00] transition-colors"
                 placeholder="输入标签名称，按回车添加"
               />
               <button onClick={addTag} className="px-4 h-10 bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#e3e3e3] rounded-lg text-[13px] flex items-center gap-2">
@@ -387,7 +387,7 @@ export default function SettingsPage() {
             <button
               onClick={() => saveSetting("hot_search_tags", hotSearchTags)}
               disabled={saving}
-              className="mt-4 px-4 py-2 bg-[#8ab4f8] hover:bg-[#aecbfa] text-[#131314] font-semibold rounded-lg text-[13px] transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="mt-4 px-4 py-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[13px] transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               保存
@@ -409,13 +409,13 @@ export default function SettingsPage() {
               type="text"
               value={deliveryText}
               onChange={(e) => setDeliveryText(e.target.value)}
-              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
+              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00] transition-colors"
               placeholder="如：自动发货"
             />
             <button
               onClick={() => saveSetting("delivery_text", deliveryText)}
               disabled={saving}
-              className="mt-4 px-4 py-2 bg-[#8ab4f8] hover:bg-[#aecbfa] text-[#131314] font-semibold rounded-lg text-[13px] transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="mt-4 px-4 py-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[13px] transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               保存
@@ -453,14 +453,14 @@ export default function SettingsPage() {
                   type="text"
                   value={link.name}
                   onChange={(e) => updateFooterLink(index, "name", e.target.value)}
-                  className="w-32 h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8]"
+                  className="w-32 h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00]"
                   placeholder="链接名称"
                 />
                 <input
                   type="text"
                   value={link.url}
                   onChange={(e) => updateFooterLink(index, "url", e.target.value)}
-                  className="flex-1 h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8]"
+                  className="flex-1 h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00]"
                   placeholder="链接地址，如 /about"
                 />
                 <button onClick={() => removeFooterLink(index)} className="p-2 text-[#6e6e73] hover:text-[#ee675c]">
@@ -476,7 +476,7 @@ export default function SettingsPage() {
           <button
             onClick={() => saveSetting("footer_links", footerLinks)}
             disabled={saving}
-            className="mt-4 px-4 py-2 bg-[#8ab4f8] hover:bg-[#aecbfa] text-[#131314] font-semibold rounded-lg text-[13px] disabled:opacity-50 flex items-center gap-2"
+            className="mt-4 px-4 py-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[13px] disabled:opacity-50 flex items-center gap-2"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             保存
@@ -493,7 +493,7 @@ export default function SettingsPage() {
               type="text"
               value={siteName}
               onChange={(e) => setSiteName(e.target.value)}
-              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8]"
+              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00]"
               placeholder="如：账号批发平台"
             />
           </div>
@@ -504,7 +504,7 @@ export default function SettingsPage() {
               value={siteDescription}
               onChange={(e) => setSiteDescription(e.target.value)}
               rows={3}
-              className="w-full px-4 py-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8] resize-none"
+              className="w-full px-4 py-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00] resize-none"
               placeholder="网站简短描述..."
             />
           </div>
@@ -515,7 +515,7 @@ export default function SettingsPage() {
               type="email"
               value={contactEmail}
               onChange={(e) => setContactEmail(e.target.value)}
-              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8]"
+              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00]"
               placeholder="support@example.com"
             />
           </div>
@@ -526,7 +526,7 @@ export default function SettingsPage() {
               type="text"
               value={contactTelegram}
               onChange={(e) => setContactTelegram(e.target.value)}
-              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#8ab4f8]"
+              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00]"
               placeholder="@username"
             />
           </div>
@@ -539,7 +539,7 @@ export default function SettingsPage() {
               { key: "contact_telegram", value: contactTelegram },
             ])}
             disabled={saving}
-            className="px-4 py-2 bg-[#8ab4f8] hover:bg-[#aecbfa] text-[#131314] font-semibold rounded-lg text-[13px] disabled:opacity-50 flex items-center gap-2"
+            className="px-4 py-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[13px] disabled:opacity-50 flex items-center gap-2"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             保存设置

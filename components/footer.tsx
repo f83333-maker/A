@@ -34,16 +34,16 @@ export function Footer() {
             <Link href="/" className="inline-flex items-center gap-2.5 mb-5 group">
               <div className="w-8 h-8 rounded-lg bg-[#111111] flex items-center justify-center transition-all group-hover:bg-[#222222]">
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
-                  <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" fill="#8ab4f8" stroke="#8ab4f8" strokeWidth="0.5" strokeLinejoin="round"/>
+                  <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" fill="#7CFF00" stroke="#7CFF00" strokeWidth="0.5" strokeLinejoin="round"/>
                 </svg>
               </div>
               <span className="text-[16px] font-bold text-[#e3e3e3]">
-                CHUHAIZIYUAN
+                出海资源铺
               </span>
             </Link>
             <p className="text-[13px] text-[#6e6e73] leading-relaxed mb-6 font-medium">
-              专业的账号批发服务平台，<br />
-              为您提供安全可靠的服务。
+              一站式出海资源采购平台，<br />
+              助力全球化业务拓展。
             </p>
             {/* 社交图标 */}
             <div className="flex items-center gap-2">
@@ -104,7 +104,7 @@ export function Footer() {
         <div className="mt-14 pt-8 border-t border-[#222222]">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-[13px] text-[#6e6e73] font-medium">
-              © 2024 CHUHAIZIYUAN. All rights reserved.
+              © 2024 出海资源铺. All rights reserved.
             </p>
             <div className="flex items-center gap-6 flex-wrap justify-center">
               {footerLinks.slice(0, 4).map((link, index) => (

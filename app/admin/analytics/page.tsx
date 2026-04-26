@@ -177,7 +177,7 @@ export default function AnalyticsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 text-[#8ab4f8] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[#7CFF00] animate-spin" />
       </div>
     )
   }
@@ -205,14 +205,14 @@ export default function AnalyticsPage() {
           <p className="text-[11px] text-[#6e6e73] mt-1">今日独立IP</p>
         </div>
 
-        <div className="bg-gradient-to-br from-[#8ab4f8]/20 to-[#8ab4f8]/5 rounded-xl border border-[#8ab4f8]/30 p-5">
+        <div className="bg-gradient-to-br from-[#7CFF00]/20 to-[#7CFF00]/5 rounded-xl border border-[#7CFF00]/30 p-5">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-[#8ab4f8]/20 flex items-center justify-center">
-              <ShoppingCart className="w-5 h-5 text-[#8ab4f8]" />
+            <div className="w-10 h-10 rounded-xl bg-[#7CFF00]/20 flex items-center justify-center">
+              <ShoppingCart className="w-5 h-5 text-[#7CFF00]" />
             </div>
             <span className="text-[13px] text-[#9aa0a6] font-medium">今日订单</span>
           </div>
-          <p className="text-[28px] font-bold text-[#8ab4f8]">{stats.todayOrders}</p>
+          <p className="text-[28px] font-bold text-[#7CFF00]">{stats.todayOrders}</p>
           <p className="text-[11px] text-[#6e6e73] mt-1">已支付订单</p>
         </div>
 
@@ -289,7 +289,7 @@ export default function AnalyticsPage() {
                       <td className="px-4 py-3 text-center">
                         <button
                           onClick={() => openVisitorDetail(visitor)}
-                          className="px-3 py-1.5 bg-[#8ab4f8]/10 hover:bg-[#8ab4f8]/20 text-[#8ab4f8] rounded-lg text-[12px] font-medium transition-colors"
+                          className="px-3 py-1.5 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] rounded-lg text-[12px] font-medium transition-colors"
                         >
                           详情
                         </button>
@@ -351,7 +351,7 @@ export default function AnalyticsPage() {
               <div className="bg-[#2d2e30] rounded-xl p-4">
                 <label className="text-[12px] text-[#6e6e73] font-medium">访客设备</label>
                 <div className="flex items-center gap-3 mt-2">
-                  <div className="w-10 h-10 rounded-lg bg-[#8ab4f8]/10 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-lg bg-[#7CFF00]/10 flex items-center justify-center">
                     {getDeviceIcon(selectedVisitor.device_type)}
                   </div>
                   <div>

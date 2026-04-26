@@ -9,7 +9,7 @@ const categories = [
     description: "Instagram, Twitter, TikTok",
     icon: "👥",
     href: "/category/social",
-    color: "#8ab4f8",
+    color: "#7CFF00",
     count: "1,200+",
   },
   {
@@ -49,7 +49,7 @@ const categories = [
     description: "国际平台账号服务",
     icon: "🌍",
     href: "/category/overseas",
-    color: "#8ab4f8",
+    color: "#7CFF00",
     count: "1,500+",
   },
   {
@@ -79,7 +79,7 @@ function Highlight({ text, query }: { text: string; query: string }) {
     <>
       {parts.map((part, i) =>
         regex.test(part) ? (
-          <mark key={i} className="bg-[#8ab4f8]/25 text-[#8ab4f8] rounded-[3px] px-[1px]">
+          <mark key={i} className="bg-[#7CFF00]/25 text-[#7CFF00] rounded-[3px] px-[1px]">
             {part}
           </mark>
         ) : (
@@ -162,7 +162,7 @@ export function CategoryCards({ searchQuery, onCategorySearch }: CategoryCardsPr
                       <Highlight text={category.name} query={searchQuery} />
                     </h3>
                     <ArrowUpRight 
-                      className="w-4 h-4 text-[#6e6e73] group-hover:text-[#8ab4f8] transition-all duration-300 opacity-0 group-hover:opacity-100" 
+                      className="w-4 h-4 text-[#6e6e73] group-hover:text-[#7CFF00] transition-all duration-300 opacity-0 group-hover:opacity-100" 
                     />
                   </div>
                   <p className="text-[13px] text-[#6e6e73] mt-1 line-clamp-1 font-medium">
