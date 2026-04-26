@@ -4,64 +4,68 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* OKX Web3 纯黑配色 */
+  /* 纯黑配色 */
   --background: #000000;
-  --foreground: #ffffff;
-  --card: #0f0f0f;
-  --card-foreground: #ffffff;
-  --popover: #141414;
-  --popover-foreground: #ffffff;
-  --primary: #00d26a;
+  --foreground: #FFFFFF;
+  --card: #000000;
+  --card-foreground: #FFFFFF;
+  --popover: #000000;
+  --popover-foreground: #FFFFFF;
+  --primary: #00B812;
   --primary-foreground: #000000;
-  --secondary: #1a1a1a;
-  --secondary-foreground: #ffffff;
-  --muted: #262626;
-  --muted-foreground: #8c8c8c;
-  --accent: #00d26a;
+  --secondary: #000000;
+  --secondary-foreground: #FFFFFF;
+  --muted: #111111;
+  --muted-foreground: #737373;
+  --accent: #00B812;
   --accent-foreground: #000000;
-  --destructive: #ff4d6a;
-  --destructive-foreground: #000000;
-  --border: #262626;
-  --input: #1a1a1a;
-  --ring: #00d26a;
-  --chart-1: #00d26a;
-  --chart-2: #00b4d8;
-  --chart-3: #ffd700;
-  --chart-4: #ff4d6a;
-  --chart-5: #a855f7;
-  --radius: 0.5rem;
-  --sidebar: #0a0a0a;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #00d26a;
+  --destructive: #FF3B3B;
+  --destructive-foreground: #FFFFFF;
+  --border: #222222;
+  --input: #000000;
+  --ring: #00B812;
+  --chart-1: #00B812;
+  --chart-2: #00B4D8;
+  --chart-3: #FFD700;
+  --chart-4: #FF3B3B;
+  --chart-5: #A855F7;
+  --radius: 0.375rem;
+  --sidebar: #000000;
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: #00B812;
   --sidebar-primary-foreground: #000000;
-  --sidebar-accent: #1a1a1a;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #262626;
-  --sidebar-ring: #00d26a;
+  --sidebar-accent: #000000;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #222222;
+  --sidebar-ring: #00B812;
   
-  /* OKX 风格颜色 */
+  /* 纯黑风格颜色 */
   --nav-bg: #000000;
-  --nav-foreground: #ffffff;
-  --okx-green: #00d26a;
-  --okx-green-hover: #00e676;
-  --okx-red: #ff4d6a;
-  --okx-yellow: #ffd700;
-  --okx-blue: #00b4d8;
-  --text-secondary: #8c8c8c;
-  --text-tertiary: #595959;
-  --surface-elevated: #141414;
+  --nav-foreground: #FFFFFF;
+  --okx-green: #00B812;
+  --okx-green-hover: #00D414;
+  --okx-red: #FF3B3B;
+  --okx-yellow: #F7931A;
+  --okx-blue: #2D7DF6;
+  --text-primary: #FFFFFF;
+  --text-secondary: #737373;
+  --text-tertiary: #525252;
+  --surface-elevated: #000000;
 }
 
 
 
 @theme inline {
-  --font-sans: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
-  --font-mono: 'SF Mono', 'Roboto Mono', monospace;
+  --font-oak-sans: var(--font-oak-sans), 'Figtree', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: var(--font-oak-sans), 'Figtree', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: var(--font-oak-sans), 'Figtree', 'SF Mono', monospace;
+  --font-display: var(--font-oak-sans), 'Figtree', sans-serif;
   --color-okx-green: var(--okx-green);
   --color-okx-green-hover: var(--okx-green-hover);
   --color-okx-red: var(--okx-red);
   --color-okx-yellow: var(--okx-yellow);
   --color-okx-blue: var(--okx-blue);
+  --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-text-tertiary: var(--text-tertiary);
   --color-surface-elevated: var(--surface-elevated);
@@ -168,7 +172,22 @@
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes gradient-x {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes expand-line {
+  0% { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
 }
 
 @keyframes pulse-soft {
@@ -249,10 +268,24 @@
     animation: border-glow 3s ease-in-out infinite;
   }
   
+  .animate-gradient-x {
+    animation: gradient-x 3s ease infinite;
+  }
+  
+  .animate-expand-line {
+    animation: expand-line 0.8s ease-out 0.5s forwards;
+  }
+  
+  .animate-pulse-slow {
+    animation: pulse-slow 3s ease-in-out infinite;
+  }
+  
   /* 延迟动画类 */
   .delay-100 { animation-delay: 100ms; }
   .delay-200 { animation-delay: 200ms; }
+  .delay-250 { animation-delay: 250ms; }
   .delay-300 { animation-delay: 300ms; }
   .delay-400 { animation-delay: 400ms; }
   .delay-500 { animation-delay: 500ms; }
+  .delay-1000 { animation-delay: 1000ms; }
 }

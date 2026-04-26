@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, Pencil, Trash2, Loader2, X, Package, ArrowUp, ArrowDown } from "lucide-react"
+import { Plus, Pencil, Trash2, Loader2, X, Package, ArrowUp, ArrowDown, Flag, Search, Copy, Check } from "lucide-react"
 import Link from "next/link"
 
 interface Category {
@@ -59,6 +59,13 @@ export default function ProductsPage() {
   const [isFetchingLogo, setIsFetchingLogo] = useState(false)
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
   const [error, setError] = useState<string>("")
+  
+  // 国旗搜索状态
+  const [isFlagModalOpen, setIsFlagModalOpen] = useState(false)
+  const [flagSearchQuery, setFlagSearchQuery] = useState("")
+  const [flagResults, setFlagResults] = useState<{ code: string; flagUrl: string; name: string }[]>([])
+  const [isSearchingFlag, setIsSearchingFlag] = useState(false)
+  const [copiedFlagUrl, setCopiedFlagUrl] = useState<string | null>(null)
 
   useEffect(() => {
     fetchData()
@@ -244,6 +251,36 @@ export default function ProductsPage() {
     }
   }
 
+  // 搜索国旗图片
+  const searchCountryFlag = async () => {
+    if (!flagSearchQuery.trim()) return
+    setIsSearchingFlag(true)
+    try {
+      const res = await fetch("/api/country-emoji", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: flagSearchQuery }),
+      })
+      const data = await res.json()
+      setFlagResults(data.results || [])
+    } catch (error) {
+      console.error("搜索国旗失败:", error)
+    } finally {
+      setIsSearchingFlag(false)
+    }
+  }
+
+  // 复制国旗URL到剪贴板
+  const copyFlagUrl = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopiedFlagUrl(url)
+      setTimeout(() => setCopiedFlagUrl(null), 2000)
+    } catch (error) {
+      console.error("复制失败:", error)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -262,13 +299,22 @@ export default function ProductsPage() {
             管理所有产品，共 {products.length} 个产品
           </p>
         </div>
-        <button
-          onClick={() => openModal()}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#8ab4f8] hover:bg-[#aecbfa] text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px]"
-        >
-          <Plus className="w-4 h-4" />
-          添加产品
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsFlagModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#e3e3e3] font-semibold rounded-xl transition-all duration-200 text-[14px] border border-[#3c3c3f]"
+          >
+            <Flag className="w-4 h-4" />
+            国旗图标
+          </button>
+          <button
+            onClick={() => openModal()}
+            className="flex items-center gap-2 px-4 py-2.5 bg-[#8ab4f8] hover:bg-[#aecbfa] text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px]"
+          >
+            <Plus className="w-4 h-4" />
+            添加产品
+          </button>
+        </div>
       </div>
 
       {/* 产品列表 */}
@@ -648,6 +694,96 @@ export default function ProductsPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* 国旗图标搜索弹窗 */}
+      {isFlagModalOpen && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] w-full max-w-md">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#3c3c3f]">
+              <h2 className="text-[18px] font-semibold text-[#e3e3e3] flex items-center gap-2">
+                <Flag className="w-5 h-5" />
+                国旗图标搜索
+              </h2>
+              <button
+                onClick={() => {
+                  setIsFlagModalOpen(false)
+                  setFlagSearchQuery("")
+                  setFlagResults([])
+                }}
+                className="p-1 text-[#9aa0a6] hover:text-[#e3e3e3] transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={flagSearchQuery}
+                  onChange={(e) => setFlagSearchQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && searchCountryFlag()}
+                  placeholder="输入国家名称，如：斯里兰卡、美国、+95"
+                  className="flex-1 h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                />
+                <button
+                  onClick={searchCountryFlag}
+                  disabled={isSearchingFlag || !flagSearchQuery.trim()}
+                  className="px-4 h-11 bg-[#8ab4f8] hover:bg-[#aecbfa] text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[13px] disabled:bg-[#3c3c3f] disabled:text-[#6e6e73] disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {isSearchingFlag ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                  搜索
+                </button>
+              </div>
+
+              {/* 搜索结果 */}
+              {flagResults.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-[12px] text-[#9aa0a6]">点击复制国旗图片URL：</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {flagResults.map((result) => (
+                      <button
+                        key={result.code}
+                        onClick={() => copyFlagUrl(result.flagUrl)}
+                        className="flex items-center gap-3 px-4 py-3 bg-[#2d2e30] hover:bg-[#3c3c3f] border border-[#3c3c3f] rounded-xl transition-all group"
+                      >
+                        <img 
+                          src={result.flagUrl} 
+                          alt={result.name} 
+                          className="w-10 h-7 object-cover rounded shadow-sm"
+                        />
+                        <div className="flex-1 text-left">
+                          <p className="text-[13px] text-[#e3e3e3] font-medium">{result.name}</p>
+                          <p className="text-[11px] text-[#6e6e73]">{result.code}</p>
+                        </div>
+                        {copiedFlagUrl === result.flagUrl ? (
+                          <Check className="w-4 h-4 text-[#81c995]" />
+                        ) : (
+                          <Copy className="w-4 h-4 text-[#6e6e73] opacity-0 group-hover:opacity-100 transition-opacity" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {flagResults.length === 0 && flagSearchQuery && !isSearchingFlag && (
+                <p className="text-center text-[14px] text-[#6e6e73] py-8">
+                  未找到匹配的国家，请尝试其他关键词
+                </p>
+              )}
+
+              <div className="text-[12px] text-[#6e6e73] bg-[#2d2e30] rounded-lg p-3">
+                <p className="font-medium text-[#9aa0a6] mb-1">使用提示：</p>
+                <ul className="space-y-0.5">
+                  <li>- 支持模糊搜索，如 "斯里兰卡卡卡" 可匹配斯里兰卡</li>
+                  <li>- 支持区号搜索，如 "+95" 可匹配缅甸</li>
+                  <li>- 复制URL后可粘贴到产品的Logo URL字段</li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       )}

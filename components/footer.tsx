@@ -26,13 +26,13 @@ export function Footer() {
   }, [])
 
   return (
-    <footer className="bg-[#131314] border-t border-[#3c3c3f]/30">
+    <footer className="bg-[#000000] border-t border-[#222222]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {/* Brand */}
           <div className="md:col-span-1">
             <Link href="/" className="inline-flex items-center gap-2.5 mb-5 group">
-              <div className="w-8 h-8 rounded-lg bg-[#2d2e30] flex items-center justify-center transition-all group-hover:bg-[#3c3c3f]">
+              <div className="w-8 h-8 rounded-lg bg-[#111111] flex items-center justify-center transition-all group-hover:bg-[#222222]">
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
                   <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" fill="#8ab4f8" stroke="#8ab4f8" strokeWidth="0.5" strokeLinejoin="round"/>
                 </svg>
@@ -50,7 +50,7 @@ export function Footer() {
               {["📧", "💬", "🐦"].map((icon, i) => (
                 <button
                   key={i}
-                  className="w-9 h-9 rounded-xl bg-[#2d2e30] hover:bg-[#3c3c3f] flex items-center justify-center text-[16px] transition-all duration-200"
+                  className="w-9 h-9 rounded-xl bg-[#111111] hover:bg-[#222222] flex items-center justify-center text-[16px] transition-all duration-200"
                 >
                   {icon}
                 </button>
@@ -101,7 +101,7 @@ export function Footer() {
         </div>
 
         {/* Bottom */}
-        <div className="mt-14 pt-8 border-t border-[#3c3c3f]/30">
+        <div className="mt-14 pt-8 border-t border-[#222222]">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-[13px] text-[#6e6e73] font-medium">
               © 2024 CHUHAIZIYUAN. All rights reserved.

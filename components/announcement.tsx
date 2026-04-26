@@ -55,7 +55,7 @@ export function Announcement() {
 
   if (isLoading) {
     return (
-      <section className="py-16 md:py-20 bg-[#1e1f20]">
+      <section className="py-16 md:py-20 bg-[#000000]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 flex items-center justify-center min-h-[200px]">
           <Loader2 className="w-6 h-6 animate-spin text-[#8ab4f8]" />
         </div>
@@ -64,34 +64,36 @@ export function Announcement() {
   }
 
   return (
-    <section className="py-16 md:py-20 bg-[#1e1f20]">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6">
-        {/* 标题 */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#8ab4f8]/10 flex items-center justify-center">
-              <Bell className="w-5 h-5 text-[#8ab4f8]" />
+    <section className="py-16 md:py-20 bg-[#000000]">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6">
+        {/* 整体背景框 */}
+        <div className="bg-[#0D0D0D] rounded-2xl p-6 md:p-10">
+          {/* 标题 */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#8ab4f8]/10 flex items-center justify-center">
+                <Bell className="w-5 h-5 text-[#8ab4f8]" />
+              </div>
+              <h2 className="text-[18px] font-semibold text-[#e3e3e3]">
+                平台公告
+              </h2>
             </div>
-            <h2 className="text-[18px] font-semibold text-[#e3e3e3]">
-              平台公告
-            </h2>
+            <Link 
+              href="/announcements" 
+              className="text-[14px] text-[#8ab4f8] hover:text-[#aecbfa] transition-colors flex items-center gap-1"
+            >
+              全部
+              <ChevronRight className="w-4 h-4" />
+            </Link>
           </div>
-          <Link 
-            href="/announcements" 
-            className="text-[14px] text-[#8ab4f8] hover:text-[#aecbfa] transition-colors flex items-center gap-1"
-          >
-            全部
-            <ChevronRight className="w-4 h-4" />
-          </Link>
-        </div>
 
-        {/* 公告列表 */}
-        <div className="bg-[#131314] rounded-2xl border border-[#3c3c3f]/50 overflow-hidden">
+          {/* 公告列表 */}
+          <div className="rounded-xl border border-[#222222] overflow-hidden">
           {announcements.map((item, index) => (
             <Link
               key={item.id}
               href={`/announcement/${item.id}`}
-              className="group flex items-center justify-between px-5 py-4 hover:bg-[#2d2e30]/50 transition-colors border-b border-[#3c3c3f]/30 last:border-b-0 animate-fade-in"
+              className="group flex items-center justify-between px-5 py-4 hover:bg-[#111111] transition-colors border-b border-[#222222] last:border-b-0 animate-fade-in"
               style={{ 
                 animationDelay: `${index * 40}ms`,
                 animationFillMode: "backwards"
@@ -121,6 +123,7 @@ export function Announcement() {
               </div>
             </Link>
           ))}
+          </div>
         </div>
       </div>
     </section>
