@@ -166,9 +166,10 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
   return (
     <section id="category-browser" className="py-6 md:py-8 bg-[#000000]">
       <div className="max-w-7xl mx-auto px-3 sm:px-6">
-        
-        {/* ── 顶部分类标签栏 ── */}
-        <div className="relative mb-6">
+        {/* 整体背景框 */}
+        <div className="bg-[#0D0D0D] rounded-2xl p-4 md:p-6">
+          {/* ── 顶部分类标签栏 ── */}
+          <div className="relative mb-6">
           {/* 左箭头 */}
           <button
             onClick={() => scrollCategories('left')}
@@ -373,12 +374,13 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
           )}
         </div>
 
-        {/* 底部提示 */}
-        {filteredProducts.length > 0 && (
-          <div className="mt-4 text-center text-[12px] text-[#525252]">
-            共 {filteredProducts.length} 个商品 · 数据实时更新
-          </div>
-        )}
+          {/* 底部提示 */}
+          {filteredProducts.length > 0 && (
+            <div className="mt-4 text-center text-[12px] text-[#525252]">
+              共 {filteredProducts.length} 个商品 · 数据实时更新
+            </div>
+          )}
+        </div>
       </div>
 
       {/* 购买弹窗 */}
