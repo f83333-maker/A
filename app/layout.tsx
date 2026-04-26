@@ -12,8 +12,8 @@ const figtree = Figtree({
 })
 
 export const metadata: Metadata = {
-  title: 'CHUHAIZIYUAN - 专业账号批发服务',
-  description: '专业的账号批发平台，提供优质账号批发服务',
+  title: '出海资源铺 - 一站式出海资源采购平台',
+  description: '出海资源铺，一站式出海资源采购平台，助力全球化业务拓展',
   icons: {
     icon: '/icon.svg',
     shortcut: '/icon.svg',
