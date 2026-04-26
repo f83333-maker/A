@@ -170,18 +170,21 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
         <div className="bg-[#0D0D0D] rounded-2xl p-6 md:p-10">
           {/* ── 顶部分类标签栏 ── */}
           <div className="relative mb-6">
-          {/* 左箭头 */}
-          <button
-            onClick={() => scrollCategories('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center bg-[#000000] border border-[#333] rounded-full text-[#8c8c8c] hover:text-white hover:border-[#555] transition-colors"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
+          {/* 左侧渐变遮罩 + 箭头 */}
+          <div className="absolute left-0 top-0 bottom-0 z-10 flex items-center">
+            <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[#0D0D0D] via-[#0D0D0D]/80 to-transparent pointer-events-none" />
+            <button
+              onClick={() => scrollCategories('left')}
+              className="relative z-10 w-8 h-8 flex items-center justify-center bg-[#000000] border border-[#333] rounded-full text-[#8c8c8c] hover:text-white hover:border-[#555] transition-colors ml-1"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+          </div>
 
           {/* 分类标签 */}
           <div
             ref={categoryScrollRef}
-            className="flex gap-2 overflow-x-auto scrollbar-hide mx-10 py-2"
+            className="flex gap-2 overflow-x-auto scrollbar-hide mx-12 py-2"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {categories.map((cat) => {
@@ -209,13 +212,21 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
             })}
           </div>
 
-          {/* 右箭头 */}
-          <button
-            onClick={() => scrollCategories('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center bg-[#000000] border border-[#333] rounded-full text-[#8c8c8c] hover:text-white hover:border-[#555] transition-colors"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
+          {/* 右侧渐变遮罩 + 箭头 */}
+          <div className="absolute right-0 top-0 bottom-0 z-10 flex items-center">
+            <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#0D0D0D] via-[#0D0D0D]/80 to-transparent pointer-events-none" />
+            <button
+              onClick={() => scrollCategories('right')}
+              className="relative z-10 w-8 h-8 flex items-center justify-center bg-[#000000] border border-[#333] rounded-full text-[#8c8c8c] hover:text-white hover:border-[#555] transition-colors mr-1"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+        
+        {/* 移动端滑动提示 */}
+        <div className="md:hidden text-center text-[11px] text-[#525252] -mt-1 mb-4">
+          左右滑动查看更多分类
         </div>
 
 
