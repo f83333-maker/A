@@ -263,21 +263,16 @@ export default function CategoriesPage() {
                   </div>
                 </td>
                 <td className="px-5 py-4">
-                  {category.logo_data ? (
-                    <div
-                      className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden"
-                      style={{ backgroundColor: category.logo_bg_color || "#2d2e30" }}
-                    >
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden"
+                    style={{ backgroundColor: category.logo_bg_color || "#2d2e30" }}
+                  >
+                    {category.logo_data ? (
                       <img src={category.logo_data} alt={category.name} className="w-7 h-7 object-contain" />
-                    </div>
-                  ) : (
-                    <div
-                      className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
-                      style={{ backgroundColor: `${category.color}15` }}
-                    >
-                      {category.icon}
-                    </div>
-                  )}
+                    ) : (
+                      <span className="text-[#6e6e73] text-[11px] font-medium">无</span>
+                    )}
+                  </div>
                 </td>
                 <td className="px-5 py-4">
                   <p className="text-[14px] font-medium text-[#e3e3e3]">{category.name}</p>
@@ -336,28 +331,16 @@ export default function CategoriesPage() {
               </button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {/* 基本信息 */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">分类名称</label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">备用图标 (Emoji)</label>
-                  <input
-                    type="text"
-                    value={formData.icon}
-                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
-                    placeholder="如：👥"
-                  />
-                </div>
+              {/* 分类名称 */}
+              <div>
+                <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">分类名称</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                  required
+                />
               </div>
 
               {/* Logo 获取 */}
