@@ -223,7 +223,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
                 />
               </div>
               <div className="flex-1 flex flex-col gap-1.5">
-                <span className="text-[13px] font-semibold text-[#e3e3e3]">查询密码 <span className="text-[#f28b82] font-medium text-[12px]">（≥6���，请牢记）</span></span>
+                <span className="text-[13px] font-semibold text-[#e3e3e3]">查询密码 <span className="text-[#f28b82] font-medium text-[12px]">(6位以上，请牢记)</span></span>
                 <input
                   type="text"
                   value={queryPassword}
