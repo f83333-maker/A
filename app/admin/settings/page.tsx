@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Save, Plus, Trash2, Loader2, Search, Tag, Link as LinkIcon, Truck, Settings, Type, Navigation } from "lucide-react"
+import { Save, Plus, Trash2, Loader2, Search, Tag, Link as LinkIcon, Truck, Settings, Type, Navigation, CreditCard } from "lucide-react"
 
 interface FooterLink {
   name: string
@@ -17,7 +17,7 @@ interface NavLink {
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [activeTab, setActiveTab] = useState<"banner" | "nav" | "search" | "footer" | "basic">("banner")
+  const [activeTab, setActiveTab] = useState<"banner" | "nav" | "search" | "footer" | "basic" | "payment">("banner")
   
   // Banner设置
   const [bannerTitle, setBannerTitle] = useState("")
@@ -31,6 +31,7 @@ export default function SettingsPage() {
   const [siteDescription, setSiteDescription] = useState("")
   const [contactEmail, setContactEmail] = useState("")
   const [contactTelegram, setContactTelegram] = useState("")
+  const [contactQQ, setContactQQ] = useState("")
   
   // 搜索设置
   const [searchPlaceholder, setSearchPlaceholder] = useState("")
@@ -40,6 +41,11 @@ export default function SettingsPage() {
   
   // 底部链接设置
   const [footerLinks, setFooterLinks] = useState<FooterLink[]>([])
+  
+  // 支付设置
+  const [epayApiUrl, setEpayApiUrl] = useState("")
+  const [epayPid, setEpayPid] = useState("")
+  const [epayKey, setEpayKey] = useState("")
 
   const supabase = createClient()
 
@@ -69,6 +75,10 @@ export default function SettingsPage() {
             else if (item.key === "site_description") setSiteDescription(value || "")
             else if (item.key === "contact_email") setContactEmail(value || "")
             else if (item.key === "contact_telegram") setContactTelegram(value || "")
+            else if (item.key === "contact_qq") setContactQQ(value || "")
+            else if (item.key === "epay_api_url") setEpayApiUrl(value || "")
+            else if (item.key === "epay_pid") setEpayPid(value || "")
+            else if (item.key === "epay_key") setEpayKey(value || "")
           } catch (e) {
             console.error("解析设置失败:", item.key, e)
           }
@@ -182,6 +192,7 @@ export default function SettingsPage() {
           { id: "search", label: "搜索与标签", icon: Search },
           { id: "footer", label: "底部导航", icon: LinkIcon },
           { id: "basic", label: "基本设置", icon: Settings },
+          { id: "payment", label: "支付设置", icon: CreditCard },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -376,7 +387,7 @@ export default function SettingsPage() {
                 onChange={(e) => setNewTag(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && addTag()}
                 className="flex-1 h-10 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00] transition-colors"
-                placeholder="输入标签名称，按回车添加"
+                placeholder="输入标签���称，按回车添加"
               />
               <button onClick={addTag} className="px-4 h-10 bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#e3e3e3] rounded-lg text-[13px] flex items-center gap-2">
                 <Plus className="w-4 h-4" />
@@ -527,7 +538,18 @@ export default function SettingsPage() {
               value={contactTelegram}
               onChange={(e) => setContactTelegram(e.target.value)}
               className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00]"
-              placeholder="@username"
+              placeholder="https://t.me/username 或 @username"
+            />
+          </div>
+
+          <div>
+            <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">QQ 联系方式</label>
+            <input
+              type="text"
+              value={contactQQ}
+              onChange={(e) => setContactQQ(e.target.value)}
+              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00]"
+              placeholder="QQ号 或 QQ群链接"
             />
           </div>
 
@@ -537,12 +559,86 @@ export default function SettingsPage() {
               { key: "site_description", value: siteDescription },
               { key: "contact_email", value: contactEmail },
               { key: "contact_telegram", value: contactTelegram },
+              { key: "contact_qq", value: contactQQ },
             ])}
             disabled={saving}
             className="px-4 py-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[13px] disabled:opacity-50 flex items-center gap-2"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             保存设置
+          </button>
+        </div>
+      )}
+
+      {/* 支付设置 */}
+      {activeTab === "payment" && (
+        <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] p-6 space-y-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-[#7CFF00]/10 flex items-center justify-center">
+              <CreditCard className="w-5 h-5 text-[#7CFF00]" />
+            </div>
+            <div>
+              <h2 className="text-[15px] font-semibold text-[#e3e3e3]">易支付配置</h2>
+              <p className="text-[12px] text-[#6e6e73]">配置易支付接口参数，支持微信、支付宝等支付方式</p>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">API 接口地址</label>
+            <input
+              type="text"
+              value={epayApiUrl}
+              onChange={(e) => setEpayApiUrl(e.target.value)}
+              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00]"
+              placeholder="如：https://pay.example.com"
+            />
+            <p className="text-[11px] text-[#6e6e73] mt-1">易支付平台提供的API接口地址，不要以斜杠结尾</p>
+          </div>
+
+          <div>
+            <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">商户ID (PID)</label>
+            <input
+              type="text"
+              value={epayPid}
+              onChange={(e) => setEpayPid(e.target.value)}
+              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00]"
+              placeholder="如：1001"
+            />
+          </div>
+
+          <div>
+            <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">商户密钥 (Key)</label>
+            <input
+              type="password"
+              value={epayKey}
+              onChange={(e) => setEpayKey(e.target.value)}
+              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00]"
+              placeholder="易支付商户密钥"
+            />
+            <p className="text-[11px] text-[#6e6e73] mt-1">请妥善保管您的商户密钥，不要泄露给他人</p>
+          </div>
+
+          <div className="pt-4 border-t border-[#3c3c3f]">
+            <h3 className="text-[14px] font-medium text-[#e3e3e3] mb-3">支付回调地址</h3>
+            <div className="bg-[#2d2e30] rounded-xl p-4">
+              <p className="text-[12px] text-[#6e6e73] mb-2">请在易支付后台设置以下异步通知地址：</p>
+              <code className="text-[13px] text-[#7CFF00] break-all">
+                {typeof window !== "undefined" ? `${window.location.origin}/api/webhooks/epay` : "/api/webhooks/epay"}
+              </code>
+            </div>
+          </div>
+
+          <button
+            onClick={() => saveMultipleSettings([
+              { key: "epay_api_url", value: epayApiUrl },
+              { key: "epay_pid", value: epayPid },
+              { key: "epay_key", value: epayKey },
+            ])}
+            disabled={saving}
+            className="px-4 py-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[13px] disabled:opacity-50 flex items-center gap-2"
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            保存支付配置
           </button>
         </div>
       )}

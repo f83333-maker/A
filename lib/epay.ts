@@ -1,11 +1,61 @@
 import "server-only"
 import crypto from "crypto"
+import { createClient } from "@/lib/supabase/server"
 
-// 易支付 API 配置
+// 易支付 API 配置缓存
+let epayConfigCache: { pid: string; key: string; apiUrl: string } | null = null
+let configLastFetch = 0
+const CONFIG_CACHE_TTL = 60000 // 1分钟缓存
+
+// 从数据库获取易支付配置
+export async function getEpayConfig() {
+  const now = Date.now()
+  
+  // 使用缓存
+  if (epayConfigCache && (now - configLastFetch) < CONFIG_CACHE_TTL) {
+    return epayConfigCache
+  }
+  
+  try {
+    const supabase = await createClient()
+    const { data } = await supabase
+      .from("site_settings")
+      .select("key, value")
+      .in("key", ["epay_api_url", "epay_pid", "epay_key"])
+    
+    const settings: Record<string, string> = {}
+    data?.forEach((item) => {
+      try {
+        settings[item.key] = JSON.parse(item.value)
+      } catch {
+        settings[item.key] = item.value
+      }
+    })
+    
+    epayConfigCache = {
+      pid: settings.epay_pid || process.env.EPAY_PID || "",
+      key: settings.epay_key || process.env.EPAY_KEY || "",
+      apiUrl: settings.epay_api_url || process.env.EPAY_API_URL || "",
+    }
+    configLastFetch = now
+    
+    return epayConfigCache
+  } catch (error) {
+    console.error("获取易支付配置失败:", error)
+    // 回退到环境变量
+    return {
+      pid: process.env.EPAY_PID || "",
+      key: process.env.EPAY_KEY || "",
+      apiUrl: process.env.EPAY_API_URL || "",
+    }
+  }
+}
+
+// 向后兼容的同步配置（用于签名验证等）
 export const epayConfig = {
-  pid: process.env.EPAY_PID!,
-  key: process.env.EPAY_KEY!,
-  apiUrl: process.env.EPAY_API_URL || "https://pay.yi-zhifu.cn/",
+  get pid() { return epayConfigCache?.pid || process.env.EPAY_PID || "" },
+  get key() { return epayConfigCache?.key || process.env.EPAY_KEY || "" },
+  get apiUrl() { return epayConfigCache?.apiUrl || process.env.EPAY_API_URL || "" },
 }
 
 /**
@@ -42,19 +92,44 @@ export function generateSign(params: Record<string, any>): string {
 }
 
 /**
- * 验证易支付回调签名
+ * 验证易支付回调签名（异步版本，从数据库获取密钥）
  */
-export function verifyEpaySign(params: Record<string, any>): boolean {
+export async function verifyEpaySign(params: Record<string, any>): Promise<boolean> {
   const sign = params.sign
   if (!sign) return false
+  
+  // 获取配置中的密钥
+  const config = await getEpayConfig()
+  if (!config.key) {
+    console.error("易支付密钥未配置")
+    return false
+  }
   
   // 复制参数并移除sign字段用于验证
   const verifyParams = { ...params }
   delete verifyParams.sign
   delete verifyParams.sign_type
   
-  const calculated = generateSign(verifyParams)
+  const calculated = generateSignWithKey(verifyParams, config.key)
   return calculated === sign
+}
+
+/**
+ * 生成签名（使用提供的密钥）
+ */
+export function generateSignWithKey(params: Record<string, any>, key: string): string {
+  const filteredParams: Record<string, string> = {}
+  for (const k of Object.keys(params)) {
+    if (params[k] !== "" && params[k] !== null && params[k] !== undefined && k !== "sign" && k !== "sign_type") {
+      filteredParams[k] = String(params[k])
+    }
+  }
+  
+  const keys = Object.keys(filteredParams).sort()
+  const str = keys.map((k) => `${k}=${filteredParams[k]}`).join("&")
+  const signStr = str + key
+  
+  return crypto.createHash("md5").update(signStr).digest("hex")
 }
 
 /**
@@ -74,29 +149,32 @@ export async function createEpayOrder(options: {
   const {
     orderNo,
     amount,
-    productId,
-    quantity,
-    buyerEmail,
-    buyerName,
     notifyUrl,
     type,
   } = options
 
+  // 获取最新配置
+  const config = await getEpayConfig()
+  
+  if (!config.pid || !config.key || !config.apiUrl) {
+    throw new Error("支付配置未完成，请在后台设置易支付参数")
+  }
+
   // 签名参数（必须的参数）
   const signParams: Record<string, string> = {
-    pid: epayConfig.pid,
+    pid: config.pid,
     type: type,
     out_trade_no: orderNo,
     notify_url: notifyUrl,
     return_url: options.returnUrl || "",
-    name: buyerName || "商品购买",
+    name: options.buyerName || "商品购买",
     money: amount.toFixed(2),
   }
 
-  // 生成签名
-  const sign = generateSign(signParams)
+  // 使用配置中的密钥生成签名
+  const sign = generateSignWithKey(signParams, config.key)
 
-  // 构建支付 URL（使用表单提交方式更可靠）
+  // 构建支付 URL
   const searchParams = new URLSearchParams()
   searchParams.append("pid", signParams.pid)
   searchParams.append("type", signParams.type)
@@ -108,5 +186,7 @@ export async function createEpayOrder(options: {
   searchParams.append("sign", sign)
   searchParams.append("sign_type", "MD5")
 
-  return `${epayConfig.apiUrl}submit.php?${searchParams.toString()}`
+  // 确保 API URL 格式正确
+  const apiUrl = config.apiUrl.endsWith("/") ? config.apiUrl : config.apiUrl + "/"
+  return `${apiUrl}submit.php?${searchParams.toString()}`
 }

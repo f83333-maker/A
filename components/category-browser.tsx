@@ -165,7 +165,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
   }
 
   return (
-    <section id="category-browser" className="py-6 md:py-8 bg-[#000000]">
+    <section id="category-browser" className="py-6 md:py-8 bg-[#000000] scroll-mt-20">
       <div className="max-w-7xl mx-auto px-3 sm:px-6">
           {/* ── 顶部分类标签栏（两行网格） ── */}
           <div className="mb-6">

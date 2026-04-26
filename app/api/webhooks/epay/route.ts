@@ -8,8 +8,9 @@ const PRODUCTION_URL = "https://www.pcccc.cc"
 async function processPayment(data: Record<string, any>): Promise<boolean> {
   console.log("[v0] 易支付回调数据:", JSON.stringify(data))
 
-  // 验证签名
-  if (!verifyEpaySign(data)) {
+  // 验证签名（异步）
+  const signValid = await verifyEpaySign(data)
+  if (!signValid) {
     console.error("[v0] 易支付签名验证失败")
     return false
   }
