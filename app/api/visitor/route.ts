@@ -1,6 +1,59 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextRequest, NextResponse } from "next/server"
 
+// 获取IP地理位置（使用中国可访问的API）
+async function getIpLocation(ip: string): Promise<string> {
+  if (!ip || ip === "unknown" || ip === "127.0.0.1" || ip === "::1") {
+    return "本地访问"
+  }
+  
+  try {
+    // 使用太平洋网络IP查询接口（中国可访问）
+    const response = await fetch(`https://whois.pconline.com.cn/ipJson.jsp?ip=${ip}&json=true`, {
+      headers: { 
+        "Accept": "application/json",
+        "User-Agent": "Mozilla/5.0"
+      },
+      signal: AbortSignal.timeout(3000) // 3秒超时
+    })
+    
+    if (response.ok) {
+      const text = await response.text()
+      // 解析返回的JSONP格式数据
+      const jsonMatch = text.match(/\{.*\}/)
+      if (jsonMatch) {
+        const data = JSON.parse(jsonMatch[0])
+        if (data.addr) {
+          return data.addr.trim()
+        }
+        if (data.pro && data.city) {
+          return `${data.pro} ${data.city}`.trim()
+        }
+      }
+    }
+  } catch (e) {
+    // 第一个API失败，尝试备用API
+  }
+  
+  try {
+    // 备用：使用 ip-api.com（支持中文，中国可访问）
+    const response = await fetch(`http://ip-api.com/json/${ip}?lang=zh-CN&fields=status,country,regionName,city`, {
+      signal: AbortSignal.timeout(3000)
+    })
+    
+    if (response.ok) {
+      const data = await response.json()
+      if (data.status === "success") {
+        return `${data.country} ${data.regionName} ${data.city}`.trim()
+      }
+    }
+  } catch (e) {
+    // 备用API也失败
+  }
+  
+  return "未知"
+}
+
 // 解析设备类型
 function parseDevice(userAgent: string): { type: string; info: string } {
   const ua = userAgent.toLowerCase()
@@ -85,9 +138,8 @@ export async function POST(request: NextRequest) {
   // 解析设备信息
   const { type: deviceType, info: deviceInfo } = parseDevice(userAgent)
   
-  // 获取IP地理位置 - 异步处理，不阻塞主流程
-  let ipLocation = "未知"
-  // 注意：IP地理位置解析改为后台异步更新，避免阻塞页面加载
+  // 获取IP地理位置
+  const ipLocation = await getIpLocation(ip)
   
   // 检查12小时内是否已记录过此IP+页面组合
   const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString()
