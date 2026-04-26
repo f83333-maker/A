@@ -166,66 +166,34 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
   return (
     <section id="category-browser" className="py-6 md:py-8 bg-[#000000]">
       <div className="max-w-7xl mx-auto px-3 sm:px-6">
-          {/* ── 顶部分类标签栏 ── */}
-          <div className="relative mb-6">
-          {/* 左侧渐变遮罩 + 箭头 */}
-          <div className="absolute left-0 top-0 bottom-0 z-10 flex items-center">
-            <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[#000000] via-[#000000]/80 to-transparent pointer-events-none" />
-            <button
-              onClick={() => scrollCategories('left')}
-              className="relative z-10 w-8 h-8 flex items-center justify-center bg-[#000000] border border-[#333] rounded-full text-[#8c8c8c] hover:text-white hover:border-[#555] transition-colors ml-1"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
+          {/* ── 顶部分类标签栏（两行网格） ── */}
+          <div className="mb-6">
+            <div className="flex flex-wrap gap-2 justify-center">
+              {categories.map((cat) => {
+                const isActive = cat.id === activeCategoryId
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => setActiveCategoryId(cat.id)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-[14px] font-medium whitespace-nowrap transition-all duration-200 border ${
+                      isActive
+                        ? "bg-[#00B812]/15 border-[#00B812] text-[#00B812] shadow-[0_0_12px_rgba(0,184,18,0.3)]"
+                        : "bg-transparent border-[#2A2A2A] text-[#737373] hover:border-[#404040] hover:text-white"
+                    }`}
+                  >
+                    {cat.logo_data ? (
+                      <img src={cat.logo_data} alt={cat.name} className="w-5 h-5 rounded-full object-contain" />
+                    ) : (
+                      <span className="w-5 h-5 rounded-full bg-[#1a1a1a] flex items-center justify-center text-[11px]">
+                        {cat.icon || cat.name.charAt(0)}
+                      </span>
+                    )}
+                    {cat.name}
+                  </button>
+                )
+              })}
+            </div>
           </div>
-
-          {/* 分类标签 */}
-          <div
-            ref={categoryScrollRef}
-            className="flex gap-2 overflow-x-auto scrollbar-hide mx-12 py-2"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            {categories.map((cat) => {
-              const isActive = cat.id === activeCategoryId
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setActiveCategoryId(cat.id)}
-                  className={`flex items-center gap-3 px-6 py-3 rounded-full text-[16px] font-medium whitespace-nowrap transition-all duration-200 border shrink-0 ${
-                    isActive
-                      ? "bg-[#181818] border-[#00B812] text-white"
-                      : "bg-transparent border-[#2A2A2A] text-[#737373] hover:border-[#404040] hover:text-white"
-                  }`}
-                >
-                  {cat.logo_data ? (
-                    <img src={cat.logo_data} alt={cat.name} className="w-6 h-6 rounded-full object-contain" />
-                  ) : (
-                    <span className="w-6 h-6 rounded-full bg-[#1a1a1a] flex items-center justify-center text-[13px]">
-                      {cat.icon || cat.name.charAt(0)}
-                    </span>
-                  )}
-                  {cat.name}
-                </button>
-              )
-            })}
-          </div>
-
-          {/* 右侧渐变遮罩 + 箭头 */}
-          <div className="absolute right-0 top-0 bottom-0 z-10 flex items-center">
-            <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#000000] via-[#000000]/80 to-transparent pointer-events-none" />
-            <button
-              onClick={() => scrollCategories('right')}
-              className="relative z-10 w-8 h-8 flex items-center justify-center bg-[#000000] border border-[#333] rounded-full text-[#8c8c8c] hover:text-white hover:border-[#555] transition-colors mr-1"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-        
-        {/* 移动端滑动提示 */}
-        <div className="md:hidden text-center text-[11px] text-[#525252] -mt-1 mb-4">
-          左右滑动查看更多分类
-        </div>
 
 
 
