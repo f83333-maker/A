@@ -181,28 +181,32 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
     const handleScroll = () => {
       const scrollTop = el.scrollTop
       const isScrollingUp = scrollTop < lastScrollTop.current
+      const isScrollingDown = scrollTop > lastScrollTop.current
       lastScrollTop.current = scrollTop
 
       const currentIndex = categories.findIndex((c) => c.id === activeCategoryId)
 
-      // 滚动到底部 → 切换下一个分类
-      const isAtBottom = el.scrollHeight - scrollTop - el.clientHeight < 10
-      if (isAtBottom && currentIndex >= 0 && currentIndex < categories.length - 1) {
-        const nextCat = categories[currentIndex + 1]
-        setActiveCategoryId(nextCat.id)
-        el.scrollTop = 0
-        lastScrollTop.current = 0
-        const btn = sidebarRef.current?.querySelector(`[data-cat-id="${nextCat.id}"]`) as HTMLElement
-        btn?.scrollIntoView({ block: "nearest", behavior: "smooth" })
-        return
+      const canScroll = el.scrollHeight > el.clientHeight
+
+      // 向下滑动到底部 → 切换下一个分类
+      if (isScrollingDown && canScroll) {
+        const isAtBottom = el.scrollHeight - scrollTop - el.clientHeight < 10
+        if (isAtBottom && currentIndex >= 0 && currentIndex < categories.length - 1) {
+          const nextCat = categories[currentIndex + 1]
+          setActiveCategoryId(nextCat.id)
+          el.scrollTop = 0
+          lastScrollTop.current = 0
+          const btn = sidebarRef.current?.querySelector(`[data-cat-id="${nextCat.id}"]`) as HTMLElement
+          btn?.scrollIntoView({ block: "nearest", behavior: "smooth" })
+          return
+        }
       }
 
-      // 滚动到顶部且向上滑动 → 切换上一个分类（第一个分类除外）
-      const isAtTop = scrollTop === 0
-      if (isAtTop && isScrollingUp && currentIndex > 0) {
+      // 向上滑动到顶部 → 切换上一个分类（第一个分类除外）
+      if (isScrollingUp && scrollTop === 0 && currentIndex > 0) {
         const prevCat = categories[currentIndex - 1]
         setActiveCategoryId(prevCat.id)
-        // 跳到上一个分类的底部
+        // 切换后跳到上一个分类的底部
         requestAnimationFrame(() => {
           if (productScrollRef.current) {
             productScrollRef.current.scrollTop = productScrollRef.current.scrollHeight
