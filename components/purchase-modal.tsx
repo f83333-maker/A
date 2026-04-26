@@ -223,7 +223,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
                 />
               </div>
               <div className="flex-1 flex flex-col gap-1.5">
-                <span className="text-[13px] font-semibold text-[#e3e3e3]">查询密码 <span className="text-[#f28b82] font-medium text-[12px]">（≥6位，请牢记）</span></span>
+                <span className="text-[13px] font-semibold text-[#e3e3e3]">查询密码 <span className="text-[#f28b82] font-medium text-[12px]">（≥6���，请牢记）</span></span>
                 <input
                   type="text"
                   value={queryPassword}
@@ -373,10 +373,8 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
               <Info className="w-4 h-4 text-[#7CFF00]" />
               <span className="text-[13px] font-semibold text-[#e3e3e3]">商品介绍:</span>
             </div>
-            <div className="bg-[#2d2e30] rounded-xl p-4 text-[13px] text-[#9aa0a6] leading-relaxed font-medium space-y-2">
+            <div className="bg-[#2d2e30] rounded-xl p-4 text-[13px] text-[#9aa0a6] leading-relaxed font-medium">
               <p>{product.description}</p>
-              <p>购买后系统自动发货，请在订单中查看账号信息。</p>
-              <p>如遇问题请及时联系客服处理，24小时在线。</p>
             </div>
           </div>
 
