@@ -176,10 +176,10 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                   <button
                     key={cat.id}
                     onClick={() => setActiveCategoryId(cat.id)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-[14px] font-medium whitespace-nowrap transition-all duration-200 border ${
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-[14px] font-semibold whitespace-nowrap transition-all duration-200 border ${
                       isActive
                         ? "bg-[#7CFF00]/15 border-[#7CFF00] text-[#7CFF00] shadow-[0_0_12px_rgba(124,255,0,0.3)]"
-                        : "bg-transparent border-[#2A2A2A] text-[#737373] hover:border-[#404040] hover:text-white"
+                        : "bg-transparent border-[#2A2A2A] text-[#8a8a8a] hover:border-[#404040] hover:text-white"
                     }`}
                   >
                     {cat.logo_data ? (
