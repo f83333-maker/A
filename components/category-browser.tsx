@@ -143,7 +143,10 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
   const [activeCategoryId, setActiveCategoryId] = useState<string>("")
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isHeaderSticky, setIsHeaderSticky] = useState(false)
   const sidebarRef = useRef<HTMLDivElement>(null)
+  const headerRef = useRef<HTMLDivElement>(null)
+  const rightPanelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (categories.length > 0 && !activeCategoryId) {
@@ -158,6 +161,21 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
     )
     if (firstMatch) setActiveCategoryId(firstMatch.id)
   }, [searchQuery, categories, products])
+
+  // 监听右侧面板滚动，固定分类标题
+  useEffect(() => {
+    const panel = rightPanelRef.current
+    if (!panel) return
+    const handleScroll = () => {
+      if (headerRef.current) {
+        const rect = headerRef.current.getBoundingClientRect()
+        const panelRect = panel.getBoundingClientRect()
+        setIsHeaderSticky(rect.top < panelRect.top)
+      }
+    }
+    panel.addEventListener("scroll", handleScroll, { passive: true })
+    return () => panel.removeEventListener("scroll", handleScroll)
+  }, [])
 
 
 
@@ -255,11 +273,26 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
           </div>
 
           {/* ── 右侧产品区域（独立滚动）── */}
-          <div className="flex-1 min-w-0 overflow-y-auto">
+          <div ref={rightPanelRef} className="flex-1 min-w-0 overflow-y-auto relative">
 
-            {/* 分类标题（sticky相对于右侧容器顶部）*/}
+            {/* 固定分类标题（滚动时显示） */}
+            {activeCategory && isHeaderSticky && (
+              <div className="sticky top-0 z-20 bg-[#131314] flex items-center justify-between py-3 px-3 border-b-2 shadow-md" style={{ borderColor: activeCategory.color }}>
+                <div className="flex items-center gap-2.5">
+                  <CategoryLogo category={activeCategory} size="sm" />
+                  <h2 className="text-[14px] sm:text-[16px] font-bold text-[#e3e3e3] truncate">
+                    {activeCategory.name}
+                  </h2>
+                </div>
+                <span className="text-[11px] sm:text-[12px] text-[#9aa0a6] shrink-0 ml-2">
+                  {visibleProducts.length} 个产品
+                </span>
+              </div>
+            )}
+
+            {/* 原始分类标题（用于检测滚动位置） */}
             {activeCategory && (
-              <div className="sticky top-0 z-10 bg-[#131314] flex items-center justify-between py-3 px-1 border-b-2 mb-4" style={{ borderColor: activeCategory.color }}>
+              <div ref={headerRef} className="flex items-center justify-between py-3 px-1 border-b-2 mb-4" style={{ borderColor: activeCategory.color }}>
                 <div className="flex items-center gap-2.5">
                   <CategoryLogo category={activeCategory} size="md" />
                   <h2 className="text-[16px] sm:text-[18px] font-bold text-[#e3e3e3] truncate">
