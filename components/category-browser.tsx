@@ -85,17 +85,7 @@ function StockStatus({ stock }: { stock: number }) {
   return <span className="text-[#00d26a] text-[12px] font-medium">库存充足</span>
 }
 
-// 折扣标签
-function DiscountBadge({ price, originalPrice }: { price: number; originalPrice: number }) {
-  if (!originalPrice || originalPrice <= price) return null
-  const discount = Math.round((1 - price / originalPrice) * 100)
-  if (discount <= 0) return null
-  return (
-    <span className="px-1.5 py-0.5 text-[10px] font-bold rounded bg-[#00d26a]/20 text-[#00d26a] ml-2">
-      -{discount}%
-    </span>
-  )
-}
+
 
 // ── 主组件 ──────────────────────────────────────────────────────────────────
 
@@ -149,11 +139,6 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
     }
   }
 
-  // 统计信息
-  const totalProducts = filteredProducts.length
-  const totalSales = filteredProducts.reduce((sum, p) => sum + (p.sales || 0), 0)
-  const hotProducts = filteredProducts.filter(p => p.is_hot).length
-
   const isLoading = categoriesLoading || productsLoading
 
   if (isLoading) {
@@ -199,7 +184,6 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
           >
             {categories.map((cat) => {
               const isActive = cat.id === activeCategoryId
-              const catProductCount = products.filter(p => p.category_id === cat.id).length
               return (
                 <button
                   key={cat.id}
@@ -218,7 +202,6 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                     </span>
                   )}
                   {cat.name}
-                  <span className="text-[12px] text-[#595959]">{catProductCount}</span>
                 </button>
               )
             })}
@@ -233,24 +216,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
           </button>
         </div>
 
-        {/* ── 统计信息栏 ── */}
-        <div className="flex items-center gap-4 mb-4 text-[13px] flex-wrap">
-          <span className="text-[#8c8c8c]">
-            已收录 <span className="text-white font-medium">{totalProducts}</span> 个商品
-          </span>
-          <span className="text-[#333]">|</span>
-          <span className="text-[#8c8c8c]">
-            总销量 <span className="text-[#00d26a] font-medium">{totalSales.toLocaleString()}</span>
-          </span>
-          {hotProducts > 0 && (
-            <>
-              <span className="text-[#333]">|</span>
-              <span className="text-[#8c8c8c]">
-                热销 <span className="text-[#ff4d6a] font-medium">{hotProducts}</span>
-              </span>
-            </>
-          )}
-        </div>
+
 
         {/* ── 产品表格 ── */}
         <div className="border border-[#1a1a1a] rounded-lg overflow-hidden">
@@ -307,17 +273,6 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                               HOT
                             </span>
                           )}
-                          <DiscountBadge price={product.price} originalPrice={product.original_price} />
-                        </div>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-[10px] text-[#595959] truncate">
-                            {product.categories?.name || "未分类"}
-                          </span>
-                          {product.tags && product.tags.length > 0 && (
-                            <span className="text-[9px] text-[#00d26a]/60">
-                              {product.tags[0]}
-                            </span>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -325,11 +280,6 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                     {/* 单价 */}
                     <div className="text-right">
                       <span className="text-[13px] font-bold text-[#ffd700]">¥{product.price}</span>
-                      {product.original_price > product.price && (
-                        <span className="text-[10px] text-[#595959] line-through ml-1">
-                          ¥{product.original_price}
-                        </span>
-                      )}
                     </div>
 
                     {/* 库存 */}
