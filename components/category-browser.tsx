@@ -273,12 +273,14 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
             </div>
 
             {/* 滚动提示 */}
-            <div className="sticky bottom-0 bg-gradient-to-t from-[#131314] to-transparent pt-4 pb-2 flex justify-center">
-              <div className="flex flex-col items-center gap-1 text-[11px] text-[#6e6e73]">
-                <svg className="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+            <div className="sticky bottom-0 bg-gradient-to-t from-[#131314] via-[#131314] to-transparent pt-6 pb-3 flex justify-center">
+              <div className="flex flex-col items-center gap-2">
+                {/* 动画箭头 */}
+                <svg className="w-6 h-6 text-[#ff9500] animate-bounce drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M7 10l5-5 5 5M7 14l5-5 5 5" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} fill="none" stroke="currentColor" />
                 </svg>
-                <span className="hidden md:block">向上滑动</span>
+                {/* 文字提示 */}
+                <span className="hidden md:block text-[12px] font-semibold text-[#ff9500] tracking-wide">向上滑动查看更多</span>
               </div>
             </div>
           </div>
