@@ -288,7 +288,7 @@ export default function ProductsPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-[#8ab4f8]" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#7CFF00]" />
       </div>
     )
   }
@@ -313,7 +313,7 @@ export default function ProductsPage() {
           </button>
           <button
             onClick={() => openModal()}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#8ab4f8] hover:bg-[#aecbfa] text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px]"
+            className="flex items-center gap-2 px-4 py-2.5 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px]"
           >
             <Plus className="w-4 h-4" />
             添加产品
@@ -344,14 +344,14 @@ export default function ProductsPage() {
                       <button
                         onClick={() => handleMoveUp(index)}
                         disabled={index === 0}
-                        className="p-1 text-[#9aa0a6] hover:text-[#8ab4f8] hover:bg-[#8ab4f8]/10 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                        className="p-1 text-[#9aa0a6] hover:text-[#7CFF00] hover:bg-[#7CFF00]/10 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                       >
                         <ArrowUp className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleMoveDown(index)}
                         disabled={index === products.length - 1}
-                        className="p-1 text-[#9aa0a6] hover:text-[#8ab4f8] hover:bg-[#8ab4f8]/10 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                        className="p-1 text-[#9aa0a6] hover:text-[#7CFF00] hover:bg-[#7CFF00]/10 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                       >
                         <ArrowDown className="w-4 h-4" />
                       </button>
@@ -371,7 +371,7 @@ export default function ProductsPage() {
                     </span>
                   </td>
                   <td className="px-5 py-4">
-                    <p className="text-[14px] font-semibold text-[#8ab4f8]">¥{product.price}</p>
+                    <p className="text-[14px] font-semibold text-[#7CFF00]">¥{product.price}</p>
                     {product.original_price > 0 && (
                       <p className="text-[12px] text-[#6e6e73] line-through">¥{product.original_price}</p>
                     )}
@@ -406,7 +406,7 @@ export default function ProductsPage() {
                       </Link>
                       <button
                         onClick={() => openModal(product)}
-                        className="p-2 text-[#9aa0a6] hover:text-[#8ab4f8] hover:bg-[#8ab4f8]/10 rounded-lg transition-all"
+                        className="p-2 text-[#9aa0a6] hover:text-[#7CFF00] hover:bg-[#7CFF00]/10 rounded-lg transition-all"
                         title="编辑产品"
                       >
                         <Pencil className="w-4 h-4" />
@@ -459,7 +459,7 @@ export default function ProductsPage() {
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
                     required
                   />
                 </div>
@@ -470,7 +470,7 @@ export default function ProductsPage() {
                   <select
                     value={formData.category_id}
                     onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
                     required
                   >
                     <option value="">选择分类</option>
@@ -488,7 +488,7 @@ export default function ProductsPage() {
                   type="text"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
                 />
               </div>
               <div>
@@ -500,7 +500,7 @@ export default function ProductsPage() {
                     type="text"
                     value={formData.logo_url}
                     onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
-                    className="flex-1 h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                    className="flex-1 h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
                     placeholder="如：baidu.com 或 v0.dev"
                   />
                   <button
@@ -529,7 +529,7 @@ export default function ProductsPage() {
                       }
                     }}
                     disabled={isFetchingLogo || !formData.logo_url}
-                    className="px-4 h-11 bg-[#8ab4f8] hover:bg-[#aecbfa] text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[13px] disabled:bg-[#3c3c3f] disabled:text-[#6e6e73] disabled:cursor-not-allowed flex items-center gap-2"
+                    className="px-4 h-11 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[13px] disabled:bg-[#3c3c3f] disabled:text-[#6e6e73] disabled:cursor-not-allowed flex items-center gap-2"
                   >
                     {isFetchingLogo ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                     获取Logo
@@ -568,7 +568,7 @@ export default function ProductsPage() {
                     step="0.01"
                     value={formData.price}
                     onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
-                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
                     required
                   />
                 </div>
@@ -581,7 +581,7 @@ export default function ProductsPage() {
                     step="0.01"
                     value={formData.cost_price}
                     onChange={(e) => setFormData({ ...formData, cost_price: parseFloat(e.target.value) })}
-                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
                   />
                 </div>
                 <div>
@@ -593,7 +593,7 @@ export default function ProductsPage() {
                     step="0.01"
                     value={formData.original_price}
                     onChange={(e) => setFormData({ ...formData, original_price: parseFloat(e.target.value) })}
-                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
                   />
                 </div>
               </div>
@@ -606,7 +606,7 @@ export default function ProductsPage() {
                     type="number"
                     value={formData.stock}
                     onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) })}
-                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
                   />
                 </div>
                 <div>
@@ -617,7 +617,7 @@ export default function ProductsPage() {
                     type="number"
                     value={formData.sales}
                     onChange={(e) => setFormData({ ...formData, sales: parseInt(e.target.value) })}
-                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
                   />
                 </div>
               </div>
@@ -629,7 +629,7 @@ export default function ProductsPage() {
                   type="text"
                   value={formData.tags}
                   onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
                   placeholder="如：热销, 推荐, 限时"
                 />
               </div>
@@ -641,7 +641,7 @@ export default function ProductsPage() {
                   value={formData.product_info}
                   onChange={(e) => setFormData({ ...formData, product_info: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors resize-none"
+                  className="w-full px-4 py-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors resize-none"
                   placeholder="商品详细介绍..."
                 />
               </div>
@@ -653,7 +653,7 @@ export default function ProductsPage() {
                   value={formData.usage_instructions}
                   onChange={(e) => setFormData({ ...formData, usage_instructions: e.target.value })}
                   rows={6}
-                  className="w-full px-4 py-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors resize-none font-mono"
+                  className="w-full px-4 py-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors resize-none font-mono"
                   placeholder="使用说明，支持HTML格式。例如：&#10;1. 登录账号&#10;2. 进入设置&#10;&#10;插入图片示例：&#10;<img src=&quot;https://example.com/image.png&quot; alt=&quot;说明图片&quot; />"
                 />
                 <p className="mt-2 text-[12px] text-[#6e6e73]">
@@ -687,7 +687,7 @@ export default function ProductsPage() {
                 <select
                   value={formData.delivery_type}
                   onChange={(e) => setFormData({ ...formData, delivery_type: e.target.value })}
-                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
                 >
                   <option value="自动发货">自动发货</option>
                   <option value="人工发货">人工发货</option>
@@ -705,7 +705,7 @@ export default function ProductsPage() {
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="flex-1 h-11 bg-[#8ab4f8] hover:bg-[#aecbfa] disabled:opacity-50 text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px] flex items-center justify-center gap-2"
+                  className="flex-1 h-11 bg-[#7CFF00] hover:bg-[#9FFF40] disabled:opacity-50 text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px] flex items-center justify-center gap-2"
                 >
                   {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
                   {editingProduct ? "保存" : "添加"}
@@ -744,12 +744,12 @@ export default function ProductsPage() {
                   onChange={(e) => setFlagSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && searchCountryFlag()}
                   placeholder="输入国家名称，如：斯里兰卡、美国、+95"
-                  className="flex-1 h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                  className="flex-1 h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
                 />
                 <button
                   onClick={searchCountryFlag}
                   disabled={isSearchingFlag || !flagSearchQuery.trim()}
-                  className="px-4 h-11 bg-[#8ab4f8] hover:bg-[#aecbfa] text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[13px] disabled:bg-[#3c3c3f] disabled:text-[#6e6e73] disabled:cursor-not-allowed flex items-center gap-2"
+                  className="px-4 h-11 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[13px] disabled:bg-[#3c3c3f] disabled:text-[#6e6e73] disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   {isSearchingFlag ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                   搜索

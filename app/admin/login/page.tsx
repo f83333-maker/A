@@ -71,8 +71,8 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#8ab4f8]/10 mb-4">
-            <Lock className="w-8 h-8 text-[#8ab4f8]" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#7CFF00]/10 mb-4">
+            <Lock className="w-8 h-8 text-[#7CFF00]" />
           </div>
           <h1 className="text-[28px] font-semibold text-[#e3e3e3] mb-2">
             后台管理系统
@@ -85,7 +85,7 @@ export default function AdminLoginPage() {
         {/* 北京时间显示 */}
         <div className="bg-[#2d2e30] rounded-xl border border-[#3c3c3f] p-4 mb-6">
           <div className="flex items-center justify-center gap-2">
-            <Clock className="w-4 h-4 text-[#8ab4f8]" />
+            <Clock className="w-4 h-4 text-[#7CFF00]" />
             <span className="text-[13px] text-[#9aa0a6]">北京时间</span>
           </div>
           <p className="text-center text-[24px] font-mono font-bold text-[#e3e3e3] mt-2">
@@ -115,7 +115,7 @@ export default function AdminLoginPage() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="年月日 (如20260424)"
-                  className="w-full h-12 pl-11 pr-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors font-mono"
+                  className="w-full h-12 pl-11 pr-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors font-mono"
                   required
                   maxLength={8}
                 />
@@ -134,7 +134,7 @@ export default function AdminLoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="年月日时分 (如202604241845)"
-                  className="w-full h-12 pl-11 pr-12 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-[14px] font-medium focus:outline-none focus:border-[#8ab4f8] transition-colors font-mono"
+                  className="w-full h-12 pl-11 pr-12 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors font-mono"
                   required
                   maxLength={12}
                 />
@@ -156,7 +156,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 bg-[#8ab4f8] hover:bg-[#aecbfa] disabled:opacity-50 disabled:cursor-not-allowed text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px] flex items-center justify-center gap-2"
+              className="w-full h-12 bg-[#7CFF00] hover:bg-[#9FFF40] disabled:opacity-50 disabled:cursor-not-allowed text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px] flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>

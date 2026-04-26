@@ -76,7 +76,7 @@ export default function AdminLayout({
   if (isChecking) {
     return (
       <div className="min-h-screen bg-[#131314] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-[#8ab4f8] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[#7CFF00] animate-spin" />
       </div>
     )
   }
@@ -112,8 +112,8 @@ export default function AdminLayout({
           {/* Logo */}
           <div className="h-16 flex items-center justify-between px-4 border-b border-[#3c3c3f]">
             <Link href="/admin" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-[#8ab4f8]/20 flex items-center justify-center">
-                <LayoutDashboard className="w-4 h-4 text-[#8ab4f8]" />
+              <div className="w-8 h-8 rounded-lg bg-[#7CFF00]/20 flex items-center justify-center">
+                <LayoutDashboard className="w-4 h-4 text-[#7CFF00]" />
               </div>
               <span className="text-[15px] font-semibold text-[#e3e3e3]">
                 管理后台
@@ -141,7 +141,7 @@ export default function AdminLayout({
                     flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium
                     transition-all duration-200
                     ${isActive 
-                      ? "bg-[#8ab4f8]/10 text-[#8ab4f8]" 
+                      ? "bg-[#7CFF00]/10 text-[#7CFF00]" 
                       : "text-[#9aa0a6] hover:bg-[#2d2e30] hover:text-[#e3e3e3]"
                     }
                   `}

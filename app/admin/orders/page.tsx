@@ -41,7 +41,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json())
 const statusConfig: Record<string, { icon: typeof Clock; color: string; text: string }> = {
   pending: { icon: Clock, color: "#fdd663", text: "待支付" },
   paid: { icon: CheckCircle, color: "#81c995", text: "已支付" },
-  delivered: { icon: Package, color: "#8ab4f8", text: "已发放" },
+  delivered: { icon: Package, color: "#7CFF00", text: "已发放" },
   cancelled: { icon: XCircle, color: "#ee675c", text: "已取消" },
   refunded: { icon: XCircle, color: "#9aa0a6", text: "已退款" },
 }
@@ -275,7 +275,7 @@ export default function OrdersPage() {
               onClick={() => setStatusFilter(item.key)}
               className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${
                 statusFilter === item.key
-                  ? "bg-[#8ab4f8] text-[#131314]"
+                  ? "bg-[#7CFF00] text-[#131314]"
                   : "bg-[#2d2e30] text-[#9aa0a6] hover:bg-[#3c3c3f] hover:text-[#e3e3e3]"
               }`}
             >
@@ -290,7 +290,7 @@ export default function OrdersPage() {
           <select
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
-            className="px-3 py-2 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[13px] text-[#e3e3e3] focus:outline-none focus:border-[#8ab4f8]"
+            className="px-3 py-2 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[13px] text-[#e3e3e3] focus:outline-none focus:border-[#7CFF00]"
           >
             <option value="all">全部时间</option>
             <option value="today">今天</option>
@@ -306,7 +306,7 @@ export default function OrdersPage() {
           <select
             value={productFilter}
             onChange={(e) => setProductFilter(e.target.value)}
-            className="px-3 py-2 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[13px] text-[#e3e3e3] focus:outline-none focus:border-[#8ab4f8] max-w-[150px]"
+            className="px-3 py-2 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[13px] text-[#e3e3e3] focus:outline-none focus:border-[#7CFF00] max-w-[150px]"
           >
             <option value="all">全部产品</option>
             {productNames.map((name) => (
@@ -319,7 +319,7 @@ export default function OrdersPage() {
         <select
           value={amountFilter}
           onChange={(e) => setAmountFilter(e.target.value)}
-          className="px-3 py-2 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[13px] text-[#e3e3e3] focus:outline-none focus:border-[#8ab4f8]"
+          className="px-3 py-2 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[13px] text-[#e3e3e3] focus:outline-none focus:border-[#7CFF00]"
         >
           <option value="all">全部金额</option>
           <option value="0-10">¥0 - ¥10</option>
@@ -339,7 +339,7 @@ export default function OrdersPage() {
             placeholder="搜索订单号、产品名称或买家邮箱..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-12 pl-12 pr-4 bg-[#1e1f20] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-[14px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
+            className="w-full h-12 pl-12 pr-4 bg-[#1e1f20] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-[14px] focus:outline-none focus:border-[#7CFF00] transition-colors"
           />
         </div>
         {selectedOrders.length > 0 && (
@@ -357,7 +357,7 @@ export default function OrdersPage() {
       {/* 订单列表 */}
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-[#8ab4f8]" />
+          <Loader2 className="w-8 h-8 animate-spin text-[#7CFF00]" />
         </div>
       ) : filteredOrders.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 gap-3">
@@ -430,7 +430,7 @@ export default function OrdersPage() {
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="text-[14px] font-semibold text-[#8ab4f8]">
+                        <span className="text-[14px] font-semibold text-[#7CFF00]">
                           ¥{order.total_amount}
                         </span>
                       </td>
@@ -530,7 +530,7 @@ export default function OrdersPage() {
                 </div>
                 <div>
                   <span className="text-[12px] text-[#6e6e73]">总金额</span>
-                  <p className="text-[14px] font-semibold text-[#8ab4f8]">
+                  <p className="text-[14px] font-semibold text-[#7CFF00]">
                     ¥{selectedOrder.total_amount}
                   </p>
                 </div>
@@ -556,7 +556,7 @@ export default function OrdersPage() {
                   onChange={(e) => setDeliverContent(e.target.value)}
                   placeholder="输入要发放给买家的账号信息..."
                   rows={5}
-                  className="w-full px-4 py-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] font-mono focus:outline-none focus:border-[#8ab4f8] transition-colors resize-none"
+                  className="w-full px-4 py-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] font-mono focus:outline-none focus:border-[#7CFF00] transition-colors resize-none"
                 />
               </div>
 

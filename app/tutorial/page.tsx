@@ -70,18 +70,18 @@ export default function TutorialPage() {
           {/* 购买流程 */}
           <div className="mb-16">
             <h2 className="text-xl font-semibold text-[#e3e3e3] mb-6 flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-[#8ab4f8]" />
+              <CheckCircle className="w-5 h-5 text-[#7CFF00]" />
               购买流程
             </h2>
             <div className="grid md:grid-cols-2 gap-4">
               {steps.map((step, index) => (
                 <div
                   key={index}
-                  className="bg-[#1e1f20] rounded-xl border border-[#3c3c3f] p-6 hover:border-[#8ab4f8]/50 transition-colors"
+                  className="bg-[#1e1f20] rounded-xl border border-[#3c3c3f] p-6 hover:border-[#7CFF00]/50 transition-colors"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-[#8ab4f8]/10 flex items-center justify-center shrink-0">
-                      <step.icon className="w-6 h-6 text-[#8ab4f8]" />
+                    <div className="w-12 h-12 rounded-xl bg-[#7CFF00]/10 flex items-center justify-center shrink-0">
+                      <step.icon className="w-6 h-6 text-[#7CFF00]" />
                     </div>
                     <div>
                       <h3 className="text-base font-semibold text-[#e3e3e3] mb-2">{step.title}</h3>
@@ -113,12 +113,12 @@ export default function TutorialPage() {
           </div>
 
           {/* 联系客服 */}
-          <div className="bg-gradient-to-r from-[#8ab4f8]/10 to-[#81c995]/10 rounded-2xl border border-[#3c3c3f] p-8 text-center">
+          <div className="bg-gradient-to-r from-[#7CFF00]/10 to-[#81c995]/10 rounded-2xl border border-[#3c3c3f] p-8 text-center">
             <h2 className="text-xl font-semibold text-[#e3e3e3] mb-3">还有其他问题？</h2>
             <p className="text-[#9aa0a6] mb-6">如果您在使用过程中遇到任何问题，欢迎随时联系我们的客服团队</p>
             <a
               href="mailto:support@example.com"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#8ab4f8] hover:bg-[#aecbfa] text-[#131314] font-semibold rounded-full transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-full transition-colors"
             >
               <MessageCircle className="w-5 h-5" />
               联系客服

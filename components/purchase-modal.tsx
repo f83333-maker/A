@@ -196,7 +196,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
           {/* 复制链接 */}
           <button
             onClick={handleCopyLink}
-            className="flex items-center gap-1.5 text-[13px] font-medium text-[#8ab4f8] hover:text-[#aecbfa] transition-colors mb-6"
+            className="flex items-center gap-1.5 text-[13px] font-medium text-[#7CFF00] hover:text-[#9FFF40] transition-colors mb-6"
           >
             {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
             {copied ? "已复制" : "复制商品链接"}
@@ -219,7 +219,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
                   placeholder="邮箱或联系方式"
-                  className="w-full h-7 px-2.5 bg-[#2d2e30] border border-[#3c3c3f] rounded-md text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                  className="w-full h-7 px-2.5 bg-[#2d2e30] border border-[#3c3c3f] rounded-md text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] focus:outline-none focus:border-[#7CFF00] transition-colors"
                 />
               </div>
               <div className="flex-1 flex flex-col gap-1.5">
@@ -230,7 +230,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
                   onChange={(e) => setQueryPassword(e.target.value)}
                   placeholder="设置6位以上密码"
                   minLength={6}
-                  className="w-full h-7 px-2.5 bg-[#2d2e30] border border-[#3c3c3f] rounded-md text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] focus:outline-none focus:border-[#8ab4f8] transition-colors"
+                  className="w-full h-7 px-2.5 bg-[#2d2e30] border border-[#3c3c3f] rounded-md text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] focus:outline-none focus:border-[#7CFF00] transition-colors"
                 />
               </div>
             </div>
@@ -246,7 +246,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
                     onChange={(e) => { setCaptchaInput(e.target.value.toUpperCase()); setCaptchaError("") }}
                     placeholder="输入右侧验证码"
                     maxLength={4}
-                    className="flex-1 h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-md text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] focus:outline-none focus:border-[#8ab4f8] transition-colors tracking-[0.3em] uppercase"
+                    className="flex-1 h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-md text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] focus:outline-none focus:border-[#7CFF00] transition-colors tracking-[0.3em] uppercase"
                   />
                   {/* 验证码图形 - 放大版 */}
                   <div
@@ -259,7 +259,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
                         className="font-black"
                         style={{
                           fontSize: "20px",
-                          color: ["#8ab4f8", "#81c995", "#f28b82", "#fdd663"][i % 4],
+                          color: ["#7CFF00", "#81c995", "#f28b82", "#fdd663"][i % 4],
                           transform: `rotate(${(i % 2 === 0 ? 1 : -1) * (5 + i * 2)}deg)`,
                           display: "inline-block",
                           lineHeight: 1,
@@ -370,7 +370,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
           {/* 商品介绍 */}
           <div className="mb-4">
             <div className="flex items-center gap-2 mb-3">
-              <Info className="w-4 h-4 text-[#8ab4f8]" />
+              <Info className="w-4 h-4 text-[#7CFF00]" />
               <span className="text-[13px] font-semibold text-[#e3e3e3]">商品介绍:</span>
             </div>
             <div className="bg-[#2d2e30] rounded-xl p-4 text-[13px] text-[#9aa0a6] leading-relaxed font-medium space-y-2">
@@ -413,7 +413,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
           {/* 免责声明 */}
           <p className="mt-3 text-[11px] text-[#6e6e73] text-center leading-relaxed">
             点击支付即表示您已阅读并同意本站
-            <span className="text-[#8ab4f8]">免责声明</span>
+            <span className="text-[#7CFF00]">免责声明</span>
             ：本店只提供账号用于出海学习与交流，如若用于其他任何非法用途与本店无关；本店不参与客户任何项目，也不教授任何软件使用方法；本店账号来源于正规海外资源，不涉及任何个人公民信息。
           </p>
         </div>

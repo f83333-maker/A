@@ -101,8 +101,8 @@ export default function TwoFAPage() {
       <main className="flex-1 pt-24 pb-16 px-4">
         <div className="max-w-lg mx-auto">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#8ab4f8]/10 mb-4">
-              <Shield className="w-8 h-8 text-[#8ab4f8]" />
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#7CFF00]/10 mb-4">
+              <Shield className="w-8 h-8 text-[#7CFF00]" />
             </div>
             <h1 className="text-2xl font-bold text-[#e3e3e3] mb-2">2FA 验证码生成器</h1>
             <p className="text-[#9aa0a6]">输入密钥生成动态验证码</p>
@@ -121,7 +121,7 @@ export default function TwoFAPage() {
                   setError("")
                 }}
                 placeholder="输入 Base32 格式的密钥"
-                className="w-full h-12 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] placeholder-[#6e6e73] focus:outline-none focus:border-[#8ab4f8] font-mono"
+                className="w-full h-12 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] placeholder-[#6e6e73] focus:outline-none focus:border-[#7CFF00] font-mono"
               />
               <p className="mt-2 text-xs text-[#6e6e73]">
                 密钥通常在账号的安全设置中获取，格式如: JBSWY3DPEHPK3PXP
@@ -138,7 +138,7 @@ export default function TwoFAPage() {
               <div className="text-center">
                 <div className="relative inline-block">
                   <div 
-                    className="text-5xl font-mono font-bold text-[#e3e3e3] tracking-[0.3em] mb-4 cursor-pointer hover:text-[#8ab4f8] transition-colors"
+                    className="text-5xl font-mono font-bold text-[#e3e3e3] tracking-[0.3em] mb-4 cursor-pointer hover:text-[#7CFF00] transition-colors"
                     onClick={handleCopy}
                   >
                     {code}
@@ -154,7 +154,7 @@ export default function TwoFAPage() {
                     
                     <div className="w-32 h-1.5 bg-[#2d2e30] rounded-full overflow-hidden">
                       <div 
-                        className={`h-full transition-all duration-1000 ${timeLeft <= 5 ? "bg-[#ee675c]" : "bg-[#8ab4f8]"}`}
+                        className={`h-full transition-all duration-1000 ${timeLeft <= 5 ? "bg-[#ee675c]" : "bg-[#7CFF00]"}`}
                         style={{ width: `${(timeLeft / 30) * 100}%` }}
                       />
                     </div>

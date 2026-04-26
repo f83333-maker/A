@@ -27,7 +27,7 @@ const products = [
     stock: 500,
     rating: 4.8,
     tag: "推荐",
-    tagColor: "#8ab4f8",
+    tagColor: "#7CFF00",
     category: "邮箱账号",
   },
   {
@@ -93,7 +93,7 @@ function Highlight({ text, query }: { text: string; query: string }) {
     <>
       {parts.map((part, i) =>
         regex.test(part) ? (
-          <mark key={i} className="bg-[#8ab4f8]/25 text-[#8ab4f8] rounded-[3px] px-[1px]">
+          <mark key={i} className="bg-[#7CFF00]/25 text-[#7CFF00] rounded-[3px] px-[1px]">
             {part}
           </mark>
         ) : (
@@ -135,8 +135,8 @@ export function ProductList({ searchQuery }: ProductListProps) {
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-[#8ab4f8]" />
-              <span className="text-[12px] text-[#8ab4f8] font-semibold uppercase tracking-wider">Popular</span>
+              <TrendingUp className="w-4 h-4 text-[#7CFF00]" />
+              <span className="text-[12px] text-[#7CFF00] font-semibold uppercase tracking-wider">Popular</span>
             </div>
             <h2 className="text-[22px] sm:text-[26px] font-semibold text-[#e3e3e3] tracking-[-0.01em]">
               {searchQuery ? (
@@ -152,7 +152,7 @@ export function ProductList({ searchQuery }: ProductListProps) {
           {!searchQuery && (
             <Link 
               href="/products" 
-              className="text-[14px] text-[#8ab4f8] hover:text-[#aecbfa] transition-colors"
+              className="text-[14px] text-[#7CFF00] hover:text-[#9FFF40] transition-colors"
             >
               查看全部 →
             </Link>
@@ -230,14 +230,14 @@ export function ProductList({ searchQuery }: ProductListProps) {
                   {/* 价格和购买 */}
                   <div className="flex items-end justify-between">
                     <div>
-                      <span className="text-[22px] font-semibold text-[#8ab4f8]">
+                      <span className="text-[22px] font-semibold text-[#7CFF00]">
                         ¥<Highlight text={String(product.price)} query={searchQuery} />
                       </span>
                       <span className="ml-2 text-[13px] text-[#6e6e73] line-through font-medium">
                         ¥<Highlight text={String(product.originalPrice)} query={searchQuery} />
                       </span>
                     </div>
-                    <button className="flex items-center gap-1.5 px-4 py-2 bg-[#2d2e30] hover:bg-[#8ab4f8] text-[#e3e3e3] hover:text-[#131314] rounded-xl transition-all duration-300 text-[13px] font-semibold">
+                    <button className="flex items-center gap-1.5 px-4 py-2 bg-[#2d2e30] hover:bg-[#7CFF00] text-[#e3e3e3] hover:text-[#131314] rounded-xl transition-all duration-300 text-[13px] font-semibold">
                       <ShoppingCart className="w-4 h-4" />
                       购买
                     </button>

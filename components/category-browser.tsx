@@ -54,7 +54,7 @@ function Highlight({ text, query }: { text: string; query: string }) {
     <>
       {parts.map((part, i) =>
         regex.test(part) ? (
-          <mark key={i} className="bg-[#00B812]/20 text-[#00B812] rounded-[3px] px-[1px] not-italic">
+          <mark key={i} className="bg-[#7CFF00]/20 text-[#7CFF00] rounded-[3px] px-[1px] not-italic">
             {part}
           </mark>
         ) : (
@@ -84,7 +84,7 @@ function StockStatus({ stock }: { stock: number }) {
   if (stock < 30) {
     return <span className="text-[#F7931A] text-[12px] font-medium">库存一般</span>
   }
-  return <span className="text-[#00B812] text-[12px] font-medium">库存充足</span>
+  return <span className="text-[#7CFF00] text-[12px] font-medium">库存充足</span>
 }
 
 
@@ -147,7 +147,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
     return (
       <section className="py-8 bg-[#000000]">
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-center min-h-[400px]">
-          <Loader2 className="w-8 h-8 animate-spin text-[#00B812]" />
+          <Loader2 className="w-8 h-8 animate-spin text-[#7CFF00]" />
         </div>
       </section>
     )
@@ -178,7 +178,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                     onClick={() => setActiveCategoryId(cat.id)}
                     className={`flex items-center gap-2 px-4 py-2 rounded-full text-[14px] font-medium whitespace-nowrap transition-all duration-200 border ${
                       isActive
-                        ? "bg-[#00B812]/15 border-[#00B812] text-[#00B812] shadow-[0_0_12px_rgba(0,184,18,0.3)]"
+                        ? "bg-[#7CFF00]/15 border-[#7CFF00] text-[#7CFF00] shadow-[0_0_12px_rgba(124,255,0,0.3)]"
                         : "bg-transparent border-[#2A2A2A] text-[#737373] hover:border-[#404040] hover:text-white"
                     }`}
                   >
@@ -252,7 +252,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                     <div className="text-center">
                       <span className={`px-2 py-0.5 text-[11px] font-medium rounded ${
                         product.delivery_type === "自动发货" 
-                          ? "bg-[#00B812]/15 text-[#00B812]" 
+                          ? "bg-[#7CFF00]/15 text-[#7CFF00]" 
                           : "bg-[#F7931A]/15 text-[#F7931A]"
                       }`}>
                         {product.delivery_type || "自动发货"}
@@ -276,7 +276,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                         disabled={product.stock <= 0}
                         className={`px-4 py-1.5 rounded text-[12px] font-semibold transition-all duration-200 ${
                           product.stock > 0
-                            ? "bg-[#00B812] hover:bg-[#00D414] text-black"
+                            ? "bg-[#7CFF00] hover:bg-[#9FFF40] text-black"
                             : "bg-[#2A2A2A] text-[#525252] cursor-not-allowed"
                         }`}
                       >
@@ -311,7 +311,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                       <div className="flex items-center gap-2 mt-0.5">
                         <span className={`px-1.5 py-0.5 text-[9px] font-medium rounded ${
                           product.delivery_type === "自动发货" 
-                            ? "bg-[#00B812]/15 text-[#00B812]" 
+                            ? "bg-[#7CFF00]/15 text-[#7CFF00]" 
                             : "bg-[#F7931A]/15 text-[#F7931A]"
                         }`}>
                           {product.delivery_type || "自动发货"}
@@ -327,7 +327,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                       disabled={product.stock <= 0}
                       className={`shrink-0 px-3 py-1.5 rounded text-[11px] font-semibold transition-all ${
                         product.stock > 0
-                          ? "bg-[#00B812] hover:bg-[#00D414] text-black"
+                          ? "bg-[#7CFF00] hover:bg-[#9FFF40] text-black"
                           : "bg-[#2A2A2A] text-[#525252] cursor-not-allowed"
                       }`}
                     >

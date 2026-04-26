@@ -97,7 +97,7 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
       <div 
         className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] pointer-events-none"
         style={{
-          background: `radial-gradient(ellipse at center, rgba(0,184,18,0.12) 0%, rgba(0,184,18,0.05) 30%, transparent 70%)`,
+          background: `radial-gradient(ellipse at center, rgba(124,255,0,0.12) 0%, rgba(124,255,0,0.05) 30%, transparent 70%)`,
           transform: `translate(${mousePosition.x * 2}px, ${mousePosition.y * 2}px)`,
           transition: 'transform 0.3s ease-out'
         }}
@@ -108,7 +108,7 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
         {[...Array(6)].map((_, i) => (
           <div
             key={i}
-            className="absolute w-1 h-1 bg-[#00B812]/30 rounded-full animate-float"
+            className="absolute w-1 h-1 bg-[#7CFF00]/30 rounded-full animate-float"
             style={{
               left: `${15 + i * 15}%`,
               top: `${20 + (i % 3) * 25}%`,
@@ -120,21 +120,21 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
       </div>
 
       {/* 装饰线条 */}
-      <div className="absolute top-1/4 left-0 w-32 h-[1px] bg-gradient-to-r from-transparent via-[#00B812]/20 to-transparent animate-pulse-slow" />
-      <div className="absolute top-1/3 right-0 w-48 h-[1px] bg-gradient-to-l from-transparent via-[#00B812]/20 to-transparent animate-pulse-slow delay-1000" />
-      <div className="absolute bottom-1/4 left-0 w-24 h-[1px] bg-gradient-to-r from-transparent via-[#00B812]/15 to-transparent animate-pulse-slow delay-500" />
+      <div className="absolute top-1/4 left-0 w-32 h-[1px] bg-gradient-to-r from-transparent via-[#7CFF00]/20 to-transparent animate-pulse-slow" />
+      <div className="absolute top-1/3 right-0 w-48 h-[1px] bg-gradient-to-l from-transparent via-[#7CFF00]/20 to-transparent animate-pulse-slow delay-1000" />
+      <div className="absolute bottom-1/4 left-0 w-24 h-[1px] bg-gradient-to-r from-transparent via-[#7CFF00]/15 to-transparent animate-pulse-slow delay-500" />
 
       <div className="max-w-5xl mx-auto px-4 text-center relative z-10">
         {/* 新版本标签 */}
-        <div className="inline-flex items-center gap-3 px-5 py-2.5 mb-10 rounded-full border border-[#2A2A2A] bg-[#121212]/80 backdrop-blur-xl animate-fade-in-up group hover:border-[#00B812]/30 transition-all duration-500 cursor-default">
+        <div className="inline-flex items-center gap-3 px-5 py-2.5 mb-10 rounded-full border border-[#2A2A2A] bg-[#121212]/80 backdrop-blur-xl animate-fade-in-up group hover:border-[#7CFF00]/30 transition-all duration-500 cursor-default">
           <span className="relative flex items-center justify-center">
-            <span className="absolute w-2 h-2 rounded-full bg-[#00B812] animate-ping opacity-75" />
-            <span className="relative w-2 h-2 rounded-full bg-[#00B812]" />
+            <span className="absolute w-2 h-2 rounded-full bg-[#7CFF00] animate-ping opacity-75" />
+            <span className="relative w-2 h-2 rounded-full bg-[#7CFF00]" />
           </span>
           <span className="text-[13px] text-[#737373] font-medium">NEW</span>
           <span className="w-[1px] h-3 bg-[#2A2A2A]" />
           <span className="text-[14px] text-white font-medium">全新 2.0 版本已上线</span>
-          <ArrowRight className="w-4 h-4 text-[#525252] group-hover:text-[#00B812] group-hover:translate-x-0.5 transition-all duration-300" />
+          <ArrowRight className="w-4 h-4 text-[#525252] group-hover:text-[#7CFF00] group-hover:translate-x-0.5 transition-all duration-300" />
         </div>
         
         {/* 主标题 - 带渐变动画 */}
@@ -143,16 +143,16 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
             <>
               <span className="relative inline-block">
                 {bannerTitle.split(" ")[0]}
-                <span className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-[#00B812] to-[#00B812]/0 rounded-full transform scale-x-0 animate-expand-line" />
+                <span className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-[#7CFF00] to-[#7CFF00]/0 rounded-full transform scale-x-0 animate-expand-line" />
               </span>
               <span className="relative ml-3">
-                <span className="bg-gradient-to-r from-[#00B812] via-[#00D414] to-[#00B812] bg-clip-text text-transparent animate-gradient-x bg-[length:200%_auto]">
+                <span className="bg-gradient-to-r from-[#7CFF00] via-[#9FFF40] to-[#7CFF00] bg-clip-text text-transparent animate-gradient-x bg-[length:200%_auto]">
                   {bannerTitle.split(" ").slice(1).join(" ")}
                 </span>
               </span>
             </>
           ) : (
-            <span className="bg-gradient-to-r from-[#00B812] to-[#00D414] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#7CFF00] to-[#9FFF40] bg-clip-text text-transparent">
               {bannerTitle}
             </span>
           )}
@@ -171,7 +171,7 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
               className="flex items-center gap-2 text-[#525252] group cursor-default"
               style={{ animationDelay: `${300 + index * 100}ms` }}
             >
-              <feature.icon className="w-4 h-4 text-[#00B812]/70 group-hover:text-[#00B812] transition-colors duration-300" />
+              <feature.icon className="w-4 h-4 text-[#7CFF00]/70 group-hover:text-[#7CFF00] transition-colors duration-300" />
               <span className="text-[13px] font-medium group-hover:text-[#737373] transition-colors duration-300">{feature.label}</span>
             </div>
           ))}
@@ -182,11 +182,11 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
           <div 
             className={`relative flex items-center bg-[#121212] rounded-2xl border-2 transition-all duration-400 ${
               isFocused 
-                ? "border-[#00B812] shadow-[0_0_30px_rgba(0,184,18,0.15)]" 
+                ? "border-[#7CFF00] shadow-[0_0_30px_rgba(124,255,0,0.15)]" 
                 : "border-[#2A2A2A] hover:border-[#404040]"
             }`}
           >
-            <Search className={`ml-5 w-5 h-5 shrink-0 transition-all duration-300 ${isFocused ? "text-[#00B812] scale-110" : "text-[#525252]"}`} />
+            <Search className={`ml-5 w-5 h-5 shrink-0 transition-all duration-300 ${isFocused ? "text-[#7CFF00] scale-110" : "text-[#525252]"}`} />
             <input
               type="text"
               value={searchQuery}
@@ -207,7 +207,7 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
             )}
             <button
               type="submit"
-              className="m-2 px-6 h-10 bg-[#00B812] hover:bg-[#00D414] text-black font-semibold rounded-xl transition-all duration-300 text-[14px] flex items-center gap-2 shrink-0 hover:shadow-[0_0_20px_rgba(0,184,18,0.3)] active:scale-95"
+              className="m-2 px-6 h-10 bg-[#7CFF00] hover:bg-[#9FFF40] text-black font-semibold rounded-xl transition-all duration-300 text-[14px] flex items-center gap-2 shrink-0 hover:shadow-[0_0_20px_rgba(124,255,0,0.3)] active:scale-95"
             >
               <Sparkles className="w-4 h-4" />
               搜索
@@ -224,7 +224,7 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
               onClick={() => handleTagClick(tag)}
               className={`px-4 py-2 rounded-full transition-all duration-300 font-medium text-[13px] border ${
                 searchQuery === tag
-                  ? "bg-[#00B812]/10 text-[#00B812] border-[#00B812]/30"
+                  ? "bg-[#7CFF00]/10 text-[#7CFF00] border-[#7CFF00]/30"
                   : "bg-transparent text-[#737373] border-[#2A2A2A] hover:border-[#404040] hover:text-white hover:bg-[#1A1A1A]"
               }`}
               style={{ animationDelay: `${500 + index * 50}ms` }}
@@ -237,10 +237,10 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
         {/* 搜索结果提示 */}
         {searchQuery && (
           <div className="mt-8 animate-fade-in">
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#00B812]/10 border border-[#00B812]/20">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#00B812] animate-pulse" />
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#7CFF00]/10 border border-[#7CFF00]/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#7CFF00] animate-pulse" />
               <span className="text-[13px] text-[#737373]">
-                正在搜索 <span className="text-[#00B812] font-semibold">&ldquo;{searchQuery}&rdquo;</span>
+                正在搜索 <span className="text-[#7CFF00] font-semibold">&ldquo;{searchQuery}&rdquo;</span>
               </span>
             </span>
           </div>
