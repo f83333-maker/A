@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Eye, EyeOff, Lock, User, Loader2 } from "lucide-react"
+import { Eye, EyeOff, Lock, User, Loader2, Clock } from "lucide-react"
 
 export default function AdminLoginPage() {
   const router = useRouter()
@@ -11,6 +11,29 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [beijingTime, setBeijingTime] = useState("")
+
+  // 实时显示北京时间
+  useEffect(() => {
+    const updateBeijingTime = () => {
+      const now = new Date()
+      const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000)
+      const beijingDate = new Date(utcTime + (8 * 3600000))
+      
+      const year = beijingDate.getFullYear()
+      const month = String(beijingDate.getMonth() + 1).padStart(2, '0')
+      const day = String(beijingDate.getDate()).padStart(2, '0')
+      const hour = String(beijingDate.getHours()).padStart(2, '0')
+      const minute = String(beijingDate.getMinutes()).padStart(2, '0')
+      const second = String(beijingDate.getSeconds()).padStart(2, '0')
+      
+      setBeijingTime(`${year}-${month}-${day} ${hour}:${minute}:${second}`)
+    }
+    
+    updateBeijingTime()
+    const interval = setInterval(updateBeijingTime, 1000)
+    return () => clearInterval(interval)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -54,6 +77,17 @@ export default function AdminLoginPage() {
           <h1 className="text-[28px] font-semibold text-[#e3e3e3]">
             后台管理系统
           </h1>
+        </div>
+
+        {/* 北京时间显示 */}
+        <div className="bg-[#2d2e30] rounded-xl border border-[#3c3c3f] p-4 mb-6">
+          <div className="flex items-center justify-center gap-2">
+            <Clock className="w-4 h-4 text-[#7CFF00]" />
+            <span className="text-[13px] text-[#9aa0a6]">北京时间</span>
+          </div>
+          <p className="text-center text-[24px] font-mono font-bold text-[#e3e3e3] mt-2">
+            {beijingTime || "--:--:--"}
+          </p>
         </div>
 
         {/* 登录表单 */}
