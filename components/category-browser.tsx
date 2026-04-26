@@ -182,25 +182,22 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
     }
   }, [searchQuery, categories, products])
 
-  // 监听滚动到底部，追加下一个分类
+  // 底部哨兵 ref，用 IntersectionObserver 监听是否进入视口来触发加载
+  const sentinelRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
-    const el = productScrollRef.current
-    if (!el) return
-    const handleScroll = () => {
-      const scrollTop = el.scrollTop
-      const clientHeight = el.clientHeight
-      const scrollHeight = el.scrollHeight
-      const isAtBottom = scrollHeight - scrollTop - clientHeight < 100
-      
-      console.log("[v0] scroll:", { scrollTop, clientHeight, scrollHeight, isAtBottom, loadedCount, total: categories.length })
-      
-      if (isAtBottom && loadedCount < categories.length) {
-        console.log("[v0] loading next category")
-        setLoadedCount((prev) => prev + 1)
-      }
-    }
-    el.addEventListener("scroll", handleScroll, { passive: true })
-    return () => el.removeEventListener("scroll", handleScroll)
+    const sentinel = sentinelRef.current
+    if (!sentinel) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && loadedCount < categories.length) {
+          setLoadedCount((prev) => prev + 1)
+        }
+      },
+      { threshold: 0.1 }
+    )
+    observer.observe(sentinel)
+    return () => observer.disconnect()
   }, [loadedCount, categories.length])
 
   // IntersectionObserver 监听各分类区域，同步左侧高亮
@@ -360,11 +357,11 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
           </div>
 
           {/* ── 右侧产品区域（无限滚动，连续显示各分类表单）── */}
-          <div className="flex-1 min-w-0 overflow-hidden" style={{ height: "calc(100vh - 120px)" }}>
+          <div className="flex-1 min-w-0" style={{ height: "calc(100vh - 120px)", overflow: "hidden" }}>
             <div
               ref={productScrollRef}
-              className="h-full overflow-y-auto custom-scrollbar"
-              style={{ overscrollBehavior: "contain" }}
+              className="custom-scrollbar"
+              style={{ height: "100%", overflowY: "scroll", overscrollBehavior: "contain" }}
             >
               {loadedCategories.map((cat) => {
                 const catProducts = products.filter(
@@ -375,12 +372,12 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                     key={cat.id}
                     data-cat-id={cat.id}
                     ref={(el) => { categorySectionRefs.current[cat.id] = el }}
-                    className="mb-8"
+                    className="mb-10"
                   >
                     {/* 分类标题 — sticky 锁定 */}
                     <div
-                      className="sticky top-0 z-10 flex items-center justify-between py-3 px-1 border-b-2 bg-[#131314]"
-                      style={{ borderColor: cat.color }}
+                      className="sticky top-0 z-10 flex items-center justify-between py-3 px-1 border-b-2 bg-[#131314] border border-[#2d2e30] rounded-t-xl"
+                      style={{ borderBottomColor: cat.color }}
                     >
                       <div className="flex items-center gap-2.5">
                         <CategoryLogo category={cat} size="md" />
@@ -397,7 +394,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                         <p className="text-[13px] text-[#6e6e73]">该分类下暂无匹配产品</p>
                       </div>
                     ) : (
-                      <div className="rounded-xl overflow-hidden border border-[#2d2e30] mt-4">
+                      <div className="overflow-hidden border border-[#2d2e30] border-t-0">
                         {/* 表头 — sticky 锁定，紧贴分类标题下方 */}
                         <div className="sticky top-[52px] z-10 hidden sm:grid grid-cols-[1fr_80px_90px_70px_88px] gap-2 px-4 py-2.5 bg-[#1a1b1c] border-b border-[#2d2e30]">
                           <span className="text-[12px] text-[#6e6e73] font-medium">商品名称</span>
@@ -469,9 +466,9 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                 )
               })}
 
-              {/* 加载指示器 */}
+              {/* 底部哨兵：进入视口时触发加载下一个分类 */}
               {loadedCount < categories.length && (
-                <div className="flex items-center justify-center py-8 gap-2 text-[#6e6e73]">
+                <div ref={sentinelRef} className="flex items-center justify-center py-8 gap-2 text-[#6e6e73]">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   <span className="text-[13px]">加载下一个分类...</span>
                 </div>
