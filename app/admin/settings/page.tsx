@@ -31,6 +31,7 @@ export default function SettingsPage() {
   const [siteDescription, setSiteDescription] = useState("")
   const [contactEmail, setContactEmail] = useState("")
   const [contactTelegram, setContactTelegram] = useState("")
+  const [contactQQ, setContactQQ] = useState("")
   
   // 搜索设置
   const [searchPlaceholder, setSearchPlaceholder] = useState("")
@@ -69,6 +70,7 @@ export default function SettingsPage() {
             else if (item.key === "site_description") setSiteDescription(value || "")
             else if (item.key === "contact_email") setContactEmail(value || "")
             else if (item.key === "contact_telegram") setContactTelegram(value || "")
+            else if (item.key === "contact_qq") setContactQQ(value || "")
           } catch (e) {
             console.error("解析设置失败:", item.key, e)
           }
@@ -376,7 +378,7 @@ export default function SettingsPage() {
                 onChange={(e) => setNewTag(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && addTag()}
                 className="flex-1 h-10 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00] transition-colors"
-                placeholder="输入标签名称，按回车添加"
+                placeholder="输入标签���称，按回车添加"
               />
               <button onClick={addTag} className="px-4 h-10 bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#e3e3e3] rounded-lg text-[13px] flex items-center gap-2">
                 <Plus className="w-4 h-4" />
@@ -527,7 +529,18 @@ export default function SettingsPage() {
               value={contactTelegram}
               onChange={(e) => setContactTelegram(e.target.value)}
               className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00]"
-              placeholder="@username"
+              placeholder="https://t.me/username 或 @username"
+            />
+          </div>
+
+          <div>
+            <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">QQ 联系方式</label>
+            <input
+              type="text"
+              value={contactQQ}
+              onChange={(e) => setContactQQ(e.target.value)}
+              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00]"
+              placeholder="QQ号 或 QQ群链接"
             />
           </div>
 
@@ -537,6 +550,7 @@ export default function SettingsPage() {
               { key: "site_description", value: siteDescription },
               { key: "contact_email", value: contactEmail },
               { key: "contact_telegram", value: contactTelegram },
+              { key: "contact_qq", value: contactQQ },
             ])}
             disabled={saving}
             className="px-4 py-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[13px] disabled:opacity-50 flex items-center gap-2"
