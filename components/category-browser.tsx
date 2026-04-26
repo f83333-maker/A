@@ -291,11 +291,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
             {/* 分类列表容器 */}
             <div
               className="flex-1 overflow-y-auto scrollbar-hide flex flex-col gap-1 min-h-0"
-              onWheel={(e) => {
-                e.stopPropagation()
-                const el = e.currentTarget
-                el.scrollTop += e.deltaY
-              }}
+              style={{ overscrollBehavior: "contain" }}
             >
               <p className="text-[11px] text-[#6e6e73] font-medium px-1 mb-2 hidden md:block sticky top-0 bg-[#131314] py-2">所有分类</p>
               {categories.map((cat) => {
@@ -361,10 +357,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
             <div
               ref={productScrollRef}
               className="h-full overflow-y-auto custom-scrollbar"
-              onWheel={(e) => {
-                e.stopPropagation()
-                productScrollRef.current!.scrollTop += e.deltaY
-              }}
+              style={{ overscrollBehavior: "contain" }}
             >
               {loadedCategories.map((cat) => {
                 const catProducts = products.filter(
@@ -377,8 +370,11 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                     ref={(el) => { categorySectionRefs.current[cat.id] = el }}
                     className="mb-8"
                   >
-                    {/* 分类标题 */}
-                    <div className="flex items-center justify-between py-3 px-1 border-b-2 mb-4" style={{ borderColor: cat.color }}>
+                    {/* 分类标题 — sticky 锁定 */}
+                    <div
+                      className="sticky top-0 z-10 flex items-center justify-between py-3 px-1 border-b-2 bg-[#131314]"
+                      style={{ borderColor: cat.color }}
+                    >
                       <div className="flex items-center gap-2.5">
                         <CategoryLogo category={cat} size="md" />
                         <h2 className="text-[16px] sm:text-[18px] font-bold text-[#e3e3e3] truncate">{cat.name}</h2>
@@ -394,9 +390,9 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                         <p className="text-[13px] text-[#6e6e73]">该分类下暂无匹配产品</p>
                       </div>
                     ) : (
-                      <div className="rounded-xl overflow-hidden border border-[#2d2e30]">
-                        {/* 表头 */}
-                        <div className="hidden sm:grid grid-cols-[1fr_80px_90px_70px_88px] gap-2 px-4 py-2.5 bg-[#1a1b1c] border-b border-[#2d2e30]">
+                      <div className="rounded-xl overflow-hidden border border-[#2d2e30] mt-4">
+                        {/* 表头 — sticky 锁定，紧贴分类标题下方 */}
+                        <div className="sticky top-[52px] z-10 hidden sm:grid grid-cols-[1fr_80px_90px_70px_88px] gap-2 px-4 py-2.5 bg-[#1a1b1c] border-b border-[#2d2e30]">
                           <span className="text-[12px] text-[#6e6e73] font-medium">商品名称</span>
                           <span className="text-[12px] text-[#6e6e73] font-medium text-center">单价</span>
                           <span className="text-[12px] text-[#6e6e73] font-medium text-center">库存</span>
