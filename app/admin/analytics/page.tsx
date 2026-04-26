@@ -132,7 +132,7 @@ export default function AnalyticsPage() {
             <span className="text-[13px] text-[#9aa0a6] font-medium">今日订单</span>
           </div>
           <p className="text-[28px] font-bold text-[#7CFF00]">{stats.todayOrders}</p>
-          <p className="text-[11px] text-[#6e6e73] mt-1">已支付订单</p>
+          <p className="text-[11px] text-[#6e6e73] mt-1">已支付/已发放</p>
         </div>
 
         <div className="bg-gradient-to-br from-[#81c995]/20 to-[#81c995]/5 rounded-xl border border-[#81c995]/30 p-5">
