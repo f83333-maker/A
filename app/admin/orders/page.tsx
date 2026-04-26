@@ -34,6 +34,7 @@ interface Order {
   delivered_at: string
   created_at: string
   updated_at: string
+  stripe_payment_intent_id: string | null // 易支付交易单号
 }
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json())
@@ -544,6 +545,14 @@ export default function OrdersPage() {
                     {new Date(selectedOrder.created_at).toLocaleString("zh-CN")}
                   </p>
                 </div>
+                {selectedOrder.stripe_payment_intent_id && (
+                  <div className="col-span-2">
+                    <span className="text-[12px] text-[#6e6e73]">支付交易单号</span>
+                    <p className="text-[14px] font-mono text-[#81c995]">
+                      {selectedOrder.stripe_payment_intent_id}
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* 发放账号 */}
