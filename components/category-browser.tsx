@@ -187,14 +187,15 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
 
   useEffect(() => {
     const sentinel = sentinelRef.current
-    if (!sentinel) return
+    const scrollContainer = productScrollRef.current
+    if (!sentinel || !scrollContainer) return
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && loadedCount < categories.length) {
           setLoadedCount((prev) => prev + 1)
         }
       },
-      { threshold: 0.1 }
+      { root: scrollContainer, threshold: 0.1 }
     )
     observer.observe(sentinel)
     return () => observer.disconnect()
