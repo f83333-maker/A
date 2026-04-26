@@ -65,9 +65,9 @@ export function Announcement() {
 
   return (
     <section className="py-16 md:py-20 bg-[#000000]">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6">
         {/* 整体背景框 */}
-        <div className="bg-[#0D0D0D] rounded-2xl p-6 md:p-8">
+        <div className="bg-[#0D0D0D] rounded-2xl p-6 md:p-10">
           {/* 标题 */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">

@@ -167,7 +167,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
     <section id="category-browser" className="py-6 md:py-8 bg-[#000000]">
       <div className="max-w-7xl mx-auto px-3 sm:px-6">
         {/* 整体背景框 */}
-        <div className="bg-[#0D0D0D] rounded-2xl p-4 md:p-6">
+        <div className="bg-[#0D0D0D] rounded-2xl p-6 md:p-10">
           {/* ── 顶部分类标签栏 ── */}
           <div className="relative mb-6">
           {/* 左箭头 */}
