@@ -32,6 +32,7 @@ interface Product {
   logo_url: string | null
   logo_data: string | null
   logo_bg_color: string | null
+  icon_url: string | null
   categories: {
     name: string
     icon: string
@@ -261,6 +262,14 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
 
                     {/* 商品信息 */}
                     <div className="flex items-center gap-2 min-w-0">
+                      {/* 国旗图标 */}
+                      {product.icon_url && (
+                        <img 
+                          src={product.icon_url} 
+                          alt="" 
+                          className="w-6 h-4 object-cover rounded-sm shrink-0"
+                        />
+                      )}
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <span className="text-[14px] text-white font-medium truncate">
@@ -317,6 +326,15 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                         <span className="text-[12px] text-[#737373]">{index + 1}</span>
                       )}
                     </div>
+
+                    {/* 国旗图标 */}
+                    {product.icon_url && (
+                      <img 
+                        src={product.icon_url} 
+                        alt="" 
+                        className="w-5 h-3.5 object-cover rounded-sm shrink-0"
+                      />
+                    )}
 
                     {/* 信息 */}
                     <div className="flex-1 min-w-0">
