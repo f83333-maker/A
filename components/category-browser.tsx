@@ -187,8 +187,15 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
     const el = productScrollRef.current
     if (!el) return
     const handleScroll = () => {
-      const isAtBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80
+      const scrollTop = el.scrollTop
+      const clientHeight = el.clientHeight
+      const scrollHeight = el.scrollHeight
+      const isAtBottom = scrollHeight - scrollTop - clientHeight < 100
+      
+      console.log("[v0] scroll:", { scrollTop, clientHeight, scrollHeight, isAtBottom, loadedCount, total: categories.length })
+      
       if (isAtBottom && loadedCount < categories.length) {
+        console.log("[v0] loading next category")
         setLoadedCount((prev) => prev + 1)
       }
     }
