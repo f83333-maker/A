@@ -8,7 +8,6 @@ import {
   FolderTree, 
   Package, 
   Megaphone, 
-  Sparkles, 
   Settings,
   LogOut,
   Menu,
@@ -28,7 +27,6 @@ const navItems = [
   { name: "库存管理", href: "/admin/inventory", icon: Boxes },
   { name: "订单管理", href: "/admin/orders", icon: ShoppingCart },
   { name: "公告管理", href: "/admin/announcements", icon: Megaphone },
-  { name: "特性管理", href: "/admin/features", icon: Sparkles },
   { name: "网站设置", href: "/admin/settings", icon: Settings },
 ]
 
@@ -92,7 +90,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-[#131314] flex">
+    <div className="min-h-screen bg-[#131314] flex admin-selectable">
       {/* 移动端遮罩 */}
       {sidebarOpen && (
         <div 
