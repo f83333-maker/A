@@ -253,11 +253,11 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
           </div>
 
           {/* ── 右侧产品区域 ── */}
-          <div className="flex-1 min-w-0 flex flex-col">
+          <div className="flex-1 min-w-0">
 
-            {/* 右侧顶部：分类名 + 产品数量（粘性定位，相对于视口顶部） */}
+            {/* 右侧顶部：分类名 + 产品数量（sticky定位） */}
             {activeCategory && (
-              <div className="sticky top-0 z-20 flex items-center justify-between py-3 px-1 border-b-2 bg-[#131314]" style={{ borderColor: activeCategory.color }}>
+              <div className="sticky top-4 z-20 flex items-center justify-between py-3 px-3 border-b-2 bg-[#131314] rounded-t-xl" style={{ borderColor: activeCategory.color }}>
                 <div className="flex items-center gap-2.5">
                   <CategoryLogo category={activeCategory} size="md" />
                   <h2 className="text-[16px] sm:text-[18px] font-bold text-[#e3e3e3] truncate">
@@ -272,12 +272,12 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
 
             {/* 产品列表 */}
             {visibleProducts.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-24 gap-3 mt-4">
+              <div className="flex flex-col items-center justify-center py-24 gap-3">
                 <PackageSearch className="w-10 h-10 text-[#3c3c3f]" />
                 <p className="text-[14px] text-[#6e6e73]">该分类下暂无匹配产品</p>
               </div>
             ) : (
-              <div className="rounded-xl overflow-hidden border border-[#2d2e30] mt-4">
+              <div className="rounded-xl overflow-hidden border border-[#2d2e30]">
 
                 {/* 表头（仅中大屏显示） */}
                 <div className="hidden sm:grid grid-cols-[1fr_80px_90px_70px_88px] gap-2 px-4 py-2.5 bg-[#1a1b1c] border-b border-[#2d2e30]">
