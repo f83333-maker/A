@@ -12,8 +12,8 @@ const figtree = Figtree({
 })
 
 export const metadata: Metadata = {
-  title: '出海资源铺 - 一站式出海资源采购平台',
-  description: '出海资源铺，一站式出海资源采购平台，助力全球化业务拓展',
+  title: 'CrossBorder Hub - 一站式跨境资源采购平台',
+  description: '跨境资源铺，一站式跨境资源采购平台，助力全球化业务拓展',
   icons: {
     icon: '/icon.svg',
     shortcut: '/icon.svg',

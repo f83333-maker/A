@@ -12,8 +12,8 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
   const [isFocused, setIsFocused] = useState(false)
   const [searchPlaceholder, setSearchPlaceholder] = useState("搜索产品名称、价格、库存、标签...")
   const [hotSearchTags, setHotSearchTags] = useState<string[]>(["社交媒体", "海外邮箱", "营销工具", "出海必备"])
-  const [bannerTitle, setBannerTitle] = useState("出海资源铺")
-  const [bannerSubtitle, setBannerSubtitle] = useState("一站式出海资源采购平台，助力全球化业务拓展")
+  const [bannerTitle, setBannerTitle] = useState("跨境资源铺")
+  const [bannerSubtitle, setBannerSubtitle] = useState("一站式跨境资源采购平台，助力全球化业务拓展")
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const bannerRef = useRef<HTMLElement>(null)
 
