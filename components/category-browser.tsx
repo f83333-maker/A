@@ -284,7 +284,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
             style={{ height: "calc(100vh - 120px)" }}
           >
             {/* 分类列表容器 */}
-            <div className="flex-1 overflow-y-auto scrollbar-hide flex flex-col gap-1">
+            <div className="flex-1 overflow-y-auto scrollbar-hide flex flex-col gap-1 overscroll-contain min-h-0">
               <p className="text-[11px] text-[#6e6e73] font-medium px-1 mb-2 hidden md:block sticky top-0 bg-[#131314] py-2">所有分类</p>
               {categories.map((cat) => {
                 const isActive = cat.id === activeCategoryId
@@ -345,7 +345,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
           </div>
 
           {/* ── 右侧产品区域（分类标题固定 + 产品列表独立滚动）── */}
-          <div className="flex-1 min-w-0 flex flex-col" style={{ height: "calc(100vh - 120px)" }}>
+          <div className="flex-1 min-w-0 flex flex-col overflow-hidden" style={{ height: "calc(100vh - 120px)" }}>
 
             {/* 分类标题（固定不动，不参与滚动） */}
             {activeCategory && (
@@ -374,7 +374,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
             )}
 
             {/* 产品列表（独立滚动，仅显示当前分类） */}
-            <div ref={productScrollRef} className="flex-1 overflow-y-auto custom-scrollbar">
+            <div ref={productScrollRef} className="flex-1 overflow-y-auto custom-scrollbar overscroll-contain min-h-0">
               {visibleProducts.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-3">
                   <PackageSearch className="w-10 h-10 text-[#3c3c3f]" />
