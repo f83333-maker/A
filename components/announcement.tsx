@@ -55,7 +55,7 @@ export function Announcement() {
 
   if (isLoading) {
     return (
-      <section className="py-16 md:py-20 bg-[#1e1f20]">
+      <section className="py-16 md:py-20 bg-[#000000]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 flex items-center justify-center min-h-[200px]">
           <Loader2 className="w-6 h-6 animate-spin text-[#8ab4f8]" />
         </div>
@@ -64,7 +64,7 @@ export function Announcement() {
   }
 
   return (
-    <section className="py-16 md:py-20 bg-[#1e1f20]">
+    <section className="py-16 md:py-20 bg-[#000000]">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         {/* 标题 */}
         <div className="flex items-center justify-between mb-8">
@@ -86,12 +86,12 @@ export function Announcement() {
         </div>
 
         {/* 公告列表 */}
-        <div className="bg-[#131314] rounded-2xl border border-[#3c3c3f]/50 overflow-hidden">
+        <div className="bg-[#000000] rounded-2xl border border-[#222222] overflow-hidden">
           {announcements.map((item, index) => (
             <Link
               key={item.id}
               href={`/announcement/${item.id}`}
-              className="group flex items-center justify-between px-5 py-4 hover:bg-[#2d2e30]/50 transition-colors border-b border-[#3c3c3f]/30 last:border-b-0 animate-fade-in"
+              className="group flex items-center justify-between px-5 py-4 hover:bg-[#111111] transition-colors border-b border-[#222222] last:border-b-0 animate-fade-in"
               style={{ 
                 animationDelay: `${index * 40}ms`,
                 animationFillMode: "backwards"
