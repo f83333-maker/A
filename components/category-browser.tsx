@@ -222,19 +222,8 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                       : "hover:bg-[#1a1b1c] border border-transparent"
                   } ${!hasMatch && searchQuery ? "opacity-40" : "opacity-100"}`}
                 >
-                  {/* 分类图标 */}
-                  <div
-                    className={`w-8 h-8 md:w-9 md:h-9 rounded-xl flex items-center justify-center shrink-0 text-[16px] md:text-[18px] transition-all ${
-                      isActive ? "ring-2" : ""
-                    }`}
-                    style={{
-                      backgroundColor: `${cat.color}20`,
-                      ringColor: isActive ? cat.color : "transparent",
-                      ...(isActive ? { boxShadow: `0 0 0 2px ${cat.color}` } : {}),
-                    }}
-                  >
-                    {cat.icon}
-                  </div>
+                  {/* 分类logo */}
+                  <CategoryLogo category={cat} size="sm" />
 
                   {/* 分类名称 + 产品数（中大屏显示） */}
                   <div className="hidden md:flex flex-col min-w-0">
