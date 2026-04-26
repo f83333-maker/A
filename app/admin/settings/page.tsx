@@ -56,9 +56,16 @@ export default function SettingsPage() {
   async function fetchSettings() {
     setLoading(true)
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("site_settings")
         .select("*")
+      
+      console.log("[v0] 加载设置结果:", { data, error })
+
+      if (error) {
+        console.error("[v0] 加载设置错误:", error)
+        return
+      }
 
       if (data) {
         data.forEach((item) => {
@@ -115,19 +122,27 @@ export default function SettingsPage() {
   async function saveMultipleSettings(settings: { key: string; value: any }[]) {
     setSaving(true)
     try {
+      console.log("[v0] 开始保存设置:", settings)
       for (const setting of settings) {
-        await supabase
+        const { data, error } = await supabase
           .from("site_settings")
           .upsert({
             key: setting.key,
             value: JSON.stringify(setting.value),
             updated_at: new Date().toISOString()
           }, { onConflict: "key" })
+          .select()
+        
+        console.log("[v0] 保存结果:", setting.key, { data, error })
+        
+        if (error) {
+          throw error
+        }
       }
       alert("保存成功")
     } catch (error) {
-      console.error("保存失败:", error)
-      alert("保存失败")
+      console.error("[v0] 保存失败:", error)
+      alert("保存失败: " + (error as Error).message)
     } finally {
       setSaving(false)
     }
