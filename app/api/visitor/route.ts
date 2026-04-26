@@ -3,52 +3,66 @@ import { NextRequest, NextResponse } from "next/server"
 
 // 获取IP地理位置（使用中国可访问的API）
 async function getIpLocation(ip: string): Promise<string> {
-  if (!ip || ip === "unknown" || ip === "127.0.0.1" || ip === "::1") {
+  if (!ip || ip === "unknown" || ip === "127.0.0.1" || ip === "::1" || ip.startsWith("192.168.") || ip.startsWith("10.")) {
     return "本地访问"
   }
   
-  try {
-    // 使用太平洋网络IP查询接口（中国可访问）
-    const response = await fetch(`https://whois.pconline.com.cn/ipJson.jsp?ip=${ip}&json=true`, {
-      headers: { 
-        "Accept": "application/json",
-        "User-Agent": "Mozilla/5.0"
-      },
-      signal: AbortSignal.timeout(3000) // 3秒超时
-    })
-    
-    if (response.ok) {
-      const text = await response.text()
-      // 解析返回的JSONP格式数据
-      const jsonMatch = text.match(/\{.*\}/)
-      if (jsonMatch) {
-        const data = JSON.parse(jsonMatch[0])
-        if (data.addr) {
-          return data.addr.trim()
-        }
-        if (data.pro && data.city) {
-          return `${data.pro} ${data.city}`.trim()
+  // 尝试多个中国可访问的IP查询API
+  const apis = [
+    // 1. 使用 ipinfo.io（免费，国际可用）
+    async () => {
+      const res = await fetch(`https://ipinfo.io/${ip}/json`, {
+        signal: AbortSignal.timeout(3000)
+      })
+      if (res.ok) {
+        const data = await res.json()
+        if (data.country && data.region && data.city) {
+          // 国家代码转中文
+          const countryMap: Record<string, string> = {
+            "CN": "中国", "US": "美国", "JP": "日本", "KR": "韩国", "HK": "香港",
+            "TW": "台湾", "SG": "新加坡", "GB": "英国", "DE": "德国", "FR": "法国"
+          }
+          const country = countryMap[data.country] || data.country
+          return `${country} ${data.region} ${data.city}`
         }
       }
+      return null
+    },
+    // 2. 使用 ip.sb（中国可访问）
+    async () => {
+      const res = await fetch(`https://api.ip.sb/geoip/${ip}`, {
+        signal: AbortSignal.timeout(3000)
+      })
+      if (res.ok) {
+        const data = await res.json()
+        if (data.country && data.region && data.city) {
+          return `${data.country} ${data.region} ${data.city}`
+        }
+      }
+      return null
+    },
+    // 3. 使用 ipapi.co
+    async () => {
+      const res = await fetch(`https://ipapi.co/${ip}/json/`, {
+        signal: AbortSignal.timeout(3000)
+      })
+      if (res.ok) {
+        const data = await res.json()
+        if (data.country_name && data.region && data.city) {
+          return `${data.country_name} ${data.region} ${data.city}`
+        }
+      }
+      return null
     }
-  } catch (e) {
-    // 第一个API失败，尝试备用API
-  }
+  ]
   
-  try {
-    // 备用：使用 ip-api.com（支持中文，中国可访问）
-    const response = await fetch(`http://ip-api.com/json/${ip}?lang=zh-CN&fields=status,country,regionName,city`, {
-      signal: AbortSignal.timeout(3000)
-    })
-    
-    if (response.ok) {
-      const data = await response.json()
-      if (data.status === "success") {
-        return `${data.country} ${data.regionName} ${data.city}`.trim()
-      }
+  for (const api of apis) {
+    try {
+      const result = await api()
+      if (result) return result.trim()
+    } catch (e) {
+      // 继续尝试下一个API
     }
-  } catch (e) {
-    // 备用API也失败
   }
   
   return "未知"
