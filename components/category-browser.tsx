@@ -33,6 +33,7 @@ interface Product {
   logo_data: string | null
   logo_bg_color: string | null
   icon_url: string | null
+  delivery_type: string | null
   categories: {
     name: string
     icon: string
@@ -200,8 +201,9 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
         {/* ── 产品表格 ── */}
         <div className="border border-[#2A2A2A] rounded-lg overflow-hidden">
           {/* 表头 */}
-          <div className="hidden md:grid grid-cols-[1fr_120px_120px_100px] gap-4 px-4 py-2 bg-[#0D0D0D] border-b border-[#2A2A2A] text-[13px] text-[#737373] font-medium">
+          <div className="hidden md:grid grid-cols-[1fr_90px_100px_100px_80px] gap-4 px-4 py-2 bg-[#0D0D0D] border-b border-[#2A2A2A] text-[13px] text-[#737373] font-medium">
             <span>商品名称</span>
+            <span className="text-center">发货方式</span>
             <span className="text-right">单价</span>
             <span className="text-center">库存</span>
             <span className="text-center">操作</span>
@@ -221,7 +223,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                   className="group border-b border-[#2A2A2A] last:border-b-0 hover:bg-[#121212] transition-colors"
                 >
                   {/* 桌面端 */}
-                  <div className="hidden md:grid grid-cols-[1fr_120px_120px_100px] gap-4 items-center px-4 py-1.5">
+                  <div className="hidden md:grid grid-cols-[1fr_90px_100px_100px_80px] gap-4 items-center px-4 py-1.5">
                     {/* 商品信息 */}
                     <div className="flex items-center gap-2 min-w-0">
                       {/* 国旗图标 */}
@@ -244,6 +246,17 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                           )}
                         </div>
                       </div>
+                    </div>
+
+                    {/* 发货类型 */}
+                    <div className="text-center">
+                      <span className={`px-2 py-0.5 text-[11px] font-medium rounded ${
+                        product.delivery_type === "自动发货" 
+                          ? "bg-[#00B812]/15 text-[#00B812]" 
+                          : "bg-[#F7931A]/15 text-[#F7931A]"
+                      }`}>
+                        {product.delivery_type || "自动发货"}
+                      </span>
                     </div>
 
                     {/* 单价 */}
@@ -296,6 +309,13 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                         )}
                       </div>
                       <div className="flex items-center gap-2 mt-0.5">
+                        <span className={`px-1.5 py-0.5 text-[9px] font-medium rounded ${
+                          product.delivery_type === "自动发货" 
+                            ? "bg-[#00B812]/15 text-[#00B812]" 
+                            : "bg-[#F7931A]/15 text-[#F7931A]"
+                        }`}>
+                          {product.delivery_type || "自动发货"}
+                        </span>
                         <span className="text-[13px] font-bold text-white">¥{product.price}</span>
                         <StockStatus stock={product.stock} />
                       </div>
