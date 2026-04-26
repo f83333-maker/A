@@ -223,8 +223,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
         {/* ── 产品表格 ── */}
         <div className="border border-[#2A2A2A] rounded-lg overflow-hidden">
           {/* 表头 */}
-          <div className="hidden md:grid grid-cols-[50px_1fr_120px_120px_100px] gap-4 px-4 py-2 bg-[#0D0D0D] border-b border-[#2A2A2A] text-[13px] text-[#737373] font-medium">
-            <span>排名</span>
+          <div className="hidden md:grid grid-cols-[1fr_120px_120px_100px] gap-4 px-4 py-2 bg-[#0D0D0D] border-b border-[#2A2A2A] text-[13px] text-[#737373] font-medium">
             <span>商品名称</span>
             <span className="text-right">单价</span>
             <span className="text-center">库存</span>
@@ -245,22 +244,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                   className="group border-b border-[#2A2A2A] last:border-b-0 hover:bg-[#121212] transition-colors"
                 >
                   {/* 桌面端 */}
-                  <div className="hidden md:grid grid-cols-[50px_1fr_120px_120px_100px] gap-4 items-center px-4 py-1.5">
-                    {/* 排名 */}
-                    <div className="flex items-center justify-center">
-                      {index < 3 ? (
-                        <span className={`text-[14px] font-bold ${
-                          index === 0 ? "text-[#ffd700]" : 
-                          index === 1 ? "text-[#c0c0c0]" : 
-                          "text-[#cd7f32]"
-                        }`}>
-                          {index + 1}
-                        </span>
-                      ) : (
-                        <span className="text-[14px] text-[#737373]">{index + 1}</span>
-                      )}
-                    </div>
-
+                  <div className="hidden md:grid grid-cols-[1fr_120px_120px_100px] gap-4 items-center px-4 py-1.5">
                     {/* 商品信息 */}
                     <div className="flex items-center gap-2 min-w-0">
                       {/* 国旗图标 */}
@@ -313,21 +297,6 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
 
                   {/* 移动端 */}
                   <div className="md:hidden flex items-center gap-2 px-3 py-1.5">
-                    {/* 排名 */}
-                    <div className="w-6 text-center shrink-0">
-                      {index < 3 ? (
-                        <span className={`text-[12px] font-bold ${
-                          index === 0 ? "text-[#ffd700]" : 
-                          index === 1 ? "text-[#c0c0c0]" : 
-                          "text-[#cd7f32]"
-                        }`}>
-                          {index + 1}
-                        </span>
-                      ) : (
-                        <span className="text-[12px] text-[#737373]">{index + 1}</span>
-                      )}
-                    </div>
-
                     {/* 国旗图标 */}
                     {product.icon_url && (
                       <img 
