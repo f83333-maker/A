@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { createClient } from "@/lib/supabase/client"
 import { 
   Users, 
   ShoppingCart, 
@@ -13,7 +12,9 @@ import {
   Monitor,
   Package,
   ExternalLink,
-  TrendingUp
+  TrendingUp,
+  MapPin,
+  Clock
 } from "lucide-react"
 
 interface Visitor {
@@ -47,106 +48,24 @@ export default function AnalyticsPage() {
   const [selectedVisitor, setSelectedVisitor] = useState<Visitor | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [products, setProducts] = useState<ProductInfo[]>([])
-  const [ipLocations, setIpLocations] = useState<Record<string, string>>({})
-
-  const supabase = createClient()
 
   useEffect(() => {
     fetchAnalytics()
-    fetchProducts()
   }, [])
-
-  async function fetchProducts() {
-    const { data } = await supabase.from("products").select("id, name")
-    if (data) setProducts(data)
-  }
 
   async function fetchAnalytics() {
     setLoading(true)
     try {
-      // 获取北京时间今天的起始时间
-      const now = new Date()
-      const beijingOffset = 8 * 60 * 60 * 1000
-      const beijingNow = new Date(now.getTime() + beijingOffset)
-      const todayStart = new Date(
-        beijingNow.getFullYear(),
-        beijingNow.getMonth(),
-        beijingNow.getDate()
-      )
-      todayStart.setTime(todayStart.getTime() - beijingOffset)
-
-      // 获取今日访客
-      const { data: visitorData } = await supabase
-        .from("visitor_stats")
-        .select("*")
-        .gte("visited_at", todayStart.toISOString())
-        .order("visited_at", { ascending: true })
+      const res = await fetch("/api/admin/analytics")
+      const data = await res.json()
       
-      // 去重计数（同一IP只算一次）
-      const uniqueVisitors: Visitor[] = []
-      const seenIPs = new Set<string>()
-      visitorData?.forEach(v => {
-        if (!seenIPs.has(v.ip_address)) {
-          seenIPs.add(v.ip_address)
-          uniqueVisitors.push(v)
-        }
-      })
-
-      setVisitors(uniqueVisitors)
-
-      // 获取今日订单
-      const { data: todayOrderData } = await supabase
-        .from("orders")
-        .select("total_amount, status, quantity, unit_price")
-        .gte("created_at", todayStart.toISOString())
-        .in("status", ["paid", "delivered"])
-
-      // 获取产品成本价用于计算利润
-      const { data: productsData } = await supabase
-        .from("products")
-        .select("id, cost_price")
-
-      const costMap: Record<string, number> = {}
-      productsData?.forEach(p => {
-        costMap[p.id] = p.cost_price || 0
-      })
-
-      // 获取订单对应的产品ID
-      const { data: orderProductData } = await supabase
-        .from("orders")
-        .select("product_id, quantity, unit_price, total_amount")
-        .gte("created_at", todayStart.toISOString())
-        .in("status", ["paid", "delivered"])
-
-      const todayOrders = todayOrderData?.length || 0
-      const todayRevenue = todayOrderData?.reduce((sum, o) => sum + (o.total_amount || 0), 0) || 0
-      
-      // 计算今日利润
-      let todayProfit = 0
-      orderProductData?.forEach(o => {
-        const cost = costMap[o.product_id] || 0
-        const profit = (o.unit_price - cost) * o.quantity
-        todayProfit += profit
-      })
-
-      setStats({
-        todayVisitors: uniqueVisitors.length,
-        todayOrders,
-        todayRevenue,
-        todayProfit,
-      })
-
-      // IP位置直接使用数据库存储的位置信息，不再调用外部API
-      const locationMap: Record<string, string> = {}
-      uniqueVisitors.forEach(v => {
-        if (v.ip_location && v.ip_location !== "未知") {
-          locationMap[v.ip_address] = v.ip_location
-        }
-      })
-      setIpLocations(locationMap)
-
+      if (res.ok) {
+        setStats(data.stats)
+        setVisitors(data.visitors || [])
+        setProducts(data.products || [])
+      }
     } catch (error) {
-      console.error("获取统计失败:", error)
+      console.error("获取分析数据失败:", error)
     } finally {
       setLoading(false)
     }
@@ -254,49 +173,55 @@ export default function AnalyticsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-[#3c3c3f]">
-                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">访客编号</th>
+                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">序号</th>
                   <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">IP地址</th>
+                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">地区</th>
                   <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">设备</th>
                   <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">访问时间</th>
                   <th className="px-4 py-3 text-center text-[12px] font-semibold text-[#9aa0a6] uppercase">操作</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#3c3c3f]">
-                {visitors.map((visitor, index) => {
-                  const location = visitor.ip_location || ipLocations[visitor.ip_address] || "未知"
-                  return (
-                    <tr key={visitor.id} className="hover:bg-[#2d2e30]/50">
-                      <td className="px-4 py-3">
-                        <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#c58af9]/20 text-[#c58af9] font-bold text-[13px]">
-                          {index + 1}
+                {visitors.map((visitor, index) => (
+                  <tr key={visitor.id} className="hover:bg-[#2d2e30]/50">
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#c58af9]/20 text-[#c58af9] font-bold text-[13px]">
+                        {index + 1}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <p className="text-[13px] font-mono text-[#e3e3e3]">{visitor.ip_address}</p>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1.5">
+                        <MapPin className="w-3.5 h-3.5 text-[#6e6e73]" />
+                        <span className="text-[13px] text-[#9aa0a6]">{visitor.ip_location || "未知"}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        {getDeviceIcon(visitor.device_type)}
+                        <span className="text-[13px] text-[#9aa0a6]">{visitor.device_type || "未知"}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-[#6e6e73]" />
+                        <span className="text-[13px] text-[#9aa0a6]">
+                          {new Date(visitor.visited_at).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}
                         </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div>
-                          <p className="text-[13px] font-mono text-[#e3e3e3]">{visitor.ip_address}</p>
-                          <p className="text-[11px] text-[#6e6e73] mt-0.5">{location}</p>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          {getDeviceIcon(visitor.device_type)}
-                          <span className="text-[13px] text-[#9aa0a6]">{visitor.device_type || "未知"}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-[13px] text-[#9aa0a6]">
-                        {new Date(visitor.visited_at).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <button
-                          onClick={() => openVisitorDetail(visitor)}
-                          className="px-3 py-1.5 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] rounded-lg text-[12px] font-medium transition-colors"
-                        >
-                          详情
-                        </button>
-                      </td>
-                    </tr>
-                  )
-                })}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button
+                        onClick={() => openVisitorDetail(visitor)}
+                        className="px-3 py-1.5 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] rounded-lg text-[12px] font-medium transition-colors"
+                      >
+                        详情
+                      </button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -330,21 +255,14 @@ export default function AnalyticsPage() {
 
             {/* 弹窗内容 */}
             <div className="p-6 space-y-4 overflow-y-auto max-h-[calc(90vh-120px)]">
-              {/* 访客编号 */}
-              <div className="bg-[#2d2e30] rounded-xl p-4">
-                <label className="text-[12px] text-[#6e6e73] font-medium">访客编号</label>
-                <p className="text-[18px] font-bold text-[#c58af9] mt-1">
-                  #{visitors.findIndex(v => v.id === selectedVisitor.id) + 1}
-                </p>
-              </div>
-
               {/* IP地址和位置 */}
               <div className="bg-[#2d2e30] rounded-xl p-4">
                 <label className="text-[12px] text-[#6e6e73] font-medium">IP地址</label>
                 <p className="text-[15px] font-mono text-[#e3e3e3] mt-1">{selectedVisitor.ip_address}</p>
-                <p className="text-[13px] text-[#9aa0a6] mt-1">
-                  {selectedVisitor.ip_location || ipLocations[selectedVisitor.ip_address] || "未知"}
-                </p>
+                <div className="flex items-center gap-1.5 mt-2">
+                  <MapPin className="w-4 h-4 text-[#7CFF00]" />
+                  <span className="text-[13px] text-[#9aa0a6]">{selectedVisitor.ip_location || "未知"}</span>
+                </div>
               </div>
 
               {/* 设备信息 */}

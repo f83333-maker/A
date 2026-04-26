@@ -236,8 +236,8 @@ export default function CategoriesPage() {
               <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6]">排序</th>
               <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6]">图标</th>
               <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6]">名称</th>
-              <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6] hidden md:table-cell">描述</th>
-              <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6]">状态</th>
+              <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6] hidden md:table-cell">产品数</th>
+              <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6]">启用</th>
               <th className="px-5 py-4 text-right text-[13px] font-semibold text-[#9aa0a6]">操作</th>
             </tr>
           </thead>
@@ -278,20 +278,37 @@ export default function CategoriesPage() {
                   <p className="text-[14px] font-medium text-[#e3e3e3]">{category.name}</p>
                 </td>
                 <td className="px-5 py-4 hidden md:table-cell">
-                  <p className="text-[13px] text-[#6e6e73] font-medium truncate max-w-[200px]">
-                    {category.description || "-"}
-                  </p>
+                  <button
+                    onClick={() => window.location.href = `/admin/products?categoryId=${category.id}`}
+                    className="text-[13px] text-[#7CFF00] hover:text-[#9FFF40] font-medium hover:underline transition-colors"
+                  >
+                    {(category as Category & { product_count?: number }).product_count || 0} 个产品
+                  </button>
                 </td>
                 <td className="px-5 py-4">
-                  <span
-                    className={`px-2.5 py-1 text-[12px] font-semibold rounded-full ${
-                      category.is_active
-                        ? "bg-[#81c995]/10 text-[#81c995]"
-                        : "bg-[#6e6e73]/10 text-[#6e6e73]"
+                  <button
+                    onClick={async () => {
+                      try {
+                        await fetch(`/api/admin/categories/${category.id}`, {
+                          method: "PUT",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ ...category, is_active: !category.is_active }),
+                        })
+                        fetchCategories()
+                      } catch (error) {
+                        console.error("Failed to toggle category:", error)
+                      }
+                    }}
+                    className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${
+                      category.is_active ? "bg-[#7CFF00]" : "bg-[#3c3c3f]"
                     }`}
                   >
-                    {category.is_active ? "启用" : "禁用"}
-                  </span>
+                    <span
+                      className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 ${
+                        category.is_active ? "translate-x-5" : "translate-x-0"
+                      }`}
+                    />
+                  </button>
                 </td>
                 <td className="px-5 py-4">
                   <div className="flex items-center justify-end gap-2">
@@ -398,55 +415,13 @@ export default function CategoriesPage() {
               </div>
 
               <div>
-                <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">描述</label>
+                <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">排序</label>
                 <input
-                  type="text"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  type="number"
+                  value={formData.sort_order}
+                  onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) })}
                   className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
                 />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">颜色</label>
-                  <div className="flex gap-2">
-                    <input
-                      type="color"
-                      value={formData.color}
-                      onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                      className="w-11 h-11 rounded-xl border border-[#3c3c3f] cursor-pointer"
-                    />
-                    <input
-                      type="text"
-                      value={formData.color}
-                      onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                      className="flex-1 h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">排序</label>
-                  <input
-                    type="number"
-                    value={formData.sort_order}
-                    onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) })}
-                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  id="is_active"
-                  checked={formData.is_active}
-                  onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                  className="w-4 h-4 rounded"
-                />
-                <label htmlFor="is_active" className="text-[14px] font-medium text-[#e3e3e3]">
-                  启用分类
-                </label>
               </div>
 
               <div className="flex gap-3 pt-4">
