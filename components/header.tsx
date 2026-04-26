@@ -90,7 +90,7 @@ export function Header() {
               </svg>
             </div>
             <span className="text-[17px] font-bold text-[#ffffff] tracking-tight">
-              出海资源铺
+              CrossBorder Hub
             </span>
           </Link>
 

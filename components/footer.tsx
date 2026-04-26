@@ -44,11 +44,11 @@ export function Footer() {
                 </svg>
               </div>
               <span className="text-[16px] font-bold text-[#e3e3e3]">
-                出海资源铺
+                CrossBorder Hub
               </span>
             </Link>
             <p className="text-[13px] text-[#6e6e73] leading-relaxed mb-6 font-medium">
-              一站式出海资源采购平台，<br />
+              一站式跨境资源采购平台，<br />
               助力全球化业务拓展。
             </p>
             {/* 社交图标 */}
@@ -137,7 +137,7 @@ export function Footer() {
         <div className="mt-14 pt-8 border-t border-[#222222]">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-[13px] text-[#6e6e73] font-medium">
-              © 2024 出海资源铺. All rights reserved.
+              © 2024 CrossBorder Hub. All rights reserved.
             </p>
             <div className="flex items-center gap-6 flex-wrap justify-center">
               {footerLinks.slice(0, 4).map((link, index) => (
