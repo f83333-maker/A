@@ -52,7 +52,7 @@ function Highlight({ text, query }: { text: string; query: string }) {
     <>
       {parts.map((part, i) =>
         regex.test(part) ? (
-          <mark key={i} className="bg-[#00d26a]/20 text-[#00d26a] rounded-[3px] px-[1px] not-italic">
+          <mark key={i} className="bg-[#00B812]/20 text-[#00B812] rounded-[3px] px-[1px] not-italic">
             {part}
           </mark>
         ) : (
@@ -71,18 +71,18 @@ function matchesQuery(p: Product, q: string) {
   )
 }
 
-// 库存状态显示
+// 库存状态显示 - OKX 风格
 function StockStatus({ stock }: { stock: number }) {
   if (stock <= 0) {
-    return <span className="text-[#ff4d6a] text-[12px] font-medium">售罄</span>
+    return <span className="text-[#FF3B3B] text-[12px] font-medium">售罄</span>
   }
   if (stock < 10) {
-    return <span className="text-[#ff4d6a] text-[12px] font-medium">库存紧张</span>
+    return <span className="text-[#FF3B3B] text-[12px] font-medium">库存紧张</span>
   }
   if (stock < 30) {
-    return <span className="text-[#ffd700] text-[12px] font-medium">库存一般</span>
+    return <span className="text-[#F7931A] text-[12px] font-medium">库存一般</span>
   }
-  return <span className="text-[#00d26a] text-[12px] font-medium">库存充足</span>
+  return <span className="text-[#00B812] text-[12px] font-medium">库存充足</span>
 }
 
 
@@ -145,7 +145,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
     return (
       <section className="py-8 bg-[#000000]">
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-center min-h-[400px]">
-          <Loader2 className="w-8 h-8 animate-spin text-[#00d26a]" />
+          <Loader2 className="w-8 h-8 animate-spin text-[#00B812]" />
         </div>
       </section>
     )
@@ -155,8 +155,8 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
     return (
       <section className="py-8 bg-[#000000]">
         <div className="max-w-7xl mx-auto px-4 flex flex-col items-center justify-center min-h-[400px] gap-3">
-          <PackageSearch className="w-10 h-10 text-[#333333]" />
-          <p className="text-[14px] text-[#595959]">暂无分类数据</p>
+          <PackageSearch className="w-10 h-10 text-[#2A2A2A]" />
+          <p className="text-[14px] text-[#525252]">暂无分类数据</p>
         </div>
       </section>
     )
@@ -190,8 +190,8 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                   onClick={() => setActiveCategoryId(cat.id)}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-[14px] font-medium whitespace-nowrap transition-all duration-200 border shrink-0 ${
                     isActive
-                      ? "bg-[#1a1a1a] border-[#00d26a] text-white"
-                      : "bg-transparent border-[#333] text-[#8c8c8c] hover:border-[#555] hover:text-white"
+                      ? "bg-[#181818] border-[#00B812] text-white"
+                      : "bg-transparent border-[#2A2A2A] text-[#737373] hover:border-[#404040] hover:text-white"
                   }`}
                 >
                   {cat.logo_data ? (
@@ -219,9 +219,9 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
 
 
         {/* ── 产品表格 ── */}
-        <div className="border border-[#1a1a1a] rounded-lg overflow-hidden">
+        <div className="border border-[#2A2A2A] rounded-lg overflow-hidden">
           {/* 表头 */}
-          <div className="hidden md:grid grid-cols-[50px_1fr_120px_120px_100px] gap-4 px-4 py-3 bg-[#0a0a0a] border-b border-[#1a1a1a] text-[13px] text-[#595959] font-medium">
+          <div className="hidden md:grid grid-cols-[50px_1fr_120px_120px_100px] gap-4 px-4 py-3 bg-[#0D0D0D] border-b border-[#2A2A2A] text-[13px] text-[#737373] font-medium">
             <span>排名</span>
             <span>商品名称</span>
             <span className="text-right">单价</span>
@@ -232,15 +232,15 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
           {/* 产品列表 */}
           {filteredProducts.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3">
-              <PackageSearch className="w-10 h-10 text-[#333333]" />
-              <p className="text-[14px] text-[#595959]">暂无匹配的商品</p>
+              <PackageSearch className="w-10 h-10 text-[#2A2A2A]" />
+              <p className="text-[14px] text-[#525252]">暂无匹配的商品</p>
             </div>
           ) : (
             <div>
               {filteredProducts.map((product, index) => (
                 <div
                   key={product.id}
-                  className="group border-b border-[#1a1a1a] last:border-b-0 hover:bg-[#0a0a0a] transition-colors"
+                  className="group border-b border-[#2A2A2A] last:border-b-0 hover:bg-[#121212] transition-colors"
                 >
                   {/* 桌面端 */}
                   <div className="hidden md:grid grid-cols-[50px_1fr_120px_120px_100px] gap-4 items-center px-4 py-3">
@@ -255,7 +255,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                           {index + 1}
                         </span>
                       ) : (
-                        <span className="text-[14px] text-[#595959]">{index + 1}</span>
+                        <span className="text-[14px] text-[#737373]">{index + 1}</span>
                       )}
                     </div>
 
@@ -267,7 +267,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                             <Highlight text={product.name} query={searchQuery} />
                           </span>
                           {product.is_hot && (
-                            <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-[#ff4d6a]/20 text-[#ff4d6a]">
+                            <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-[#FF3B3B]/20 text-[#FF3B3B]">
                               HOT
                             </span>
                           )}
@@ -277,7 +277,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
 
                     {/* 单价 */}
                     <div className="text-right">
-                      <span className="text-[14px] font-bold text-[#ffd700]">¥{product.price}</span>
+                      <span className="text-[14px] font-bold text-white">¥{product.price}</span>
                     </div>
 
                     {/* 库存 */}
@@ -290,10 +290,10 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                       <button
                         onClick={() => handlePurchase(product)}
                         disabled={product.stock <= 0}
-                        className={`px-4 py-1.5 rounded text-[12px] font-bold transition-all duration-200 ${
+                        className={`px-4 py-1.5 rounded text-[12px] font-semibold transition-all duration-200 ${
                           product.stock > 0
-                            ? "bg-[#00d26a] hover:bg-[#00e676] text-black"
-                            : "bg-[#333] text-[#595959] cursor-not-allowed"
+                            ? "bg-[#00B812] hover:bg-[#00D414] text-black"
+                            : "bg-[#2A2A2A] text-[#525252] cursor-not-allowed"
                         }`}
                       >
                         购买
@@ -314,7 +314,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                           {index + 1}
                         </span>
                       ) : (
-                        <span className="text-[12px] text-[#595959]">{index + 1}</span>
+                        <span className="text-[12px] text-[#737373]">{index + 1}</span>
                       )}
                     </div>
 
@@ -325,13 +325,13 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                           <Highlight text={product.name} query={searchQuery} />
                         </span>
                         {product.is_hot && (
-                          <span className="px-1 py-0.5 text-[9px] font-bold rounded bg-[#ff4d6a]/20 text-[#ff4d6a]">
+                          <span className="px-1 py-0.5 text-[9px] font-bold rounded bg-[#FF3B3B]/20 text-[#FF3B3B]">
                             HOT
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-[13px] font-bold text-[#ffd700]">¥{product.price}</span>
+                        <span className="text-[13px] font-bold text-white">¥{product.price}</span>
                         <StockStatus stock={product.stock} />
                       </div>
                     </div>
@@ -340,10 +340,10 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                     <button
                       onClick={() => handlePurchase(product)}
                       disabled={product.stock <= 0}
-                      className={`shrink-0 px-3 py-1.5 rounded text-[11px] font-bold transition-all ${
+                      className={`shrink-0 px-3 py-1.5 rounded text-[11px] font-semibold transition-all ${
                         product.stock > 0
-                          ? "bg-[#00d26a] hover:bg-[#00e676] text-black"
-                          : "bg-[#333] text-[#595959] cursor-not-allowed"
+                          ? "bg-[#00B812] hover:bg-[#00D414] text-black"
+                          : "bg-[#2A2A2A] text-[#525252] cursor-not-allowed"
                       }`}
                     >
                       购买
@@ -357,7 +357,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
 
         {/* 底部提示 */}
         {filteredProducts.length > 0 && (
-          <div className="mt-4 text-center text-[12px] text-[#595959]">
+          <div className="mt-4 text-center text-[12px] text-[#525252]">
             共 {filteredProducts.length} 个商品 · 数据实时更新
           </div>
         )}
