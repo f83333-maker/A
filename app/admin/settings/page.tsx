@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { createClient } from "@/lib/supabase/client"
 import { Save, Plus, Trash2, Loader2, Search, Tag, Link as LinkIcon, Truck, Settings, Type, Navigation, CreditCard } from "lucide-react"
 
 interface FooterLink {
@@ -47,8 +46,6 @@ export default function SettingsPage() {
   const [epayPid, setEpayPid] = useState("")
   const [epayKey, setEpayKey] = useState("")
 
-  const supabase = createClient()
-
   useEffect(() => {
     fetchSettings()
   }, [])
@@ -56,12 +53,17 @@ export default function SettingsPage() {
   async function fetchSettings() {
     setLoading(true)
     try {
-      const { data } = await supabase
-        .from("site_settings")
-        .select("*")
+      const res = await fetch("/api/admin/settings")
+      const result = await res.json()
+      
+      if (!res.ok) {
+        console.error("加载设置错误:", result.error)
+        return
+      }
 
+      const data = result.data
       if (data) {
-        data.forEach((item) => {
+        data.forEach((item: { key: string; value: string }) => {
           try {
             const value = JSON.parse(item.value)
             if (item.key === "banner_title") setBannerTitle(value || "")
@@ -92,42 +94,28 @@ export default function SettingsPage() {
   }
 
   async function saveSetting(key: string, value: any) {
-    setSaving(true)
-    try {
-      const { error } = await supabase
-        .from("site_settings")
-        .upsert({
-          key,
-          value: JSON.stringify(value),
-          updated_at: new Date().toISOString()
-        }, { onConflict: "key" })
-
-      if (error) throw error
-      alert("保存成功")
-    } catch (error) {
-      console.error("保存失败:", error)
-      alert("保存失败")
-    } finally {
-      setSaving(false)
-    }
+    await saveMultipleSettings([{ key, value }])
   }
 
   async function saveMultipleSettings(settings: { key: string; value: any }[]) {
     setSaving(true)
     try {
-      for (const setting of settings) {
-        await supabase
-          .from("site_settings")
-          .upsert({
-            key: setting.key,
-            value: JSON.stringify(setting.value),
-            updated_at: new Date().toISOString()
-          }, { onConflict: "key" })
+      const res = await fetch("/api/admin/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ settings })
+      })
+      
+      const result = await res.json()
+      
+      if (!res.ok) {
+        throw new Error(result.error || "保存失败")
       }
+      
       alert("保存成功")
     } catch (error) {
       console.error("保存失败:", error)
-      alert("保存失败")
+      alert("保存失败: " + (error as Error).message)
     } finally {
       setSaving(false)
     }
