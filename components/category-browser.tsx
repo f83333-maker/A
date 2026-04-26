@@ -158,6 +158,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const sidebarRef = useRef<HTMLDivElement>(null)
   const productScrollRef = useRef<HTMLDivElement>(null)
+  const lastScrollTop = useRef(0)
 
   useEffect(() => {
     if (categories.length > 0 && !activeCategoryId) {
@@ -173,24 +174,43 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
     if (firstMatch) setActiveCategoryId(firstMatch.id)
   }, [searchQuery, categories, products])
 
-  // 监听产品列表滚动，滚动到底部时自动切换到下一个分类
+  // 监听产品列表滚动，滚动到底部切换下一个分类，滚动到顶部切换上一个分类
   useEffect(() => {
     const el = productScrollRef.current
     if (!el) return
     const handleScroll = () => {
-      // 检测是否滚动到底部（误差10px）
-      const isAtBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 10
-      if (isAtBottom) {
-        const currentIndex = categories.findIndex((c) => c.id === activeCategoryId)
-        if (currentIndex >= 0 && currentIndex < categories.length - 1) {
-          const nextCat = categories[currentIndex + 1]
-          setActiveCategoryId(nextCat.id)
-          // 重置滚动位置到顶部
-          el.scrollTop = 0
-          // 同步左侧导航滚动到对应分类
-          const btn = sidebarRef.current?.querySelector(`[data-cat-id="${nextCat.id}"]`) as HTMLElement
-          btn?.scrollIntoView({ block: "nearest", behavior: "smooth" })
-        }
+      const scrollTop = el.scrollTop
+      const isScrollingUp = scrollTop < lastScrollTop.current
+      lastScrollTop.current = scrollTop
+
+      const currentIndex = categories.findIndex((c) => c.id === activeCategoryId)
+
+      // 滚动到底部 → 切换下一个分类
+      const isAtBottom = el.scrollHeight - scrollTop - el.clientHeight < 10
+      if (isAtBottom && currentIndex >= 0 && currentIndex < categories.length - 1) {
+        const nextCat = categories[currentIndex + 1]
+        setActiveCategoryId(nextCat.id)
+        el.scrollTop = 0
+        lastScrollTop.current = 0
+        const btn = sidebarRef.current?.querySelector(`[data-cat-id="${nextCat.id}"]`) as HTMLElement
+        btn?.scrollIntoView({ block: "nearest", behavior: "smooth" })
+        return
+      }
+
+      // 滚动到顶部且向上滑动 → 切换上一个分类（第一个分类除外）
+      const isAtTop = scrollTop === 0
+      if (isAtTop && isScrollingUp && currentIndex > 0) {
+        const prevCat = categories[currentIndex - 1]
+        setActiveCategoryId(prevCat.id)
+        // 跳到上一个分类的底部
+        requestAnimationFrame(() => {
+          if (productScrollRef.current) {
+            productScrollRef.current.scrollTop = productScrollRef.current.scrollHeight
+            lastScrollTop.current = productScrollRef.current.scrollHeight
+          }
+        })
+        const btn = sidebarRef.current?.querySelector(`[data-cat-id="${prevCat.id}"]`) as HTMLElement
+        btn?.scrollIntoView({ block: "nearest", behavior: "smooth" })
       }
     }
     el.addEventListener("scroll", handleScroll, { passive: true })
@@ -219,10 +239,10 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
   // 点击左侧分类时，切换分类并重置滚动
   const handleCategoryClick = (catId: string) => {
     setActiveCategoryId(catId)
-    // 重置滚动位置到顶部
     if (productScrollRef.current) {
       productScrollRef.current.scrollTop = 0
     }
+    lastScrollTop.current = 0
   }
 
   const isLoading = categoriesLoading || productsLoading
