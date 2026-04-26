@@ -166,13 +166,11 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
   return (
     <section id="category-browser" className="py-6 md:py-8 bg-[#000000]">
       <div className="max-w-7xl mx-auto px-3 sm:px-6">
-        {/* 整体背景框 */}
-        <div className="bg-[#0D0D0D] rounded-2xl p-6 md:p-10">
           {/* ── 顶部分类标签栏 ── */}
           <div className="relative mb-6">
           {/* 左侧渐变遮罩 + 箭头 */}
           <div className="absolute left-0 top-0 bottom-0 z-10 flex items-center">
-            <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[#0D0D0D] via-[#0D0D0D]/80 to-transparent pointer-events-none" />
+            <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[#000000] via-[#000000]/80 to-transparent pointer-events-none" />
             <button
               onClick={() => scrollCategories('left')}
               className="relative z-10 w-8 h-8 flex items-center justify-center bg-[#000000] border border-[#333] rounded-full text-[#8c8c8c] hover:text-white hover:border-[#555] transition-colors ml-1"
@@ -214,7 +212,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
 
           {/* 右侧渐变遮罩 + 箭头 */}
           <div className="absolute right-0 top-0 bottom-0 z-10 flex items-center">
-            <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#0D0D0D] via-[#0D0D0D]/80 to-transparent pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#000000] via-[#000000]/80 to-transparent pointer-events-none" />
             <button
               onClick={() => scrollCategories('right')}
               className="relative z-10 w-8 h-8 flex items-center justify-center bg-[#000000] border border-[#333] rounded-full text-[#8c8c8c] hover:text-white hover:border-[#555] transition-colors mr-1"
@@ -354,13 +352,12 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
           )}
         </div>
 
-          {/* 底部提示 */}
-          {filteredProducts.length > 0 && (
-            <div className="mt-4 text-center text-[12px] text-[#525252]">
-              共 {filteredProducts.length} 个商品 · 数据实时更新
-            </div>
-          )}
-        </div>
+        {/* 底部提示 */}
+        {filteredProducts.length > 0 && (
+          <div className="mt-4 text-center text-[12px] text-[#525252]">
+            共 {filteredProducts.length} 个商品 · 数据实时更新
+          </div>
+        )}
       </div>
 
       {/* 购买弹窗 */}
