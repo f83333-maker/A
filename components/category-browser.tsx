@@ -162,19 +162,26 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
     if (firstMatch) setActiveCategoryId(firstMatch.id)
   }, [searchQuery, categories, products])
 
-  // 监听右侧面板滚动，固定分类标题
+  // 监听滚动，固定分类标题（同时监听window和右侧面板）
   useEffect(() => {
-    const panel = rightPanelRef.current
-    if (!panel) return
     const handleScroll = () => {
       if (headerRef.current) {
         const rect = headerRef.current.getBoundingClientRect()
-        const panelRect = panel.getBoundingClientRect()
-        setIsHeaderSticky(rect.top < panelRect.top)
+        // 当原始标题的顶部滚出视口顶部时，显示固定标题
+        setIsHeaderSticky(rect.top < 0)
       }
     }
-    panel.addEventListener("scroll", handleScroll, { passive: true })
-    return () => panel.removeEventListener("scroll", handleScroll)
+    // 监听window滚动（移动端整体滚动）
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    // 监听右侧面板滚动（桌面端独立滚动）
+    const panel = rightPanelRef.current
+    if (panel) {
+      panel.addEventListener("scroll", handleScroll, { passive: true })
+    }
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+      if (panel) panel.removeEventListener("scroll", handleScroll)
+    }
   }, [])
 
 
@@ -275,18 +282,22 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
           {/* ── 右侧产品区域（独立滚动）── */}
           <div ref={rightPanelRef} className="flex-1 min-w-0 overflow-y-auto relative">
 
-            {/* 固定分类标题（滚动时显示） */}
+            {/* 固定分类标题（滚动时显示，使用fixed定位覆盖整个视口顶部） */}
             {activeCategory && isHeaderSticky && (
-              <div className="sticky top-0 z-20 bg-[#131314] flex items-center justify-between py-3 px-3 border-b-2 shadow-md" style={{ borderColor: activeCategory.color }}>
-                <div className="flex items-center gap-2.5">
-                  <CategoryLogo category={activeCategory} size="sm" />
-                  <h2 className="text-[14px] sm:text-[16px] font-bold text-[#e3e3e3] truncate">
-                    {activeCategory.name}
-                  </h2>
+              <div className="fixed top-0 left-0 right-0 z-50 bg-[#131314] border-b-2 shadow-lg" style={{ borderColor: activeCategory.color }}>
+                <div className="max-w-6xl mx-auto px-3 sm:px-6">
+                  <div className="flex items-center justify-between py-3">
+                    <div className="flex items-center gap-2.5">
+                      <CategoryLogo category={activeCategory} size="sm" />
+                      <h2 className="text-[14px] sm:text-[16px] font-bold text-[#e3e3e3] truncate">
+                        {activeCategory.name}
+                      </h2>
+                    </div>
+                    <span className="text-[11px] sm:text-[12px] text-[#9aa0a6] shrink-0 ml-2">
+                      {visibleProducts.length} 个产品
+                    </span>
+                  </div>
                 </div>
-                <span className="text-[11px] sm:text-[12px] text-[#9aa0a6] shrink-0 ml-2">
-                  {visibleProducts.length} 个产品
-                </span>
               </div>
             )}
 
