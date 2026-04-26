@@ -385,9 +385,9 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                     ref={(el) => { categorySectionRefs.current[cat.id] = el }}
                     className="mb-10"
                   >
-                    {/* 分类标题 — sticky 锁定 */}
+                    {/* 分类标题 */}
                     <div
-                      className="sticky top-0 z-10 flex items-center justify-between py-3 px-1 border-b-2 bg-[#131314] border border-[#2d2e30] rounded-t-xl"
+                      className="flex items-center justify-between py-3 px-1 border-b-2 bg-[#131314] border border-[#2d2e30] rounded-t-xl"
                       style={{ borderBottomColor: cat.color }}
                     >
                       <div className="flex items-center gap-2.5">
@@ -406,8 +406,8 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                       </div>
                     ) : (
                       <div className="overflow-hidden border border-[#2d2e30] border-t-0">
-                        {/* 表头 — sticky 锁定，紧贴分类标题下方 */}
-                        <div className="sticky top-[52px] z-10 hidden sm:grid grid-cols-[1fr_80px_90px_70px_88px] gap-2 px-4 py-2.5 bg-[#1a1b1c] border-b border-[#2d2e30]">
+                        {/* 表头 */}
+                        <div className="hidden sm:grid grid-cols-[1fr_80px_90px_70px_88px] gap-2 px-4 py-2.5 bg-[#1a1b1c] border-b border-[#2d2e30]">
                           <span className="text-[12px] text-[#6e6e73] font-medium">商品名称</span>
                           <span className="text-[12px] text-[#6e6e73] font-medium text-center">单价</span>
                           <span className="text-[12px] text-[#6e6e73] font-medium text-center">库存</span>
