@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, Pencil, Trash2, Loader2, X, Package, ArrowUp, ArrowDown, Flag, Search, Copy, Check } from "lucide-react"
+import { Plus, Pencil, Trash2, Loader2, X, Package, ArrowUp, ArrowDown, Flag, Search } from "lucide-react"
 import Link from "next/link"
 
 interface Category {
@@ -42,23 +42,19 @@ export default function ProductsPage() {
     name: "",
     description: "",
     price: 0,
-    original_price: 0,
     cost_price: 0,
     stock: 0,
     sales: 0,
-    tags: "",
-    is_hot: false,
+    tag_label: "", // 产品标签，如 HOT、NEW 等
     is_active: true,
     category_id: "",
     product_info: "",
     usage_instructions: "",
-    logo_url: "",
     logo_data: "",
     logo_bg_color: "#2d2e30",
     delivery_type: "自动发货",
   })
   const [isSaving, setIsSaving] = useState(false)
-  const [isFetchingLogo, setIsFetchingLogo] = useState(false)
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
   const [error, setError] = useState<string>("")
   
@@ -66,11 +62,9 @@ export default function ProductsPage() {
   const [filterCategoryId, setFilterCategoryId] = useState<string>("")
   
   // 国旗搜索状态
-  const [isFlagModalOpen, setIsFlagModalOpen] = useState(false)
   const [flagSearchQuery, setFlagSearchQuery] = useState("")
   const [flagResults, setFlagResults] = useState<{ code: string; flagUrl: string; name: string }[]>([])
   const [isSearchingFlag, setIsSearchingFlag] = useState(false)
-  const [copiedFlagUrl, setCopiedFlagUrl] = useState<string | null>(null)
 
   useEffect(() => {
     fetchData()
@@ -101,23 +95,22 @@ export default function ProductsPage() {
 
   const openModal = (product?: Product) => {
     setError("")
+    setFlagSearchQuery("")
+    setFlagResults([])
     if (product) {
       setEditingProduct(product)
       setFormData({
         name: product.name,
         description: product.description || "",
         price: product.price,
-        original_price: product.original_price || 0,
         cost_price: product.cost_price || 0,
         stock: product.stock,
         sales: product.sales,
-        tags: product.tags?.join(", ") || "",
-        is_hot: product.is_hot,
+        tag_label: product.tags?.[0] || "",
         is_active: product.is_active,
         category_id: product.category_id,
         product_info: product.product_info || "",
         usage_instructions: product.usage_instructions || "",
-        logo_url: product.logo_url || "",
         logo_data: product.logo_data || "",
         logo_bg_color: product.logo_bg_color || "#2d2e30",
         delivery_type: product.delivery_type || "自动发货",
@@ -129,17 +122,14 @@ export default function ProductsPage() {
         name: "",
         description: "",
         price: 0,
-        original_price: 0,
         cost_price: 0,
         stock: 0,
         sales: 0,
-        tags: "",
-        is_hot: false,
+        tag_label: "",
         is_active: true,
         category_id: categories[0]?.id || "",
         product_info: "",
         usage_instructions: "",
-        logo_url: "",
         logo_data: "",
         logo_bg_color: "#2d2e30",
         delivery_type: "自动发货",
@@ -177,7 +167,8 @@ export default function ProductsPage() {
 
       const submitData = {
         ...formData,
-        tags: formData.tags.split(",").map(t => t.trim()).filter(Boolean),
+        tags: formData.tag_label ? [formData.tag_label.trim()] : [],
+        is_hot: !!formData.tag_label, // 有标签就算热门
       }
 
       const res = await fetch(url, {
@@ -283,17 +274,6 @@ export default function ProductsPage() {
     }
   }
 
-  // 复制国旗URL到剪贴板
-  const copyFlagUrl = async (url: string) => {
-    try {
-      await navigator.clipboard.writeText(url)
-      setCopiedFlagUrl(url)
-      setTimeout(() => setCopiedFlagUrl(null), 2000)
-    } catch (error) {
-      console.error("复制失败:", error)
-    }
-  }
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -312,22 +292,13 @@ export default function ProductsPage() {
             管理所有产品，共 {products.length} 个产品
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setIsFlagModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#e3e3e3] font-semibold rounded-xl transition-all duration-200 text-[14px] border border-[#3c3c3f]"
-          >
-            <Flag className="w-4 h-4" />
-            国旗图标
-          </button>
-          <button
-            onClick={() => openModal()}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px]"
-          >
-            <Plus className="w-4 h-4" />
-            添加产品
-          </button>
-        </div>
+        <button
+          onClick={() => openModal()}
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px]"
+        >
+          <Plus className="w-4 h-4" />
+          添加产品
+        </button>
       </div>
 
       {/* 分类筛选 */}
@@ -359,13 +330,13 @@ export default function ProductsPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-[#3c3c3f]">
-                <th className="px-3 py-4 text-left text-[13px] font-semibold text-[#9aa0a6]">排序</th>
-                <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6]">产品名称</th>
-                <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6] hidden md:table-cell">分类</th>
-                <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6]">价格</th>
-                <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6] hidden lg:table-cell">库存</th>
-                <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6]">状态</th>
-                <th className="px-5 py-4 text-right text-[13px] font-semibold text-[#9aa0a6]">操作</th>
+                <th className="px-2 py-2.5 text-left text-[12px] font-semibold text-[#9aa0a6]">排序</th>
+                <th className="px-3 py-2.5 text-left text-[12px] font-semibold text-[#9aa0a6]">产品名称</th>
+                <th className="px-3 py-2.5 text-left text-[12px] font-semibold text-[#9aa0a6] hidden md:table-cell">分类</th>
+                <th className="px-3 py-2.5 text-left text-[12px] font-semibold text-[#9aa0a6]">价格</th>
+                <th className="px-3 py-2.5 text-left text-[12px] font-semibold text-[#9aa0a6] hidden lg:table-cell">库存</th>
+                <th className="px-3 py-2.5 text-left text-[12px] font-semibold text-[#9aa0a6]">状态</th>
+                <th className="px-3 py-2.5 text-right text-[12px] font-semibold text-[#9aa0a6]">操作</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#3c3c3f]">
@@ -374,31 +345,66 @@ export default function ProductsPage() {
                 .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
                 .map((product, index) => (
                 <tr key={product.id} className="hover:bg-[#2d2e30]/50 transition-colors">
-                  <td className="px-3 py-4">
-                    <div className="flex flex-col gap-1">
+                  <td className="px-2 py-2">
+                    <div className="flex flex-col gap-0.5">
                       <button
                         onClick={() => handleMoveUp(index)}
                         disabled={index === 0}
-                        className="p-1 text-[#9aa0a6] hover:text-[#7CFF00] hover:bg-[#7CFF00]/10 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                        className="p-0.5 text-[#9aa0a6] hover:text-[#7CFF00] hover:bg-[#7CFF00]/10 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                       >
-                        <ArrowUp className="w-4 h-4" />
+                        <ArrowUp className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => handleMoveDown(index)}
                         disabled={index === products.length - 1}
-                        className="p-1 text-[#9aa0a6] hover:text-[#7CFF00] hover:bg-[#7CFF00]/10 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                        className="p-0.5 text-[#9aa0a6] hover:text-[#7CFF00] hover:bg-[#7CFF00]/10 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                       >
-                        <ArrowDown className="w-4 h-4" />
+                        <ArrowDown className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </td>
-                  <td className="px-5 py-4">
-                    <p className="text-[14px] font-medium text-[#e3e3e3]">{product.name}</p>
+                  <td className="px-3 py-2">
+                    <p className="text-[13px] font-medium text-[#e3e3e3]">{product.name}</p>
                   </td>
-                  <td className="px-5 py-4 hidden md:table-cell">
-                    <span className="text-[13px] text-[#9aa0a6] font-medium">
+                  <td className="px-3 py-2 hidden md:table-cell">
+                    <span className="text-[12px] text-[#9aa0a6] font-medium">
                       {product.categories?.name || "-"}
                     </span>
+                  </td>
+                  <td className="px-3 py-2">
+                    <p className="text-[13px] font-semibold text-[#7CFF00]">¥{product.price}</p>
+                  </td>
+                  <td className="px-3 py-2 hidden lg:table-cell">
+                    <span className="text-[13px] font-semibold text-[#e3e3e3]">
+                      {product.stock}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2">
+                    <span
+                      className={`px-2 py-0.5 text-[11px] font-semibold rounded-full ${
+                        product.is_active
+                          ? "bg-[#81c995]/10 text-[#81c995]"
+                          : "bg-[#6e6e73]/10 text-[#6e6e73]"
+                      }`}
+                    >
+                      {product.is_active ? "上架" : "下架"}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2">
+                    <div className="flex items-center justify-end gap-1">
+                      <button
+                        onClick={() => openModal(product)}
+                        className="p-1.5 text-[#9aa0a6] hover:text-[#7CFF00] hover:bg-[#7CFF00]/10 rounded-lg transition-all"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(product.id)}
+                        className="p-1.5 text-[#9aa0a6] hover:text-[#ee675c] hover:bg-[#ee675c]/10 rounded-lg transition-all"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </td>
                   <td className="px-5 py-4">
                     <p className="text-[14px] font-semibold text-[#7CFF00]">¥{product.price}</p>
@@ -518,74 +524,86 @@ export default function ProductsPage() {
                   className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
                 />
               </div>
-              <div>
-                <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
-                  Logo网址 <span className="text-[#6e6e73]">（输入官网地址自动获取Logo）</span>
-                </label>
-                <div className="flex gap-2">
+              {/* 产品图标/国旗搜索 */}
+              <div className="p-4 bg-[#2d2e30] rounded-xl border border-[#3c3c3f]">
+                <div className="flex items-center gap-2 mb-3">
+                  <Flag className="w-4 h-4 text-[#7CFF00]" />
+                  <label className="text-[13px] font-medium text-[#9aa0a6]">产品图标</label>
+                </div>
+                {/* 国旗搜索 */}
+                <div className="flex gap-2 mb-3">
                   <input
                     type="text"
-                    value={formData.logo_url}
-                    onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
-                    className="flex-1 h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
-                    placeholder="如：baidu.com 或 v0.dev"
+                    value={flagSearchQuery}
+                    onChange={(e) => setFlagSearchQuery(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), searchCountryFlag())}
+                    placeholder="搜索国旗，如：美国、+95"
+                    className="flex-1 h-9 px-3 bg-[#1e1f20] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[13px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
                   />
                   <button
                     type="button"
-                    onClick={async () => {
-                      if (!formData.logo_url) return
-                      setIsFetchingLogo(true)
-                      try {
-                        const res = await fetch('/api/fetch-logo', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ url: formData.logo_url })
-                        })
-                        const data = await res.json()
-                        if (data.logoBase64) {
-                          setFormData({ ...formData, logo_data: data.logoBase64, logo_url: data.normalizedUrl || formData.logo_url })
-                          setLogoPreview(data.logoBase64)
-                        } else if (data.logoUrl) {
-                          setFormData({ ...formData, logo_data: data.logoUrl, logo_url: data.normalizedUrl || formData.logo_url })
-                          setLogoPreview(data.logoUrl)
-                        }
-                      } catch (e) {
-                        console.error('获取Logo失败', e)
-                      } finally {
-                        setIsFetchingLogo(false)
-                      }
-                    }}
-                    disabled={isFetchingLogo || !formData.logo_url}
-                    className="px-4 h-11 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[13px] disabled:bg-[#3c3c3f] disabled:text-[#6e6e73] disabled:cursor-not-allowed flex items-center gap-2"
+                    onClick={searchCountryFlag}
+                    disabled={isSearchingFlag || !flagSearchQuery.trim()}
+                    className="px-3 h-9 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg transition-all duration-200 text-[12px] disabled:bg-[#3c3c3f] disabled:text-[#6e6e73] disabled:cursor-not-allowed flex items-center gap-1"
                   >
-                    {isFetchingLogo ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                    获取Logo
+                    {isSearchingFlag ? <Loader2 className="w-3 h-3 animate-spin" /> : <Search className="w-3 h-3" />}
+                    搜索
                   </button>
                 </div>
-                {logoPreview && (
-                  <div className="mt-3 flex items-center gap-4">
-                    <div 
-                      className="w-16 h-16 rounded-xl flex items-center justify-center overflow-hidden border border-[#3c3c3f]"
-                      style={{ backgroundColor: formData.logo_bg_color }}
-                    >
-                      <img src={logoPreview} alt="Logo预览" className="w-10 h-10 object-contain" />
-                    </div>
-                    <div className="flex-1">
-                      <label className="block text-[12px] font-medium text-[#9aa0a6] mb-1">背景色</label>
-                      <input
-                        type="color"
-                        value={formData.logo_bg_color}
-                        onChange={(e) => setFormData({ ...formData, logo_bg_color: e.target.value })}
-                        className="w-16 h-8 rounded cursor-pointer"
-                      />
-                    </div>
+                {/* 国旗搜索结果 */}
+                {flagResults.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2 mb-3">
+                    {flagResults.map((result) => (
+                      <button
+                        key={result.code}
+                        type="button"
+                        onClick={() => {
+                          setFormData({ ...formData, logo_data: result.flagUrl })
+                          setLogoPreview(result.flagUrl)
+                          setFlagResults([])
+                        }}
+                        className="flex items-center gap-2 px-2 py-1.5 bg-[#1e1f20] hover:bg-[#3c3c3f] border border-[#3c3c3f] rounded-lg transition-all"
+                      >
+                        <img src={result.flagUrl} alt={result.name} className="w-6 h-4 object-cover rounded" />
+                        <span className="text-[11px] text-[#e3e3e3] truncate">{result.name}</span>
+                      </button>
+                    ))}
                   </div>
                 )}
-                <p className="mt-2 text-[11px] text-[#6e6e73]">
-                  输入网址后点击获取Logo，系统会自动获取网站图标
-                </p>
+                {/* Logo预览 */}
+                <div className="flex items-center gap-3">
+                  <div 
+                    className="w-12 h-12 rounded-lg flex items-center justify-center overflow-hidden border border-[#3c3c3f]"
+                    style={{ backgroundColor: formData.logo_bg_color }}
+                  >
+                    {logoPreview ? (
+                      <img src={logoPreview} alt="Logo预览" className="w-8 h-8 object-contain" />
+                    ) : (
+                      <Package className="w-5 h-5 text-[#6e6e73]" />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      value={formData.logo_data}
+                      onChange={(e) => {
+                        setFormData({ ...formData, logo_data: e.target.value })
+                        setLogoPreview(e.target.value)
+                      }}
+                      placeholder="或直接粘贴图片URL"
+                      className="w-full h-8 px-2 bg-[#1e1f20] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[12px] focus:outline-none focus:border-[#7CFF00] transition-colors"
+                    />
+                  </div>
+                  <input
+                    type="color"
+                    value={formData.logo_bg_color}
+                    onChange={(e) => setFormData({ ...formData, logo_bg_color: e.target.value })}
+                    className="w-8 h-8 rounded cursor-pointer border-0"
+                    title="背景色"
+                  />
+                </div>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
                     售价
@@ -608,18 +626,6 @@ export default function ProductsPage() {
                     step="0.01"
                     value={formData.cost_price}
                     onChange={(e) => setFormData({ ...formData, cost_price: parseFloat(e.target.value) })}
-                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
-                    原价
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formData.original_price}
-                    onChange={(e) => setFormData({ ...formData, original_price: parseFloat(e.target.value) })}
                     className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
                   />
                 </div>
@@ -648,17 +654,51 @@ export default function ProductsPage() {
                   />
                 </div>
               </div>
+              {/* 产品标签 */}
               <div>
                 <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
-                  标签 (用逗号分隔)
+                  产品标签 <span className="text-[#6e6e73]">（显示在产品右上角，如 HOT、NEW）</span>
                 </label>
-                <input
-                  type="text"
-                  value={formData.tags}
-                  onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
-                  placeholder="如：热销, 推荐, 限时"
-                />
+                <div className="flex items-center gap-3">
+                  <input
+                    type="text"
+                    value={formData.tag_label}
+                    onChange={(e) => setFormData({ ...formData, tag_label: e.target.value.toUpperCase() })}
+                    className="flex-1 h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors uppercase"
+                    placeholder="如：HOT、NEW、促销"
+                    maxLength={10}
+                  />
+                  {formData.tag_label && (
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-[#ee675c] rounded text-white text-[12px] font-bold">
+                      {formData.tag_label}
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-2 mt-2">
+                  {["HOT", "NEW", "促销", "推荐"].map(tag => (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, tag_label: tag })}
+                      className={`px-2 py-1 text-[11px] rounded-md border transition-colors ${
+                        formData.tag_label === tag 
+                          ? "bg-[#7CFF00]/20 border-[#7CFF00] text-[#7CFF00]" 
+                          : "bg-[#2d2e30] border-[#3c3c3f] text-[#9aa0a6] hover:border-[#5f6368]"
+                      }`}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                  {formData.tag_label && (
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, tag_label: "" })}
+                      className="px-2 py-1 text-[11px] rounded-md bg-[#ee675c]/20 border border-[#ee675c] text-[#ee675c]"
+                    >
+                      清除
+                    </button>
+                  )}
+                </div>
               </div>
               <div>
                 <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
@@ -687,24 +727,24 @@ export default function ProductsPage() {
                   提示：可以使用 HTML 标签如 &lt;img&gt;、&lt;a&gt;、&lt;br&gt; 等来丰富说明内容
                 </p>
               </div>
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-3">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.is_hot}
-                    onChange={(e) => setFormData({ ...formData, is_hot: e.target.checked })}
-                    className="w-4 h-4 rounded"
-                  />
-                  <span className="text-[14px] font-medium text-[#e3e3e3]">热门产品</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.is_active}
-                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                    className="w-4 h-4 rounded"
-                  />
-                  <span className="text-[14px] font-medium text-[#e3e3e3]">上架产品</span>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, is_active: !formData.is_active })}
+                    className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${
+                      formData.is_active ? "bg-[#7CFF00]" : "bg-[#3c3c3f]"
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 ${
+                        formData.is_active ? "translate-x-5" : "translate-x-0"
+                      }`}
+                    />
+                  </button>
+                  <span className="text-[14px] font-medium text-[#e3e3e3]">
+                    {formData.is_active ? "已上架" : "已下架"}
+                  </span>
                 </label>
               </div>
               
@@ -743,95 +783,6 @@ export default function ProductsPage() {
         </div>
       )}
 
-      {/* 国旗图标搜索弹窗 */}
-      {isFlagModalOpen && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] w-full max-w-md">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#3c3c3f]">
-              <h2 className="text-[18px] font-semibold text-[#e3e3e3] flex items-center gap-2">
-                <Flag className="w-5 h-5" />
-                国旗图标搜索
-              </h2>
-              <button
-                onClick={() => {
-                  setIsFlagModalOpen(false)
-                  setFlagSearchQuery("")
-                  setFlagResults([])
-                }}
-                className="p-1 text-[#9aa0a6] hover:text-[#e3e3e3] transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-6 space-y-4">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={flagSearchQuery}
-                  onChange={(e) => setFlagSearchQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && searchCountryFlag()}
-                  placeholder="输入国家名称，如：斯里兰卡、美国、+95"
-                  className="flex-1 h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
-                />
-                <button
-                  onClick={searchCountryFlag}
-                  disabled={isSearchingFlag || !flagSearchQuery.trim()}
-                  className="px-4 h-11 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[13px] disabled:bg-[#3c3c3f] disabled:text-[#6e6e73] disabled:cursor-not-allowed flex items-center gap-2"
-                >
-                  {isSearchingFlag ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-                  搜索
-                </button>
-              </div>
-
-              {/* 搜索结果 */}
-              {flagResults.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-[12px] text-[#9aa0a6]">点击复制国旗图片URL：</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {flagResults.map((result) => (
-                      <button
-                        key={result.code}
-                        onClick={() => copyFlagUrl(result.flagUrl)}
-                        className="flex items-center gap-3 px-4 py-3 bg-[#2d2e30] hover:bg-[#3c3c3f] border border-[#3c3c3f] rounded-xl transition-all group"
-                      >
-                        <img 
-                          src={result.flagUrl} 
-                          alt={result.name} 
-                          className="w-10 h-7 object-cover rounded shadow-sm"
-                        />
-                        <div className="flex-1 text-left">
-                          <p className="text-[13px] text-[#e3e3e3] font-medium">{result.name}</p>
-                          <p className="text-[11px] text-[#6e6e73]">{result.code}</p>
-                        </div>
-                        {copiedFlagUrl === result.flagUrl ? (
-                          <Check className="w-4 h-4 text-[#81c995]" />
-                        ) : (
-                          <Copy className="w-4 h-4 text-[#6e6e73] opacity-0 group-hover:opacity-100 transition-opacity" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {flagResults.length === 0 && flagSearchQuery && !isSearchingFlag && (
-                <p className="text-center text-[14px] text-[#6e6e73] py-8">
-                  未找到匹配的国家，请尝试其他关键词
-                </p>
-              )}
-
-              <div className="text-[12px] text-[#6e6e73] bg-[#2d2e30] rounded-lg p-3">
-                <p className="font-medium text-[#9aa0a6] mb-1">使用提示：</p>
-                <ul className="space-y-0.5">
-                  <li>- 支持模糊搜索，如 "斯里兰卡卡卡" 可匹配斯里兰卡</li>
-                  <li>- 支持区号搜索，如 "+95" 可匹配缅甸</li>
-                  <li>- 复制URL后可粘贴到产品的Logo URL字段</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
