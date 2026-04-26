@@ -162,8 +162,9 @@ const countries: Record<string, { names: string[]; zhName: string }> = {
 }
 
 // 获取国旗图片URL（使用flagcdn.com）
-function getFlagImageUrl(countryCode: string, size: number = 64): string {
-  return `https://flagcdn.com/w${size}/${countryCode.toLowerCase()}.png`
+function getFlagImageUrl(countryCode: string): string {
+  // 使用 w40 格式，这是 flagcdn.com 支持的格式
+  return `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`
 }
 
 // 模糊匹配函数
