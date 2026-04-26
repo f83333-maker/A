@@ -165,10 +165,12 @@ export default function ProductsPage() {
         : "/api/admin/products"
       const method = editingProduct ? "PUT" : "POST"
 
+      // 构建提交数据，排除 tag_label（它不是数据库字段）
+      const { tag_label, ...restFormData } = formData
       const submitData = {
-        ...formData,
-        tags: formData.tag_label ? [formData.tag_label.trim()] : [],
-        is_hot: !!formData.tag_label, // 有标签就算热门
+        ...restFormData,
+        tags: tag_label ? [tag_label.trim()] : [],
+        is_hot: !!tag_label, // 有标签就算热门
       }
 
       const res = await fetch(url, {
