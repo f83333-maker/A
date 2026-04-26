@@ -284,7 +284,14 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
             style={{ height: "calc(100vh - 120px)" }}
           >
             {/* 分类列表容器 */}
-            <div className="flex-1 overflow-y-auto scrollbar-hide flex flex-col gap-1 overscroll-contain min-h-0">
+            <div
+              className="flex-1 overflow-y-auto scrollbar-hide flex flex-col gap-1 min-h-0"
+              onWheel={(e) => {
+                e.stopPropagation()
+                const el = e.currentTarget
+                el.scrollTop += e.deltaY
+              }}
+            >
               <p className="text-[11px] text-[#6e6e73] font-medium px-1 mb-2 hidden md:block sticky top-0 bg-[#131314] py-2">所有分类</p>
               {categories.map((cat) => {
                 const isActive = cat.id === activeCategoryId
@@ -374,7 +381,17 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
             )}
 
             {/* 产品列表（独立滚动，仅显示当前分类） */}
-            <div ref={productScrollRef} className="flex-1 overflow-y-auto custom-scrollbar overscroll-contain min-h-0">
+            <div
+              ref={productScrollRef}
+              className="flex-1 overflow-y-auto custom-scrollbar min-h-0"
+              onWheel={(e) => {
+                const el = productScrollRef.current
+                if (!el) return
+                // 阻止事件冒泡到 window，让容器自己滚动
+                e.stopPropagation()
+                el.scrollTop += e.deltaY
+              }}
+            >
               {visibleProducts.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-3">
                   <PackageSearch className="w-10 h-10 text-[#3c3c3f]" />
