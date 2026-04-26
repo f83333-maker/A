@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import useSWR from "swr"
 import { PackageSearch, Loader2, ShoppingCart } from "lucide-react"
 import { PurchaseModal } from "./purchase-modal"
@@ -182,24 +182,34 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
     }
   }, [searchQuery, categories, products])
 
-  // 底部哨兵 ref，用 IntersectionObserver 监听是否进入视口来触发加载
+  // 底部哨兵 ref
   const sentinelRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
+  // 检查哨兵是否在滚动容器视口内（不依赖事件，每次渲染后主动检查）
+  const checkAndLoadMore = useCallback(() => {
     const sentinel = sentinelRef.current
-    const scrollContainer = productScrollRef.current
-    if (!sentinel || !scrollContainer) return
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && loadedCount < categories.length) {
-          setLoadedCount((prev) => prev + 1)
-        }
-      },
-      { root: scrollContainer, threshold: 0.1 }
-    )
-    observer.observe(sentinel)
-    return () => observer.disconnect()
+    const container = productScrollRef.current
+    if (!sentinel || !container || loadedCount >= categories.length) return
+    const containerRect = container.getBoundingClientRect()
+    const sentinelRect = sentinel.getBoundingClientRect()
+    // 哨兵在容器视口内则加载
+    if (sentinelRect.top <= containerRect.bottom + 50) {
+      setLoadedCount((prev) => prev + 1)
+    }
   }, [loadedCount, categories.length])
+
+  // 滚动时检查
+  useEffect(() => {
+    const container = productScrollRef.current
+    if (!container) return
+    container.addEventListener("scroll", checkAndLoadMore, { passive: true })
+    return () => container.removeEventListener("scroll", checkAndLoadMore)
+  }, [checkAndLoadMore])
+
+  // 渲染后也主动检查一次（解决首次加载或数据到位后哨兵已在视口内的情况）
+  useEffect(() => {
+    checkAndLoadMore()
+  }, [checkAndLoadMore])
 
   // IntersectionObserver 监听各分类区域，同步左侧高亮
   useEffect(() => {
