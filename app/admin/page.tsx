@@ -64,7 +64,7 @@ async function getTopSellingProducts() {
     .from("products")
     .select("*, categories(name)")
     .order("sales", { ascending: false })
-    .limit(10)
+    .limit(5)
   return data || []
 }
 
@@ -121,6 +121,13 @@ export default async function AdminDashboard() {
       color: "#fdd663",
       href: "/admin/products"
     },
+    { 
+      name: "总库存", 
+      value: stats.totalStock, 
+      icon: Package, 
+      color: "#fdd663",
+      href: "/admin/products"
+    },
   ]
 
   return (
@@ -133,80 +140,48 @@ export default async function AdminDashboard() {
         </p>
       </div>
 
-      {/* 统计卡片 */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {/* 统计卡片 - 紧凑版 */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
         {statCards.map((stat) => (
           <Link
             key={stat.name}
             href={stat.href}
-            className="bg-[#1e1f20] rounded-xl border border-[#3c3c3f] p-4 hover:border-[#5f6368] transition-all duration-200 group"
+            className="bg-[#1e1f20] rounded-xl border border-[#3c3c3f] p-3 hover:border-[#5f6368] transition-all duration-200 group"
           >
-            <div 
-              className="w-10 h-10 rounded-xl flex items-center justify-center mb-3"
-              style={{ backgroundColor: `${stat.color}15` }}
-            >
-              <stat.icon className="w-5 h-5" style={{ color: stat.color }} />
+            <div className="flex items-center gap-2 mb-2">
+              <div 
+                className="w-8 h-8 rounded-lg flex items-center justify-center"
+                style={{ backgroundColor: `${stat.color}15` }}
+              >
+                <stat.icon className="w-4 h-4" style={{ color: stat.color }} />
+              </div>
+              <p className="text-[12px] text-[#6e6e73] font-medium">{stat.name}</p>
             </div>
-            <p className="text-[24px] font-semibold text-[#e3e3e3] group-hover:text-white transition-colors">
+            <p className="text-[20px] font-semibold text-[#e3e3e3] group-hover:text-white transition-colors">
               {stat.value}
-            </p>
-            <p className="text-[13px] text-[#6e6e73] font-medium mt-1">
-              {stat.name}
             </p>
           </Link>
         ))}
-      </div>
-
-      {/* 销售额与利润统计 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-[#7CFF00]/20 to-[#7CFF00]/5 rounded-xl border border-[#7CFF00]/30 p-5">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-[#7CFF00]/20 flex items-center justify-center">
-              <DollarSign className="w-5 h-5 text-[#7CFF00]" />
+        {/* 总销售额 */}
+        <Link href="/admin/orders" className="bg-[#1e1f20] rounded-xl border border-[#7CFF00]/30 p-3 hover:border-[#7CFF00]/50 transition-all duration-200 group">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-8 h-8 rounded-lg bg-[#7CFF00]/15 flex items-center justify-center">
+              <DollarSign className="w-4 h-4 text-[#7CFF00]" />
             </div>
-            <span className="text-[13px] text-[#9aa0a6] font-medium">总销售额</span>
+            <p className="text-[12px] text-[#6e6e73] font-medium">总销售额</p>
           </div>
-          <p className="text-[28px] font-bold text-[#7CFF00]">
-            ¥{stats.totalRevenue.toFixed(2)}
-          </p>
-        </div>
-        
-        <div className="bg-gradient-to-br from-[#81c995]/20 to-[#81c995]/5 rounded-xl border border-[#81c995]/30 p-5">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-[#81c995]/20 flex items-center justify-center">
-              <Wallet className="w-5 h-5 text-[#81c995]" />
+          <p className="text-[18px] font-bold text-[#7CFF00]">¥{stats.totalRevenue.toFixed(0)}</p>
+        </Link>
+        {/* 总利润 */}
+        <Link href="/admin/orders" className="bg-[#1e1f20] rounded-xl border border-[#81c995]/30 p-3 hover:border-[#81c995]/50 transition-all duration-200 group">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-8 h-8 rounded-lg bg-[#81c995]/15 flex items-center justify-center">
+              <Wallet className="w-4 h-4 text-[#81c995]" />
             </div>
-            <span className="text-[13px] text-[#9aa0a6] font-medium">总利润</span>
+            <p className="text-[12px] text-[#6e6e73] font-medium">总利润</p>
           </div>
-          <p className="text-[28px] font-bold text-[#81c995]">
-            ¥{stats.totalProfit.toFixed(2)}
-          </p>
-        </div>
-        
-        <div className="bg-gradient-to-br from-[#fdd663]/20 to-[#fdd663]/5 rounded-xl border border-[#fdd663]/30 p-5">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-[#fdd663]/20 flex items-center justify-center">
-              <Package className="w-5 h-5 text-[#fdd663]" />
-            </div>
-            <span className="text-[13px] text-[#9aa0a6] font-medium">总库存</span>
-          </div>
-          <p className="text-[28px] font-bold text-[#fdd663]">
-            {stats.totalStock}
-          </p>
-        </div>
-        
-        <div className="bg-gradient-to-br from-[#c58af9]/20 to-[#c58af9]/5 rounded-xl border border-[#c58af9]/30 p-5">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-[#c58af9]/20 flex items-center justify-center">
-              <Users className="w-5 h-5 text-[#c58af9]" />
-            </div>
-            <span className="text-[13px] text-[#9aa0a6] font-medium">今日访客</span>
-          </div>
-          <p className="text-[28px] font-bold text-[#c58af9]">
-            {todayVisitors}
-          </p>
-          <p className="text-[11px] text-[#6e6e73] mt-1">独立IP，12小时去重</p>
-        </div>
+          <p className="text-[18px] font-bold text-[#81c995]">¥{stats.totalProfit.toFixed(0)}</p>
+        </Link>
       </div>
 
       {/* 最近订单 */}

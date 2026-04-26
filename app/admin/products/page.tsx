@@ -62,6 +62,9 @@ export default function ProductsPage() {
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
   const [error, setError] = useState<string>("")
   
+  // 筛选状态
+  const [filterCategoryId, setFilterCategoryId] = useState<string>("")
+  
   // 国旗搜索状态
   const [isFlagModalOpen, setIsFlagModalOpen] = useState(false)
   const [flagSearchQuery, setFlagSearchQuery] = useState("")
@@ -71,6 +74,12 @@ export default function ProductsPage() {
 
   useEffect(() => {
     fetchData()
+    // 检查URL参数中的分类ID
+    const params = new URLSearchParams(window.location.search)
+    const categoryId = params.get("categoryId")
+    if (categoryId) {
+      setFilterCategoryId(categoryId)
+    }
   }, [])
 
   const fetchData = async () => {
@@ -321,6 +330,29 @@ export default function ProductsPage() {
         </div>
       </div>
 
+      {/* 分类筛选 */}
+      <div className="flex items-center gap-3">
+        <span className="text-[13px] text-[#9aa0a6] font-medium">筛选分类：</span>
+        <select
+          value={filterCategoryId}
+          onChange={(e) => setFilterCategoryId(e.target.value)}
+          className="h-9 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[13px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
+        >
+          <option value="">全部分类</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.id}>{cat.name}</option>
+          ))}
+        </select>
+        {filterCategoryId && (
+          <button
+            onClick={() => setFilterCategoryId("")}
+            className="text-[12px] text-[#7CFF00] hover:text-[#9FFF40] font-medium"
+          >
+            清除筛选
+          </button>
+        )}
+      </div>
+
       {/* 产品列表 */}
       <div className="bg-[#1e1f20] rounded-xl border border-[#3c3c3f] overflow-hidden">
         <div className="overflow-x-auto">
@@ -337,7 +369,10 @@ export default function ProductsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#3c3c3f]">
-              {[...products].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)).map((product, index) => (
+              {[...products]
+                .filter(p => !filterCategoryId || p.category_id === filterCategoryId)
+                .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+                .map((product, index) => (
                 <tr key={product.id} className="hover:bg-[#2d2e30]/50 transition-colors">
                   <td className="px-3 py-4">
                     <div className="flex flex-col gap-1">
@@ -358,12 +393,7 @@ export default function ProductsPage() {
                     </div>
                   </td>
                   <td className="px-5 py-4">
-                    <div>
-                      <p className="text-[14px] font-medium text-[#e3e3e3]">{product.name}</p>
-                      <p className="text-[12px] text-[#6e6e73] font-medium truncate max-w-[200px]">
-                        {product.description}
-                      </p>
-                    </div>
+                    <p className="text-[14px] font-medium text-[#e3e3e3]">{product.name}</p>
                   </td>
                   <td className="px-5 py-4 hidden md:table-cell">
                     <span className="text-[13px] text-[#9aa0a6] font-medium">
@@ -372,9 +402,6 @@ export default function ProductsPage() {
                   </td>
                   <td className="px-5 py-4">
                     <p className="text-[14px] font-semibold text-[#7CFF00]">¥{product.price}</p>
-                    {product.original_price > 0 && (
-                      <p className="text-[12px] text-[#6e6e73] line-through">¥{product.original_price}</p>
-                    )}
                   </td>
                   <td className="px-5 py-4 hidden lg:table-cell">
                     <span className="text-[13px] text-[#9aa0a6] font-medium">{product.stock}</span>
