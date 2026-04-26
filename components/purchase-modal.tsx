@@ -184,8 +184,8 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
         <div className="overflow-y-auto flex-1 p-6">
           
           {/* 商品标题 + 发货方式 */}
-          <div className="flex items-center gap-2 pr-10 mb-4">
-            <h2 className="text-[18px] font-semibold text-[#e3e3e3] leading-relaxed">
+          <div className="pr-10 mb-4">
+            <h2 className="text-[18px] font-semibold text-[#e3e3e3] leading-relaxed mb-2">
               {product.name}
             </h2>
             <span className="inline-flex items-center px-2 py-0.5 bg-[#81c995]/15 rounded-full text-[11px] font-medium text-[#81c995]">
