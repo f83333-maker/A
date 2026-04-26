@@ -90,11 +90,16 @@ async function processPayment(data: Record<string, any>): Promise<boolean> {
   }
 
   // 更新订单状态为已发货
+  // 记录三个单号：
+  // 1. order_no - 商户订单号（本站ZH开头，已有）
+  // 2. epay_trade_no / stripe_payment_intent_id - 易支付系统订单号
+  // 3. user_trade_no - 用户交易单号（如微信/支付宝的实际交易流水号，如果易支付返回）
   const { error: updateError } = await supabase
     .from("orders")
     .update({
       status: "delivered",
-      stripe_payment_intent_id: tradeNo,
+      stripe_payment_intent_id: tradeNo, // 易支付系统订单号
+      epay_trade_no: tradeNo, // 新字段（如果存在）
       delivered_content: deliveredContent,
       delivered_at: new Date().toISOString(),
     })

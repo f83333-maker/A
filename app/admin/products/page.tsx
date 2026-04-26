@@ -392,64 +392,26 @@ export default function ProductsPage() {
                   </td>
                   <td className="px-3 py-2">
                     <div className="flex items-center justify-end gap-1">
+                      <Link
+                        href={`/admin/inventory?productId=${product.id}&name=${encodeURIComponent(product.name)}`}
+                        className="p-1.5 text-[#9aa0a6] hover:text-[#81c995] hover:bg-[#81c995]/10 rounded-lg transition-all"
+                        title="管理库存"
+                      >
+                        <Package className="w-3.5 h-3.5" />
+                      </Link>
                       <button
                         onClick={() => openModal(product)}
                         className="p-1.5 text-[#9aa0a6] hover:text-[#7CFF00] hover:bg-[#7CFF00]/10 rounded-lg transition-all"
+                        title="编辑产品"
                       >
                         <Pencil className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => handleDelete(product.id)}
                         className="p-1.5 text-[#9aa0a6] hover:text-[#ee675c] hover:bg-[#ee675c]/10 rounded-lg transition-all"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </td>
-                  <td className="px-5 py-4">
-                    <p className="text-[14px] font-semibold text-[#7CFF00]">¥{product.price}</p>
-                  </td>
-                  <td className="px-5 py-4 hidden lg:table-cell">
-                    <span className="text-[13px] text-[#9aa0a6] font-medium">{product.stock}</span>
-                  </td>
-                  <td className="px-5 py-4">
-                    <div className="flex flex-wrap gap-1">
-                      {product.is_hot && (
-                        <span className="px-2 py-0.5 text-[11px] font-semibold rounded-full bg-[#ee675c]/10 text-[#ee675c]">
-                          热门
-                        </span>
-                      )}
-                      <span className={`px-2 py-0.5 text-[11px] font-semibold rounded-full ${
-                        product.is_active 
-                          ? "bg-[#81c995]/10 text-[#81c995]" 
-                          : "bg-[#6e6e73]/10 text-[#6e6e73]"
-                      }`}>
-                        {product.is_active ? "上架" : "下架"}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-5 py-4">
-                    <div className="flex items-center justify-end gap-2">
-                      <Link
-                        href={`/admin/inventory?productId=${product.id}&name=${encodeURIComponent(product.name)}`}
-                        className="p-2 text-[#9aa0a6] hover:text-[#81c995] hover:bg-[#81c995]/10 rounded-lg transition-all"
-                        title="管理库存"
-                      >
-                        <Package className="w-4 h-4" />
-                      </Link>
-                      <button
-                        onClick={() => openModal(product)}
-                        className="p-2 text-[#9aa0a6] hover:text-[#7CFF00] hover:bg-[#7CFF00]/10 rounded-lg transition-all"
-                        title="编辑产品"
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product.id)}
-                        className="p-2 text-[#9aa0a6] hover:text-[#ee675c] hover:bg-[#ee675c]/10 rounded-lg transition-all"
                         title="删除产品"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </td>
@@ -700,18 +662,7 @@ export default function ProductsPage() {
                   )}
                 </div>
               </div>
-              <div>
-                <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
-                  商品介绍
-                </label>
-                <textarea
-                  value={formData.product_info}
-                  onChange={(e) => setFormData({ ...formData, product_info: e.target.value })}
-                  rows={3}
-                  className="w-full px-4 py-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors resize-none"
-                  placeholder="商品详细介绍..."
-                />
-              </div>
+
               <div>
                 <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
                   使用说明 <span className="text-[#6e6e73]">（支持HTML，可插入图片）</span>

@@ -34,6 +34,8 @@ interface Order {
   delivered_at: string
   created_at: string
   updated_at: string
+  stripe_payment_intent_id: string | null // 易支付系统订单号
+  epay_trade_no: string | null // 用户交易单号
 }
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json())
@@ -545,6 +547,29 @@ export default function OrdersPage() {
                   </p>
                 </div>
               </div>
+              
+              {/* 交易单号信息 */}
+              {selectedOrder.stripe_payment_intent_id && (
+                <div className="mt-4 p-3 bg-[#2d2e30] rounded-lg">
+                  <h4 className="text-[12px] font-semibold text-[#9aa0a6] mb-2">支付信息</h4>
+                  <div className="space-y-2 text-[13px]">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[#6e6e73]">商户订单号:</span>
+                      <span className="font-mono text-[#e3e3e3]">{selectedOrder.order_no}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[#6e6e73]">易支付订单号:</span>
+                      <span className="font-mono text-[#81c995]">{selectedOrder.stripe_payment_intent_id}</span>
+                    </div>
+                    {selectedOrder.epay_trade_no && selectedOrder.epay_trade_no !== selectedOrder.stripe_payment_intent_id && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-[#6e6e73]">用户交易单号:</span>
+                        <span className="font-mono text-[#7CFF00]">{selectedOrder.epay_trade_no}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* 发放账号 */}
               <div>

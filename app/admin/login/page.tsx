@@ -74,12 +74,9 @@ export default function AdminLoginPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#7CFF00]/10 mb-4">
             <Lock className="w-8 h-8 text-[#7CFF00]" />
           </div>
-          <h1 className="text-[28px] font-semibold text-[#e3e3e3] mb-2">
+          <h1 className="text-[28px] font-semibold text-[#e3e3e3]">
             后台管理系统
           </h1>
-          <p className="text-[14px] text-[#9aa0a6] font-medium">
-            请使用动态时间密码登录
-          </p>
         </div>
 
         {/* 北京时间显示 */}
@@ -114,10 +111,9 @@ export default function AdminLoginPage() {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="年月日 (如20260424)"
-                  className="w-full h-12 pl-11 pr-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors font-mono"
+                  placeholder="请输入用户名"
+                  className="w-full h-12 pl-11 pr-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
                   required
-                  maxLength={8}
                 />
               </div>
             </div>
@@ -133,10 +129,9 @@ export default function AdminLoginPage() {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="年月日时分 (如202604241845)"
-                  className="w-full h-12 pl-11 pr-12 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors font-mono"
+                  placeholder="请输入密码"
+                  className="w-full h-12 pl-11 pr-12 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
                   required
-                  maxLength={12}
                 />
                 <button
                   type="button"
@@ -169,12 +164,6 @@ export default function AdminLoginPage() {
             </button>
           </form>
 
-          {/* 安全提示 */}
-          <div className="mt-6 pt-6 border-t border-[#3c3c3f]">
-            <p className="text-[11px] text-[#6e6e73] text-center font-medium">
-              动态时间密码系统 - 每分钟自动更新
-            </p>
-          </div>
         </div>
       </div>
     </div>

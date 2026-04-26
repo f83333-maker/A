@@ -37,20 +37,32 @@ export async function GET() {
       }
     })
 
-    // 获取今日订单
+    // 获取今日订单（只统计已支付或已发放的订单）
     const { data: todayOrderData } = await supabase
       .from("orders")
-      .select("total_amount, status, quantity, unit_price")
+      .select("total_amount, status, quantity, unit_price, product_id")
       .gte("created_at", todayStart.toISOString())
+      .in("status", ["paid", "delivered"])
+
+    // 获取产品成本价用于计算利润
+    const { data: productsData } = await supabase
+      .from("products")
+      .select("id, cost_price")
+    
+    const costMap: Record<string, number> = {}
+    productsData?.forEach(p => {
+      costMap[p.id] = p.cost_price || 0
+    })
 
     let todayRevenue = 0
     let todayProfit = 0
     todayOrderData?.forEach(order => {
-      if (order.status === "completed" || order.status === "paid") {
-        todayRevenue += Number(order.total_amount) || 0
-        // 假设利润率为 30%
-        todayProfit += (Number(order.total_amount) || 0) * 0.3
-      }
+      const amount = Number(order.total_amount) || 0
+      todayRevenue += amount
+      // 使用实际成本价计算利润
+      const costPrice = costMap[order.product_id] || 0
+      const profit = amount - (costPrice * (order.quantity || 1))
+      todayProfit += profit > 0 ? profit : 0
     })
 
     // 获取产品列表用于显示浏览的商品名
