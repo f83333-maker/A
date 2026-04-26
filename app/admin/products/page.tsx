@@ -58,6 +58,7 @@ export default function ProductsPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [isFetchingLogo, setIsFetchingLogo] = useState(false)
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
+  const [error, setError] = useState<string>("")
 
   useEffect(() => {
     fetchData()
@@ -81,6 +82,7 @@ export default function ProductsPage() {
   }
 
   const openModal = (product?: Product) => {
+    setError("")
     if (product) {
       setEditingProduct(product)
       setFormData({
@@ -129,6 +131,22 @@ export default function ProductsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError("")
+
+    // 前端验证
+    if (!formData.name.trim()) {
+      setError("产品名称不能为空")
+      return
+    }
+    if (!formData.category_id) {
+      setError("Category is required")
+      return
+    }
+    if (!formData.price || formData.price <= 0) {
+      setError("请输入有效的价格")
+      return
+    }
+
     setIsSaving(true)
 
     try {
@@ -148,12 +166,18 @@ export default function ProductsPage() {
         body: JSON.stringify(submitData),
       })
 
+      const data = await res.json()
+
       if (res.ok) {
         setIsModalOpen(false)
+        setError("")
         fetchData()
+      } else {
+        setError(data.error || "保存失败，请重试")
       }
     } catch (error) {
       console.error("Failed to save product:", error)
+      setError("网络错误，请重试")
     } finally {
       setIsSaving(false)
     }
@@ -369,6 +393,13 @@ export default function ProductsPage() {
               </button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              {/* 错误提示 */}
+              {error && (
+                <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-[#ee675c]/10 border border-[#ee675c]/30">
+                  <div className="text-[#ee675c] mt-0.5">⚠</div>
+                  <span className="text-[13px] font-medium text-[#ee675c]">{error}</span>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2 sm:col-span-1">
                   <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
