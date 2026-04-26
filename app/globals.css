@@ -171,7 +171,22 @@
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes gradient-x {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes expand-line {
+  0% { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
 }
 
 @keyframes pulse-soft {
@@ -252,10 +267,24 @@
     animation: border-glow 3s ease-in-out infinite;
   }
   
+  .animate-gradient-x {
+    animation: gradient-x 3s ease infinite;
+  }
+  
+  .animate-expand-line {
+    animation: expand-line 0.8s ease-out 0.5s forwards;
+  }
+  
+  .animate-pulse-slow {
+    animation: pulse-slow 3s ease-in-out infinite;
+  }
+  
   /* 延迟动画类 */
   .delay-100 { animation-delay: 100ms; }
   .delay-200 { animation-delay: 200ms; }
+  .delay-250 { animation-delay: 250ms; }
   .delay-300 { animation-delay: 300ms; }
   .delay-400 { animation-delay: 400ms; }
   .delay-500 { animation-delay: 500ms; }
+  .delay-1000 { animation-delay: 1000ms; }
 }
