@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js"
 
 const supabaseUrl = "https://pqwxxpekxupxhbakcfpi.supabase.co"
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxd3h4cGVreHVweGhiYWtjZnBpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjkwODI1OSwiZXhwIjoyMDkyNDg0MjU5fQ.rW8RQth6DppLbjaKgGeiS4UPRXe8WraiQCE0j01QoDE"
 
 console.log("检查 visitor_stats 表...")
 
