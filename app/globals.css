@@ -4,62 +4,64 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Google AI Studio 深灰色配色 */
-  --background: #131314;
-  --foreground: #e3e3e3;
-  --card: #1e1f20;
-  --card-foreground: #e3e3e3;
-  --popover: #1e1f20;
-  --popover-foreground: #e3e3e3;
-  --primary: #8ab4f8;
-  --primary-foreground: #131314;
-  --secondary: #2d2e30;
-  --secondary-foreground: #e3e3e3;
-  --muted: #3c3c3f;
-  --muted-foreground: #9aa0a6;
-  --accent: #8ab4f8;
-  --accent-foreground: #131314;
-  --destructive: #f28b82;
-  --destructive-foreground: #131314;
-  --border: #3c3c3f;
-  --input: #2d2e30;
-  --ring: #8ab4f8;
-  --chart-1: #8ab4f8;
-  --chart-2: #81c995;
-  --chart-3: #fdd663;
-  --chart-4: #ee675c;
-  --chart-5: #af87c9;
-  --radius: 0.75rem;
-  --sidebar: #1e1f20;
-  --sidebar-foreground: #e3e3e3;
-  --sidebar-primary: #8ab4f8;
-  --sidebar-primary-foreground: #131314;
-  --sidebar-accent: #2d2e30;
-  --sidebar-accent-foreground: #e3e3e3;
-  --sidebar-border: #3c3c3f;
-  --sidebar-ring: #8ab4f8;
+  /* OKX Web3 纯黑配色 */
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #0f0f0f;
+  --card-foreground: #ffffff;
+  --popover: #141414;
+  --popover-foreground: #ffffff;
+  --primary: #00d26a;
+  --primary-foreground: #000000;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #ffffff;
+  --muted: #262626;
+  --muted-foreground: #8c8c8c;
+  --accent: #00d26a;
+  --accent-foreground: #000000;
+  --destructive: #ff4d6a;
+  --destructive-foreground: #000000;
+  --border: #262626;
+  --input: #1a1a1a;
+  --ring: #00d26a;
+  --chart-1: #00d26a;
+  --chart-2: #00b4d8;
+  --chart-3: #ffd700;
+  --chart-4: #ff4d6a;
+  --chart-5: #a855f7;
+  --radius: 0.5rem;
+  --sidebar: #0a0a0a;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #00d26a;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #1a1a1a;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #262626;
+  --sidebar-ring: #00d26a;
   
-  /* Google 风格颜色 */
-  --nav-bg: #131314;
-  --nav-foreground: #e3e3e3;
-  --google-blue: #8ab4f8;
-  --google-green: #81c995;
-  --google-yellow: #fdd663;
-  --google-red: #ee675c;
-  --text-secondary: #9aa0a6;
-  --text-tertiary: #6e6e73;
-  --surface-elevated: #292a2c;
+  /* OKX 风格颜色 */
+  --nav-bg: #000000;
+  --nav-foreground: #ffffff;
+  --okx-green: #00d26a;
+  --okx-green-hover: #00e676;
+  --okx-red: #ff4d6a;
+  --okx-yellow: #ffd700;
+  --okx-blue: #00b4d8;
+  --text-secondary: #8c8c8c;
+  --text-tertiary: #595959;
+  --surface-elevated: #141414;
 }
 
 
 
 @theme inline {
-  --font-sans: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
-  --font-mono: 'Roboto Mono', monospace;
-  --color-google-blue: var(--google-blue);
-  --color-google-green: var(--google-green);
-  --color-google-yellow: var(--google-yellow);
-  --color-google-red: var(--google-red);
+  --font-sans: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'SF Mono', 'Roboto Mono', monospace;
+  --color-okx-green: var(--okx-green);
+  --color-okx-green-hover: var(--okx-green-hover);
+  --color-okx-red: var(--okx-red);
+  --color-okx-yellow: var(--okx-yellow);
+  --color-okx-blue: var(--okx-blue);
   --color-text-secondary: var(--text-secondary);
   --color-text-tertiary: var(--text-tertiary);
   --color-surface-elevated: var(--surface-elevated);
@@ -176,19 +178,19 @@
 
 @keyframes border-glow {
   0%, 100% {
-    border-color: var(--google-blue);
-    box-shadow: 0 0 12px rgba(138, 180, 248, 0.15);
+    border-color: var(--okx-green);
+    box-shadow: 0 0 12px rgba(0, 210, 106, 0.2);
   }
   50% {
-    border-color: var(--google-green);
-    box-shadow: 0 0 20px rgba(129, 201, 149, 0.2);
+    border-color: var(--okx-blue);
+    box-shadow: 0 0 20px rgba(0, 180, 216, 0.25);
   }
 }
 
-/* 高级自定义滚动条 */
+/* OKX 风格自定义滚动条 */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #3c3c3f transparent;
+  scrollbar-color: #333333 transparent;
 }
 .custom-scrollbar::-webkit-scrollbar {
   display: block;
@@ -199,20 +201,20 @@
   border-radius: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #8ab4f8 0%, #81c995 50%, #fdd663 100%);
+  background: #333333;
   border-radius: 4px;
   min-height: 32px;
   transition: background 0.3s ease;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #aecfff 0%, #9de0b5 50%, #ffe78a 100%);
+  background: #00d26a;
 }
 
-/* 马赛克网格背景 */
+/* OKX 网格背景 */
 .mosaic-bg {
   background-image: 
-    linear-gradient(rgba(60, 60, 63, 0.3) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(60, 60, 63, 0.3) 1px, transparent 1px);
+    linear-gradient(rgba(38, 38, 38, 0.5) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(38, 38, 38, 0.5) 1px, transparent 1px);
   background-size: 48px 48px;
 }
 
@@ -231,7 +233,7 @@
   
   .animate-shimmer {
     animation: shimmer 2s linear infinite;
-    background: linear-gradient(90deg, transparent, rgba(138, 180, 248, 0.1), transparent);
+    background: linear-gradient(90deg, transparent, rgba(0, 210, 106, 0.1), transparent);
     background-size: 200% 100%;
   }
   
