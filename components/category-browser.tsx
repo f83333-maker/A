@@ -253,24 +253,27 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
           </div>
 
           {/* ── 右侧产品区域 ── */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 flex flex-col">
 
             {/* 右侧顶部：分类名 + 产品数量（sticky定位） */}
             {activeCategory && (
-              <div className="sticky top-4 z-20 flex items-center justify-between py-3 px-3 border-b-2 bg-[#131314] rounded-t-xl" style={{ borderColor: activeCategory.color }}>
-                <div className="flex items-center gap-2.5">
-                  <CategoryLogo category={activeCategory} size="md" />
-                  <h2 className="text-[16px] sm:text-[18px] font-bold text-[#e3e3e3] truncate">
-                    {activeCategory.name}
-                  </h2>
+              <div className="sticky top-0 z-20 bg-[#131314]">
+                <div className="flex items-center justify-between py-3 px-3 border-b-2" style={{ borderColor: activeCategory.color }}>
+                  <div className="flex items-center gap-2.5">
+                    <CategoryLogo category={activeCategory} size="md" />
+                    <h2 className="text-[16px] sm:text-[18px] font-bold text-[#e3e3e3] truncate">
+                      {activeCategory.name}
+                    </h2>
+                  </div>
+                  <span className="text-[12px] sm:text-[13px] text-[#9aa0a6] shrink-0 ml-2">
+                    {visibleProducts.length} 个产品{searchQuery && " · 搜索结果"}
+                  </span>
                 </div>
-                <span className="text-[12px] sm:text-[13px] text-[#9aa0a6] shrink-0 ml-2">
-                  {visibleProducts.length} 个产品{searchQuery && " · 搜索结果"}
-                </span>
               </div>
             )}
 
-            {/* 产品列表 */}
+            {/* 产品列表容器 */}
+            <div className="flex-1 min-w-0 overflow-y-auto">
             {visibleProducts.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-24 gap-3">
                 <PackageSearch className="w-10 h-10 text-[#3c3c3f]" />
@@ -359,6 +362,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                 ))}
               </div>
             )}
+            </div>
           </div>
         </div>
       </div>
