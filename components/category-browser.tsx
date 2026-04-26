@@ -156,10 +156,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
   const [activeCategoryId, setActiveCategoryId] = useState<string>("")
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isHeaderSticky, setIsHeaderSticky] = useState(false)
   const sidebarRef = useRef<HTMLDivElement>(null)
-  const headerRef = useRef<HTMLDivElement>(null)
-  const rightPanelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (categories.length > 0 && !activeCategoryId) {
@@ -175,27 +172,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
     if (firstMatch) setActiveCategoryId(firstMatch.id)
   }, [searchQuery, categories, products])
 
-  // 监听滚动，固定分类标题（同时监听window和右侧面板）
-  useEffect(() => {
-    const handleScroll = () => {
-      if (headerRef.current) {
-        const rect = headerRef.current.getBoundingClientRect()
-        // 当原始标题的顶部滚出视口顶部时，显示固定标题
-        setIsHeaderSticky(rect.top < 0)
-      }
-    }
-    // 监听window滚动（移动端整体滚动）
-    window.addEventListener("scroll", handleScroll, { passive: true })
-    // 监听右侧面板滚动（桌面端独立滚动）
-    const panel = rightPanelRef.current
-    if (panel) {
-      panel.addEventListener("scroll", handleScroll, { passive: true })
-    }
-    return () => {
-      window.removeEventListener("scroll", handleScroll)
-      if (panel) panel.removeEventListener("scroll", handleScroll)
-    }
-  }, [])
+
 
 
 
@@ -306,31 +283,12 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
             </div>
           </div>
 
-          {/* ── 右侧产品区域（独立滚动）── */}
-          <div ref={rightPanelRef} className="flex-1 min-w-0 overflow-y-auto relative">
+          {/* ── 右侧产品区域（分类标题固定 + 产品列表独立滚动）── */}
+          <div className="flex-1 min-w-0 flex flex-col" style={{ height: "calc(100vh - 120px)" }}>
 
-            {/* 固定分类标题（滚动时显示，使用fixed定位覆盖整个视口顶部） */}
-            {activeCategory && isHeaderSticky && (
-              <div className="fixed top-0 left-0 right-0 z-50 bg-[#131314] border-b-2 shadow-lg" style={{ borderColor: activeCategory.color }}>
-                <div className="max-w-6xl mx-auto px-3 sm:px-6">
-                  <div className="flex items-center justify-between py-3">
-                    <div className="flex items-center gap-2.5">
-                      <CategoryLogo category={activeCategory} size="sm" />
-                      <h2 className="text-[14px] sm:text-[16px] font-bold text-[#e3e3e3] truncate">
-                        {activeCategory.name}
-                      </h2>
-                    </div>
-                    <span className="text-[11px] sm:text-[12px] text-[#9aa0a6] shrink-0 ml-2">
-                      {visibleProducts.length} 个产品
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* 原始分类标题（用于检测滚动位置） */}
+            {/* 分类标题（固定不动，不参与滚动） */}
             {activeCategory && (
-              <div ref={headerRef} className="flex items-center justify-between py-3 px-1 border-b-2 mb-4" style={{ borderColor: activeCategory.color }}>
+              <div className="shrink-0 flex items-center justify-between py-3 px-1 border-b-2" style={{ borderColor: activeCategory.color }}>
                 <div className="flex items-center gap-2.5">
                   <CategoryLogo category={activeCategory} size="md" />
                   <h2 className="text-[16px] sm:text-[18px] font-bold text-[#e3e3e3] truncate">
@@ -342,6 +300,8 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                 </span>
               </div>
             )}
+            {/* 产品列表（独立滚动区域） */}
+            <div className="flex-1 overflow-y-auto mt-4 scrollbar-hide">
             {visibleProducts.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-24 gap-3">
                 <PackageSearch className="w-10 h-10 text-[#3c3c3f]" />
@@ -430,6 +390,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                 ))}
               </div>
             )}
+            </div>{/* 产品滚动容器结束 */}
           </div>
         </div>
       </div>
