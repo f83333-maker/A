@@ -314,7 +314,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
             )}
 
             {/* 产品列表（独立滚动区域） */}
-            <div className="flex-1 overflow-y-auto scrollbar-hide">
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
             {visibleProducts.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-24 gap-3">
                 <PackageSearch className="w-10 h-10 text-[#3c3c3f]" />
