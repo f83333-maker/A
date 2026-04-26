@@ -56,9 +56,10 @@
 
 
 @theme inline {
-  --font-sans: 'PingFang SC', -apple-system, BlinkMacSystemFont, 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
-  --font-mono: 'PingFang SC', 'SF Mono', 'Roboto Mono', monospace;
-  --font-display: 'PingFang SC', -apple-system, sans-serif;
+  --font-oak-sans: var(--font-oak-sans), 'Figtree', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: var(--font-oak-sans), 'Figtree', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: var(--font-oak-sans), 'Figtree', 'SF Mono', monospace;
+  --font-display: var(--font-oak-sans), 'Figtree', sans-serif;
   --color-okx-green: var(--okx-green);
   --color-okx-green-hover: var(--okx-green-hover);
   --color-okx-red: var(--okx-red);
