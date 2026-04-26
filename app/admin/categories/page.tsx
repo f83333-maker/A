@@ -263,21 +263,16 @@ export default function CategoriesPage() {
                   </div>
                 </td>
                 <td className="px-5 py-4">
-                  {category.logo_data ? (
-                    <div
-                      className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden"
-                      style={{ backgroundColor: category.logo_bg_color || "#2d2e30" }}
-                    >
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden"
+                    style={{ backgroundColor: category.logo_bg_color || "#2d2e30" }}
+                  >
+                    {category.logo_data ? (
                       <img src={category.logo_data} alt={category.name} className="w-7 h-7 object-contain" />
-                    </div>
-                  ) : (
-                    <div
-                      className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
-                      style={{ backgroundColor: `${category.color}15` }}
-                    >
-                      {category.icon}
-                    </div>
-                  )}
+                    ) : (
+                      <span className="text-[#6e6e73] text-[11px] font-medium">无</span>
+                    )}
+                  </div>
                 </td>
                 <td className="px-5 py-4">
                   <p className="text-[14px] font-medium text-[#e3e3e3]">{category.name}</p>
