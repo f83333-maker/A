@@ -180,7 +180,7 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
         {/* 搜索框 - OKX 风格 */}
         <form onSubmit={handleSubmit} className="max-w-2xl mx-auto animate-fade-in-up delay-300">
           <div 
-            className={`relative flex items-center bg-[#121212] rounded-2xl border-2 transition-all duration-400 ${
+            className={`relative flex items-center bg-[#121212] rounded-full border-2 transition-all duration-400 ${
               isFocused 
                 ? "border-[#7CFF00] shadow-[0_0_30px_rgba(124,255,0,0.15)]" 
                 : "border-[#2A2A2A] hover:border-[#404040]"
@@ -207,7 +207,7 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
             )}
             <button
               type="submit"
-              className="m-2 px-6 h-10 bg-[#7CFF00] hover:bg-[#9FFF40] text-black font-semibold rounded-xl transition-all duration-300 text-[14px] flex items-center gap-2 shrink-0 hover:shadow-[0_0_20px_rgba(124,255,0,0.3)] active:scale-95"
+              className="m-2 px-6 h-10 bg-[#7CFF00] hover:bg-[#9FFF40] text-black font-semibold rounded-full transition-all duration-300 text-[14px] flex items-center gap-2 shrink-0 hover:shadow-[0_0_20px_rgba(124,255,0,0.3)] active:scale-95"
             >
               <Sparkles className="w-4 h-4" />
               搜索
