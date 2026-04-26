@@ -229,54 +229,68 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
       <div className="max-w-6xl mx-auto px-3 sm:px-6">
         <div className="flex gap-3 md:gap-4" style={{ height: "calc(100vh - 120px)", minHeight: 500 }}>
 
-          {/* ── 左侧分类导航（独立滚动）── */}
+          {/* ── 左侧分类导航（固定高度，独立滚动）── */}
           <div
             ref={sidebarRef}
-            className="w-[72px] sm:w-[100px] md:w-[140px] shrink-0 flex flex-col gap-1 overflow-y-auto scrollbar-hide"
+            className="w-[72px] sm:w-[100px] md:w-[140px] shrink-0 flex flex-col relative"
+            style={{ height: "calc(100vh - 120px)" }}
           >
-            <p className="text-[11px] text-[#6e6e73] font-medium px-1 mb-2 hidden md:block">所有分类</p>
-            {categories.map((cat) => {
-              const isActive = cat.id === activeCategoryId
-              const hasMatch = categoryHasMatch(cat.id)
-              const catProducts = products.filter((p) => p.category_id === cat.id)
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setActiveCategoryId(cat.id)}
-                  className={`group flex flex-col md:flex-row items-center md:items-start gap-1.5 md:gap-2.5 px-2 md:px-3 py-2.5 rounded-xl text-left transition-all duration-200 w-full ${
-                    isActive
-                      ? "bg-[#1e1f20] border border-[#3c3c3f]"
-                      : "hover:bg-[#1a1b1c] border border-transparent"
-                  } ${!hasMatch && searchQuery ? "opacity-40" : "opacity-100"}`}
-                >
-                  {/* 分类logo */}
-                  <CategoryLogo category={cat} size="sm" />
+            {/* 分类列表容器 */}
+            <div className="flex-1 overflow-y-auto scrollbar-hide flex flex-col gap-1">
+              <p className="text-[11px] text-[#6e6e73] font-medium px-1 mb-2 hidden md:block sticky top-0 bg-[#131314] py-2">所有分类</p>
+              {categories.map((cat) => {
+                const isActive = cat.id === activeCategoryId
+                const hasMatch = categoryHasMatch(cat.id)
+                const catProducts = products.filter((p) => p.category_id === cat.id)
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => setActiveCategoryId(cat.id)}
+                    className={`group flex flex-col md:flex-row items-center md:items-start gap-1.5 md:gap-2.5 px-2 md:px-3 py-2.5 rounded-xl text-left transition-all duration-200 w-full ${
+                      isActive
+                        ? "bg-[#1e1f20] border border-[#3c3c3f]"
+                        : "hover:bg-[#1a1b1c] border border-transparent"
+                    } ${!hasMatch && searchQuery ? "opacity-40" : "opacity-100"}`}
+                  >
+                    {/* 分类logo */}
+                    <CategoryLogo category={cat} size="sm" />
 
-                  {/* 分类名称 + 产品数（中大屏显示） */}
-                  <div className="hidden md:flex flex-col min-w-0">
+                    {/* 分类名称 + 产品数（中大屏显示） */}
+                    <div className="hidden md:flex flex-col min-w-0">
+                      <span
+                        className={`text-[12px] font-semibold leading-tight truncate transition-colors ${
+                          isActive ? "text-[#e3e3e3]" : "text-[#9aa0a6] group-hover:text-[#e3e3e3]"
+                        }`}
+                      >
+                        {cat.name}
+                      </span>
+                      <span className="text-[11px] text-[#6e6e73] mt-0.5">
+                        {catProducts.length} 个产品
+                      </span>
+                    </div>
+
+                    {/* 小屏显示名称 */}
                     <span
-                      className={`text-[12px] font-semibold leading-tight truncate transition-colors ${
-                        isActive ? "text-[#e3e3e3]" : "text-[#9aa0a6] group-hover:text-[#e3e3e3]"
+                      className={`block md:hidden text-[10px] font-medium text-center leading-tight line-clamp-2 transition-colors ${
+                        isActive ? "text-[#e3e3e3]" : "text-[#6e6e73] group-hover:text-[#9aa0a6]"
                       }`}
                     >
                       {cat.name}
                     </span>
-                    <span className="text-[11px] text-[#6e6e73] mt-0.5">
-                      {catProducts.length} 个产品
-                    </span>
-                  </div>
+                  </button>
+                )
+              })}
+            </div>
 
-                  {/* 小屏显示名称 */}
-                  <span
-                    className={`block md:hidden text-[10px] font-medium text-center leading-tight line-clamp-2 transition-colors ${
-                      isActive ? "text-[#e3e3e3]" : "text-[#6e6e73] group-hover:text-[#9aa0a6]"
-                    }`}
-                  >
-                    {cat.name}
-                  </span>
-                </button>
-              )
-            })}
+            {/* 滚动提示 */}
+            <div className="sticky bottom-0 bg-gradient-to-t from-[#131314] to-transparent pt-4 pb-2 flex justify-center">
+              <div className="flex flex-col items-center gap-1 text-[11px] text-[#6e6e73]">
+                <svg className="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                </svg>
+                <span className="hidden md:block">向上滑动</span>
+              </div>
+            </div>
           </div>
 
           {/* ── 右侧产品区域（独立滚动）── */}
