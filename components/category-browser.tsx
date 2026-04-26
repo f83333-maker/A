@@ -302,24 +302,26 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                 </span>
               </div>
             )}
+            {/* 表头（固定，不参与滚动，仅中大屏显示） */}
+            {visibleProducts.length > 0 && (
+              <div className="shrink-0 hidden sm:grid grid-cols-[1fr_80px_90px_70px_88px] gap-2 px-4 py-2.5 bg-[#1a1b1c] border border-[#2d2e30] rounded-t-xl mt-4">
+                <span className="text-[12px] text-[#6e6e73] font-medium">商品名称</span>
+                <span className="text-[12px] text-[#6e6e73] font-medium text-center">单价</span>
+                <span className="text-[12px] text-[#6e6e73] font-medium text-center">库存</span>
+                <span className="text-[12px] text-[#6e6e73] font-medium text-center">已售</span>
+                <span className="text-[12px] text-[#6e6e73] font-medium text-center">操作</span>
+              </div>
+            )}
+
             {/* 产品列表（独立滚动区域） */}
-            <div className="flex-1 overflow-y-auto mt-4 scrollbar-hide">
+            <div className="flex-1 overflow-y-auto scrollbar-hide">
             {visibleProducts.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-24 gap-3">
                 <PackageSearch className="w-10 h-10 text-[#3c3c3f]" />
                 <p className="text-[14px] text-[#6e6e73]">该分类下暂无匹配产品</p>
               </div>
             ) : (
-              <div className="rounded-xl overflow-hidden border border-[#2d2e30]">
-
-                {/* 表头（仅中大屏显示） */}
-                <div className="hidden sm:grid grid-cols-[1fr_80px_90px_70px_88px] gap-2 px-4 py-2.5 bg-[#1a1b1c] border-b border-[#2d2e30]">
-                  <span className="text-[12px] text-[#6e6e73] font-medium">商品名称</span>
-                  <span className="text-[12px] text-[#6e6e73] font-medium text-center">单价</span>
-                  <span className="text-[12px] text-[#6e6e73] font-medium text-center">库存</span>
-                  <span className="text-[12px] text-[#6e6e73] font-medium text-center">已售</span>
-                  <span className="text-[12px] text-[#6e6e73] font-medium text-center">操作</span>
-                </div>
+              <div className="rounded-b-xl overflow-hidden border-x border-b border-[#2d2e30]">
 
                 {/* 产品行 */}
                 {visibleProducts.map((product, index) => (
