@@ -1,13 +1,7 @@
 import { createClient } from "@supabase/supabase-js"
-import { readFileSync } from "fs"
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-if (!supabaseUrl || !supabaseKey) {
-  console.error("Missing Supabase credentials")
-  process.exit(1)
-}
+const supabaseUrl = "https://pqwxxpekxupxhbakcfpi.supabase.co"
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxd3h4cGVreHVweGhiYWtjZnBpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjkwODI1OSwiZXhwIjoyMDkyNDg0MjU5fQ.rW8RQth6DppLbjaKgGeiS4UPRXe8WraiQCE0j01QoDE"
 
 const supabase = createClient(supabaseUrl, supabaseKey)
 
