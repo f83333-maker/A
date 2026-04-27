@@ -518,21 +518,19 @@ export default function InventoryPage() {
               {/* 产品信息头部 */}
               <div className="shrink-0 px-6 py-4 border-b border-[#3c3c3f]/50">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden"
-                      style={{ backgroundColor: selectedProduct.logo_bg_color || '#2d2e30' }}
-                    >
-                      {selectedProduct.logo_data ? (
-                        <img src={selectedProduct.logo_data} alt="" className="w-8 h-8 object-contain" />
-                      ) : (
-                        <Package className="w-5 h-5 text-[#6e6e73]" />
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-1.5">
+                      {selectedProduct.icon_url && (
+                        <img src={selectedProduct.icon_url} alt="" className="w-5 h-3.5 object-cover rounded-sm shrink-0" />
+                      )}
+                      <h2 className="text-[16px] font-semibold text-[#e3e3e3]">{selectedProduct.name}</h2>
+                      {selectedProduct.tag_label && (
+                        <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-[#FF3B3B]/20 text-[#FF3B3B] shrink-0">
+                          {selectedProduct.tag_label}
+                        </span>
                       )}
                     </div>
-                    <div>
-                      <h2 className="text-[16px] font-semibold text-[#e3e3e3]">{selectedProduct.name}</h2>
-                      <p className="text-[12px] text-[#6e6e73]">售价: ¥{selectedProduct.price || 0}</p>
-                    </div>
+                    <p className="text-[12px] text-[#6e6e73]">售价: ¥{selectedProduct.price || 0}</p>
                   </div>
                   <button
                     onClick={() => setShowAddForm(true)}
