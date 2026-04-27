@@ -685,11 +685,11 @@ export default function ProductsPage() {
                   />
                 </th>
                 <th className="px-3 py-3 text-left text-[13px] font-semibold text-[#9aa0a6]">商品信息</th>
-                <th className="px-3 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] w-10">操作</th>
-                <th className="px-3 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] w-20">售价</th>
-                <th className="px-3 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] w-32">状态</th>
-                <th className="px-3 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] w-14">销量</th>
-                <th className="px-3 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] w-24">库存</th>
+                <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] w-12">操作</th>
+                <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] w-24">售价</th>
+                <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] w-36">状态</th>
+                <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] w-16">销量</th>
+                <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] w-36">库存</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#3c3c3f]/50">
@@ -749,7 +749,7 @@ export default function ProductsPage() {
                     </div>
                   </td>
                   {/* 操作 */}
-                  <td className="px-3 py-2 whitespace-nowrap">
+                  <td className="px-4 py-2 whitespace-nowrap">
                     <button
                       onClick={() => openModal(product)}
                       className="p-1 text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
@@ -759,11 +759,11 @@ export default function ProductsPage() {
                     </button>
                   </td>
                   {/* 售价 */}
-                  <td className="px-3 py-2">
+                  <td className="px-4 py-2">
                     <span className="text-[14px] font-semibold text-[#e3e3e3]">{product.price}</span>
                   </td>
                   {/* 状态 */}
-                  <td className="px-3 py-2">
+                  <td className="px-4 py-2 whitespace-nowrap">
                     <div className="flex items-center gap-1.5">
                       <span className={`inline-flex items-center gap-1.5 text-[13px] font-medium ${product.is_active ? "text-[#81c995]" : "text-[#6e6e73]"}`}>
                         <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${product.is_active ? "bg-[#81c995]" : "bg-[#6e6e73]"}`} />
@@ -778,11 +778,11 @@ export default function ProductsPage() {
                     </div>
                   </td>
                   {/* 销量 */}
-                  <td className="px-3 py-2">
+                  <td className="px-4 py-2">
                     <span className="text-[14px] text-[#9aa0a6]">{product.sales || 0}</span>
                   </td>
                   {/* 库存 */}
-                  <td className="px-3 py-2">
+                  <td className="px-4 py-2 whitespace-nowrap">
                     <div className="flex items-center gap-1.5">
                       <span className={`text-[13px] font-semibold px-2 py-0.5 rounded-md ${product.stock > 0 ? "bg-[#81c995]/10 text-[#81c995]" : "bg-[#ee675c]/10 text-[#ee675c]"}`}>
                         {product.stock}
