@@ -36,6 +36,7 @@ export default function OrderQueryPage() {
     setOrders([])
     setNeedPassword(false)
     setPendingOrderNo("")
+    setQueryPassword("")
 
     try {
       const params = new URLSearchParams()
@@ -76,6 +77,7 @@ export default function OrderQueryPage() {
   const handleSelectOrder = async (selectedOrder: any) => {
     setLoading(true)
     setError("")
+    setQueryPassword("")
     try {
       const res = await fetch(`/api/orders/${encodeURIComponent(selectedOrder.order_no)}`)
       const data = await res.json()
