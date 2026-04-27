@@ -609,14 +609,7 @@ export default function ProductsPage() {
                           {product.tag_label}
                         </span>
                       )}
-                      {/* 发货方式 */}
-                      <span className={`px-1.5 py-0.5 text-[9px] font-medium rounded shrink-0 ${
-                        product.delivery_type === "自动发货" 
-                          ? "bg-[#7CFF00]/15 text-[#7CFF00]" 
-                          : "bg-[#F7931A]/15 text-[#F7931A]"
-                      }`}>
-                        {product.delivery_type || "自动发货"}
-                      </span>
+
                     </div>
                   </td>
                   {/* 售价 */}
