@@ -20,10 +20,10 @@ import {
 
 const navItems = [
   { name: "仪表盘", href: "/admin", icon: LayoutDashboard },
-  { name: "数据统计", href: "/admin/analytics", icon: BarChart3 },
-  { name: "分类管理", href: "/admin/categories", icon: FolderTree },
-  { name: "产品管理", href: "/admin/products", icon: Package },
   { name: "订单管理", href: "/admin/orders", icon: ShoppingCart },
+  { name: "商品管理", href: "/admin/products", icon: Package },
+  { name: "分类管理", href: "/admin/categories", icon: FolderTree },
+  { name: "数据统计", href: "/admin/analytics", icon: BarChart3 },
   { name: "公告管理", href: "/admin/announcements", icon: Megaphone },
   { name: "网站设置", href: "/admin/settings", icon: Settings },
 ]
