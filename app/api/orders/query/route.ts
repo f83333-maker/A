@@ -25,13 +25,24 @@ export async function GET(request: NextRequest) {
         .single()
 
       if (error || !order) {
-        // 尝试通过易支付单号查询
-        const { data: orderByTrade } = await supabase
+        // 尝试通过 stripe_payment_intent_id 查询
+        const { data: orderByStripe } = await supabase
           .from("orders")
           .select(fields)
-          .or(`stripe_payment_intent_id.eq.${no},epay_trade_no.eq.${no}`)
+          .eq("stripe_payment_intent_id", no)
           .single()
-        order = orderByTrade
+        
+        if (orderByStripe) {
+          order = orderByStripe
+        } else {
+          // 尝试通过 epay_trade_no 查询
+          const { data: orderByEpay } = await supabase
+            .from("orders")
+            .select(fields)
+            .eq("epay_trade_no", no)
+            .single()
+          order = orderByEpay || null
+        }
       }
 
       if (!order) {

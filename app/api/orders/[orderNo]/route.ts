@@ -22,15 +22,28 @@ export async function GET(
 
   // 如果没找到，尝试通过易支付订单号查询
   if (error || !order) {
-    const { data: orderByTrade, error: tradeError } = await supabase
+    // 尝试通过 stripe_payment_intent_id 查询
+    const { data: orderByStripe } = await supabase
       .from("orders")
       .select("id, order_no, product_id, product_name, quantity, unit_price, total_amount, status, delivered_content, delivered_at, created_at, query_password, stripe_payment_intent_id, epay_trade_no")
-      .or(`stripe_payment_intent_id.eq.${orderNo},epay_trade_no.eq.${orderNo}`)
+      .eq("stripe_payment_intent_id", orderNo)
       .single()
     
-    if (!tradeError && orderByTrade) {
-      order = orderByTrade
+    if (orderByStripe) {
+      order = orderByStripe
       error = null
+    } else {
+      // 尝试通过 epay_trade_no 查询
+      const { data: orderByEpay } = await supabase
+        .from("orders")
+        .select("id, order_no, product_id, product_name, quantity, unit_price, total_amount, status, delivered_content, delivered_at, created_at, query_password, stripe_payment_intent_id, epay_trade_no")
+        .eq("epay_trade_no", orderNo)
+        .single()
+      
+      if (orderByEpay) {
+        order = orderByEpay
+        error = null
+      }
     }
   }
 
