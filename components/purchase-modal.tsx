@@ -69,6 +69,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
       setCaptchaError("")
       setCopied(false)
       setError("")
+      setFormError("")
       setPaymentType("wxpay")
     }
   }, [isOpen])
