@@ -12,21 +12,26 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
   const [isFocused, setIsFocused] = useState(false)
   const [searchPlaceholder, setSearchPlaceholder] = useState("搜索产品名称、价格、库存、标签...")
   const [hotSearchTags, setHotSearchTags] = useState<string[]>(["社交媒体", "海外邮箱", "营销工具", "出海必备"])
-  const [bannerTitle, setBannerTitle] = useState("跨境资源铺")
-  const [bannerSubtitle, setBannerSubtitle] = useState("一站式跨境资源采购平台，助力全球化业务拓展")
+  // 主副标题只从后台设置获取，无默认值
+  const [bannerTitle, setBannerTitle] = useState("")
+  const [bannerSubtitle, setBannerSubtitle] = useState("")
+  const [isLoading, setIsLoading] = useState(true)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const bannerRef = useRef<HTMLElement>(null)
 
+  // 只从后台设置获取主副标题
   useEffect(() => {
     fetch("/api/site-settings")
       .then(res => res.json())
       .then(data => {
         if (data.search_placeholder) setSearchPlaceholder(data.search_placeholder)
         if (data.hot_search_tags && data.hot_search_tags.length > 0) setHotSearchTags(data.hot_search_tags)
-        if (data.banner_title) setBannerTitle(data.banner_title)
-        if (data.banner_subtitle) setBannerSubtitle(data.banner_subtitle)
+        // 主副标题必须从后台设置获取
+        setBannerTitle(data.banner_title || "")
+        setBannerSubtitle(data.banner_subtitle || "")
       })
       .catch(err => console.error("获取设置失败:", err))
+      .finally(() => setIsLoading(false))
     
     fetch("/api/visitor", { 
       method: "POST", 
@@ -137,30 +142,36 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
           <ArrowRight className="w-4 h-4 text-[#525252] group-hover:text-[#7CFF00] group-hover:translate-x-0.5 transition-all duration-300" />
         </div>
         
-        {/* 主标题 - 带渐变动画 */}
+        {/* 主标题 - 只从后台设置获取 */}
         <h1 className="text-[42px] sm:text-[56px] lg:text-[72px] font-bold text-white mb-6 tracking-[-0.03em] leading-[1.05] animate-fade-in-up delay-100">
-          {bannerTitle.includes(" ") ? (
-            <>
-              <span className="relative inline-block">
-                {bannerTitle.split(" ")[0]}
-                <span className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-[#7CFF00] to-[#7CFF00]/0 rounded-full transform scale-x-0 animate-expand-line" />
-              </span>
-              <span className="relative ml-3">
-                <span className="bg-gradient-to-r from-[#7CFF00] via-[#9FFF40] to-[#7CFF00] bg-clip-text text-transparent animate-gradient-x bg-[length:200%_auto]">
-                  {bannerTitle.split(" ").slice(1).join(" ")}
+          {isLoading ? (
+            <span className="inline-block w-64 h-16 bg-[#2A2A2A] rounded-lg animate-pulse" />
+          ) : bannerTitle ? (
+            bannerTitle.includes(" ") ? (
+              <>
+                <span className="relative inline-block">
+                  {bannerTitle.split(" ")[0]}
+                  <span className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-[#7CFF00] to-[#7CFF00]/0 rounded-full transform scale-x-0 animate-expand-line" />
                 </span>
+                <span className="relative ml-3">
+                  <span className="bg-gradient-to-r from-[#7CFF00] via-[#9FFF40] to-[#7CFF00] bg-clip-text text-transparent animate-gradient-x bg-[length:200%_auto]">
+                    {bannerTitle.split(" ").slice(1).join(" ")}
+                  </span>
+                </span>
+              </>
+            ) : (
+              <span className="bg-gradient-to-r from-[#7CFF00] to-[#9FFF40] bg-clip-text text-transparent">
+                {bannerTitle}
               </span>
-            </>
-          ) : (
-            <span className="bg-gradient-to-r from-[#7CFF00] to-[#9FFF40] bg-clip-text text-transparent">
-              {bannerTitle}
-            </span>
-          )}
+            )
+          ) : null}
         </h1>
         
-        {/* 副标题 */}
+        {/* 副标题 - 只从后台设置获取 */}
         <p className="text-[17px] sm:text-[19px] text-[#737373] mb-8 max-w-2xl mx-auto leading-relaxed font-medium animate-fade-in-up delay-200">
-          {bannerSubtitle}
+          {isLoading ? (
+            <span className="inline-block w-96 h-6 bg-[#2A2A2A] rounded animate-pulse" />
+          ) : bannerSubtitle}
         </p>
 
         {/* 特性标签 */}
