@@ -599,14 +599,14 @@ export default function ProductsPage() {
         </div>
         <button
           onClick={() => setSearchName(searchInput)}
-          className="h-8 px-3 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[12px] transition-colors flex items-center gap-1.5"
+          className="h-8 px-3 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] font-semibold rounded-lg text-[12px] transition-colors flex items-center gap-1.5"
         >
           <Search className="w-3.5 h-3.5" />
           搜索
         </button>
         <button
           onClick={() => openModal()}
-          className="h-8 px-3 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[12px] transition-colors flex items-center gap-1.5"
+          className="h-8 px-3 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] font-semibold rounded-lg text-[12px] transition-colors flex items-center gap-1.5"
         >
           <Plus className="w-3.5 h-3.5" />
           商品发布
@@ -918,7 +918,7 @@ export default function ProductsPage() {
                             setSaveTemplateName("")
                           }
                         }}
-                        className="h-9 px-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-bold rounded-xl text-[12px] transition-colors"
+                        className="h-9 px-2 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] font-bold rounded-xl text-[12px] transition-colors"
                       >
                         保存
                       </button>
@@ -1002,7 +1002,7 @@ export default function ProductsPage() {
                         type="button"
                         onClick={searchCountryFlag}
                         disabled={isSearchingFlag || !flagSearchQuery.trim()}
-                        className="px-3 h-9 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg transition-all duration-200 text-[12px] disabled:bg-[#3c3c3f] disabled:text-[#6e6e73] disabled:cursor-not-allowed flex items-center gap-1"
+                        className="px-3 h-9 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] font-semibold rounded-lg transition-all duration-200 text-[12px] disabled:bg-[#3c3c3f] disabled:text-[#6e6e73] disabled:cursor-not-allowed flex items-center gap-1"
                       >
                         {isSearchingFlag ? <Loader2 className="w-3 h-3 animate-spin" /> : <Search className="w-3 h-3" />}
                         搜索
@@ -1211,7 +1211,7 @@ export default function ProductsPage() {
                     <button
                       type="submit"
                       disabled={isSaving}
-                      className="flex-1 h-11 bg-[#7CFF00] hover:bg-[#9FFF40] disabled:opacity-50 text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px] flex items-center justify-center gap-2"
+                      className="flex-1 h-11 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 disabled:opacity-50 text-[#7CFF00] font-semibold rounded-xl transition-all duration-200 text-[14px] flex items-center justify-center gap-2"
                     >
                       {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
                       {editingProduct ? "保存" : "添加"}
@@ -1308,7 +1308,7 @@ export default function ProductsPage() {
                 <button
                   onClick={handleAddInventory}
                   disabled={inventoryAdding || !newInventoryContent.trim()}
-                  className="h-[60px] px-5 bg-[#7CFF00] text-[#0d0e0f] rounded-xl font-semibold text-[13px] hover:bg-[#9FFF40] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2 shrink-0"
+                  className="h-[60px] px-5 bg-[#7CFF00]/10 text-[#7CFF00] rounded-xl font-semibold text-[13px] hover:bg-[#7CFF00]/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2 shrink-0"
                 >
                   {inventoryAdding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                   添加库存

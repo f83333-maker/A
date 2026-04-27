@@ -119,7 +119,7 @@ export default function AnnouncementsPage() {
         </div>
         <button
           onClick={() => openModal()}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px]"
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] font-semibold rounded-xl transition-all duration-200 text-[14px]"
         >
           <Plus className="w-4 h-4" />
           添加公告
@@ -256,7 +256,7 @@ export default function AnnouncementsPage() {
                     <button
                       type="submit"
                       disabled={isSaving}
-                      className="w-full h-11 bg-[#7CFF00] hover:bg-[#9FFF40] disabled:opacity-50 text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px] flex items-center justify-center gap-2"
+                      className="w-full h-11 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 disabled:opacity-50 text-[#7CFF00] font-semibold rounded-xl transition-all duration-200 text-[14px] flex items-center justify-center gap-2"
                     >
                       {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
                       {editingItem ? "保存" : "添加"}

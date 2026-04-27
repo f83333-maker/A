@@ -319,7 +319,7 @@ export default function InventoryPage() {
           <button
             onClick={handleSyncInventory}
             disabled={productsLoading}
-            className="h-10 px-4 bg-[#7CFF00] hover:bg-[#9FFF40] disabled:opacity-50 text-[#131314] font-semibold rounded-lg text-[13px] transition-colors flex items-center gap-2"
+            className="h-10 px-4 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 disabled:opacity-50 text-[#7CFF00] font-semibold rounded-lg text-[13px] transition-colors flex items-center gap-2"
           >
             {productsLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Database className="w-4 h-4" />}
             同步库存
@@ -464,7 +464,7 @@ export default function InventoryPage() {
                       setShowBatchModal(true)
                     }}
                     disabled={selectedIds.size === 0}
-                    className="flex-1 h-8 flex items-center justify-center gap-1 bg-[#7CFF00] hover:bg-[#9FFF40] disabled:opacity-40 disabled:cursor-not-allowed text-[#131314] rounded-lg text-[12px] font-semibold transition-colors"
+                    className="flex-1 h-8 flex items-center justify-center gap-1 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 disabled:opacity-40 disabled:cursor-not-allowed text-[#7CFF00] rounded-lg text-[12px] font-semibold transition-colors"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     添加货源
@@ -577,7 +577,7 @@ export default function InventoryPage() {
                   </div>
                   <button
                     onClick={() => setShowAddForm(true)}
-                    className="h-9 px-4 bg-[#7CFF00] text-[#131314] rounded-lg font-semibold text-[13px] hover:bg-[#9FFF40] transition-colors flex items-center gap-1.5"
+                    className="h-9 px-4 bg-[#7CFF00]/10 text-[#7CFF00] rounded-lg font-semibold text-[13px] hover:bg-[#7CFF00]/20 transition-colors flex items-center gap-1.5"
                   >
                     <Plus className="w-4 h-4" />
                     添加库存
@@ -744,7 +744,7 @@ export default function InventoryPage() {
                 <button
                   onClick={handleAddInventory}
                   disabled={adding || !newContent.trim()}
-                  className="flex-1 h-10 bg-[#7CFF00] text-[#131314] rounded-xl font-semibold hover:bg-[#9FFF40] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 text-[13px]"
+                  className="flex-1 h-10 bg-[#7CFF00]/10 text-[#7CFF00] rounded-xl font-semibold hover:bg-[#7CFF00]/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 text-[13px]"
                 >
                   {adding && <Loader2 className="w-4 h-4 animate-spin" />}
                   添加库存
@@ -822,7 +822,7 @@ export default function InventoryPage() {
                 <button
                   onClick={handleBatchSync}
                   disabled={batchAdding || !batchContent.trim()}
-                  className="flex-1 h-10 bg-[#7CFF00] text-[#131314] rounded-xl font-semibold hover:bg-[#9FFF40] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 text-[13px]"
+                  className="flex-1 h-10 bg-[#7CFF00]/10 text-[#7CFF00] rounded-xl font-semibold hover:bg-[#7CFF00]/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 text-[13px]"
                 >
                   {batchAdding && <Loader2 className="w-4 h-4 animate-spin" />}
                   确认批量同步

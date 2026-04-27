@@ -245,7 +245,7 @@ export default function OrdersPage() {
 
         <button
           onClick={() => {}}
-          className="h-8 px-3 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[12px] transition-colors flex items-center gap-1"
+          className="h-8 px-3 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] font-semibold rounded-lg text-[12px] transition-colors flex items-center gap-1"
         >
           <Search className="w-3.5 h-3.5" />
           搜索

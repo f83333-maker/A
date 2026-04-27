@@ -373,7 +373,7 @@ export default function SettingsPage() {
             onClick={() => setActiveTab(tab.id as typeof activeTab)}
             className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all whitespace-nowrap ${
               activeTab === tab.id
-                ? "bg-[#7CFF00] text-[#131314]"
+                ? "bg-[#7CFF00]/10 text-[#7CFF00]"
                 : "text-[#9aa0a6] hover:text-[#e3e3e3] hover:bg-[#2d2e30]"
             }`}
           >
@@ -428,7 +428,7 @@ export default function SettingsPage() {
                 { key: "banner_subtitle", value: bannerSubtitle },
               ])}
               disabled={saving}
-              className="mt-4 px-4 py-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[13px] transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="mt-4 px-4 py-2 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] font-semibold rounded-lg text-[13px] transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               保存
@@ -489,7 +489,7 @@ export default function SettingsPage() {
           <button
             onClick={() => saveSetting("nav_links", navLinks)}
             disabled={saving}
-            className="mt-4 px-4 py-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[13px] disabled:opacity-50 flex items-center gap-2"
+            className="mt-4 px-4 py-2 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] font-semibold rounded-lg text-[13px] disabled:opacity-50 flex items-center gap-2"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             保存
@@ -521,7 +521,7 @@ export default function SettingsPage() {
             <button
               onClick={() => saveSetting("search_placeholder", searchPlaceholder)}
               disabled={saving}
-              className="mt-4 px-4 py-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[13px] transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="mt-4 px-4 py-2 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] font-semibold rounded-lg text-[13px] transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               保存
@@ -572,7 +572,7 @@ export default function SettingsPage() {
             <button
               onClick={() => saveSetting("hot_search_tags", hotSearchTags)}
               disabled={saving}
-              className="mt-4 px-4 py-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[13px] transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="mt-4 px-4 py-2 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] font-semibold rounded-lg text-[13px] transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               保存
@@ -600,7 +600,7 @@ export default function SettingsPage() {
             <button
               onClick={() => saveSetting("delivery_text", deliveryText)}
               disabled={saving}
-              className="mt-4 px-4 py-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[13px] transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="mt-4 px-4 py-2 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] font-semibold rounded-lg text-[13px] transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               保存
@@ -661,7 +661,7 @@ export default function SettingsPage() {
           <button
             onClick={() => saveSetting("footer_links", footerLinks)}
             disabled={saving}
-            className="mt-4 px-4 py-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[13px] disabled:opacity-50 flex items-center gap-2"
+            className="mt-4 px-4 py-2 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] font-semibold rounded-lg text-[13px] disabled:opacity-50 flex items-center gap-2"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             保存
@@ -736,7 +736,7 @@ export default function SettingsPage() {
               { key: "contact_qq", value: contactQQ },
             ])}
             disabled={saving}
-            className="px-4 py-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[13px] disabled:opacity-50 flex items-center gap-2"
+            className="px-4 py-2 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] font-semibold rounded-lg text-[13px] disabled:opacity-50 flex items-center gap-2"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             保存设置
@@ -760,7 +760,7 @@ export default function SettingsPage() {
             </div>
             <button
               onClick={() => openPaymentModal()}
-              className="px-4 py-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[13px] flex items-center gap-2"
+              className="px-4 py-2 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] font-semibold rounded-lg text-[13px] flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               添加支付配置
@@ -1031,7 +1031,7 @@ export default function SettingsPage() {
               <button
                 onClick={savePaymentConfig}
                 disabled={paymentSaving}
-                className="px-4 py-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[13px] flex items-center gap-2 disabled:opacity-50"
+                className="px-4 py-2 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] font-semibold rounded-lg text-[13px] flex items-center gap-2 disabled:opacity-50"
               >
                 {paymentSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 保存配置
