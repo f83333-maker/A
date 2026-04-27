@@ -15,8 +15,11 @@ import {
   ChevronRight,
   Loader2,
   ShoppingCart,
-  BarChart3
+  BarChart3,
+  Sun,
+  Moon
 } from "lucide-react"
+import { useTheme } from "@/components/theme-provider"
 
 const navItems = [
   { name: "仪表盘", href: "/admin", icon: LayoutDashboard },
@@ -38,6 +41,7 @@ export default function AdminLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isChecking, setIsChecking] = useState(true)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const { theme, toggleTheme } = useTheme()
 
   // 登录页面不需要验证
   const isLoginPage = pathname === "/admin/login"
@@ -71,8 +75,8 @@ export default function AdminLayout({
   // 验证中显示加载
   if (isChecking) {
     return (
-      <div className="min-h-screen bg-[#131314] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-[#7CFF00] animate-spin" />
+      <div className="min-h-screen bg-[var(--theme-bg)] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-[var(--theme-accent)] animate-spin" />
       </div>
     )
   }
@@ -88,7 +92,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-[#131314] flex admin-selectable">
+    <div className="min-h-screen bg-[var(--theme-bg)] flex admin-selectable transition-colors duration-200">
       {/* 移动端遮罩 */}
       {sidebarOpen && (
         <div 
@@ -102,24 +106,24 @@ export default function AdminLayout({
         fixed lg:static inset-y-0 left-0 z-50
         group/sidebar
         w-14 hover:w-44 lg:w-14 lg:hover:w-44
-        bg-[#1e1f20] border-r border-[#3c3c3f]
-        transition-[width] duration-200 ease-in-out overflow-hidden
+        bg-[var(--theme-bg-elevated)] border-r border-[var(--theme-border)]
+        transition-[width,background-color] duration-200 ease-in-out overflow-hidden
         ${sidebarOpen ? "w-44 translate-x-0" : "-translate-x-full lg:translate-x-0"}
       `}>
         <div className="flex flex-col h-full w-44">
           {/* Logo */}
-          <div className="h-16 flex items-center justify-between px-3 border-b border-[#3c3c3f] shrink-0">
+          <div className="h-16 flex items-center justify-between px-3 border-b border-[var(--theme-border)] shrink-0">
             <Link href="/admin" className="flex items-center gap-2 min-w-0">
-              <div className="w-8 h-8 rounded-lg bg-[#7CFF00]/20 flex items-center justify-center shrink-0">
-                <LayoutDashboard className="w-4 h-4 text-[#7CFF00]" />
+              <div className="w-8 h-8 rounded-lg bg-[var(--theme-accent)]/20 flex items-center justify-center shrink-0">
+                <LayoutDashboard className="w-4 h-4 text-[var(--theme-accent)]" />
               </div>
-              <span className="text-[14px] font-semibold text-[#e3e3e3] whitespace-nowrap opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-150">
+              <span className="text-[14px] font-semibold text-[var(--theme-text-primary)] whitespace-nowrap opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-150">
                 管理后台
               </span>
             </Link>
             <button 
               onClick={() => setSidebarOpen(false)}
-              className="lg:hidden p-1 text-[#9aa0a6] hover:text-[#e3e3e3] shrink-0"
+              className="lg:hidden p-1 text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] shrink-0"
             >
               <X className="w-5 h-5" />
             </button>
@@ -140,8 +144,8 @@ export default function AdminLayout({
                     flex items-center gap-3 px-2 py-2.5 rounded-xl text-[13px] font-medium
                     transition-colors duration-150 whitespace-nowrap
                     ${isActive 
-                      ? "bg-[#7CFF00]/10 text-[#7CFF00]" 
-                      : "text-[#9aa0a6] hover:bg-[#2d2e30] hover:text-[#e3e3e3]"
+                      ? "bg-[var(--theme-accent)]/10 text-[var(--theme-accent)]" 
+                      : "text-[var(--theme-text-secondary)] hover:bg-[var(--theme-bg-subtle)] hover:text-[var(--theme-text-primary)]"
                     }
                   `}
                 >
@@ -158,11 +162,11 @@ export default function AdminLayout({
           </nav>
 
           {/* 底部操作 */}
-          <div className="px-2 py-3 border-t border-[#3c3c3f] space-y-0.5 shrink-0">
+          <div className="px-2 py-3 border-t border-[var(--theme-border)] space-y-0.5 shrink-0">
             <Link
               href="/"
               title="返回前台"
-              className="flex items-center gap-3 px-2 py-2.5 rounded-xl text-[13px] font-medium text-[#9aa0a6] hover:bg-[#2d2e30] hover:text-[#e3e3e3] transition-colors duration-150 whitespace-nowrap"
+              className="flex items-center gap-3 px-2 py-2.5 rounded-xl text-[13px] font-medium text-[var(--theme-text-secondary)] hover:bg-[var(--theme-bg-subtle)] hover:text-[var(--theme-text-primary)] transition-colors duration-150 whitespace-nowrap"
             >
               <ChevronRight className="w-4 h-4 rotate-180 shrink-0" />
               <span className="opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-150">返回前台</span>
@@ -170,7 +174,7 @@ export default function AdminLayout({
             <button
               onClick={handleLogout}
               title="退出登录"
-              className="w-full flex items-center gap-3 px-2 py-2.5 rounded-xl text-[13px] font-medium text-[#ee675c] hover:bg-[#ee675c]/10 transition-colors duration-150 whitespace-nowrap"
+              className="w-full flex items-center gap-3 px-2 py-2.5 rounded-xl text-[13px] font-medium text-[var(--theme-error)] hover:bg-[var(--theme-error)]/10 transition-colors duration-150 whitespace-nowrap"
             >
               <LogOut className="w-4 h-4 shrink-0" />
               <span className="opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-150">退出登录</span>
@@ -182,15 +186,27 @@ export default function AdminLayout({
       {/* 主内容区 */}
       <div className="flex-1 flex flex-col min-h-screen">
         {/* 顶部栏 */}
-        <header className="h-16 bg-[#1e1f20] border-b border-[#3c3c3f] flex items-center px-4 lg:px-6">
+        <header className="h-16 bg-[var(--theme-bg-elevated)] border-b border-[var(--theme-border)] flex items-center px-4 lg:px-6 transition-colors duration-200">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-2 -ml-2 text-[#9aa0a6] hover:text-[#e3e3e3]"
+            className="lg:hidden p-2 -ml-2 text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)]"
           >
             <Menu className="w-5 h-5" />
           </button>
           <div className="flex-1" />
-          <div className="text-[13px] text-[#9aa0a6] font-medium">
+          {/* 主题切换按钮 */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 mr-3 rounded-lg text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-subtle)] transition-all duration-200"
+            aria-label={theme === "dark" ? "切换到浅色模式" : "切换到深色模式"}
+          >
+            {theme === "dark" ? (
+              <Sun className="w-[18px] h-[18px]" />
+            ) : (
+              <Moon className="w-[18px] h-[18px]" />
+            )}
+          </button>
+          <div className="text-[13px] text-[var(--theme-text-secondary)] font-medium">
             管理员
           </div>
         </header>

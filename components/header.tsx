@@ -1,9 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { Menu, X, Headphones, Send, MessageCircle, Mail } from "lucide-react"
+import { Menu, X, Headphones, Send, MessageCircle, Mail, Sun, Moon } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import { useRouter, usePathname } from "next/navigation"
+import { useTheme } from "./theme-provider"
 
 const navItems = [
   { name: "首页", href: "#top", isAnchor: true },
@@ -24,6 +25,7 @@ export function Header() {
   const dropdownRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const pathname = usePathname()
+  const { theme, toggleTheme } = useTheme()
 
   // 获取联系方式设置
   useEffect(() => {
@@ -79,17 +81,17 @@ export function Header() {
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[#000000]/95 backdrop-blur-xl border-b border-[#262626]">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-[var(--theme-bg-elevated)]/95 backdrop-blur-xl border-b border-[var(--theme-border)] transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-[#141414] flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:bg-[#1a1a1a]">
+            <div className="w-9 h-9 rounded-xl bg-[var(--theme-bg-subtle)] flex items-center justify-center transition-all duration-300 group-hover:scale-105">
               <svg className="w-[26px] h-[26px]" viewBox="0 0 24 24" fill="none">
-                <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" fill="#7CFF00" stroke="#7CFF00" strokeWidth="0.5" strokeLinejoin="round"/>
+                <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" fill="var(--theme-accent)" stroke="var(--theme-accent)" strokeWidth="0.5" strokeLinejoin="round"/>
               </svg>
             </div>
-            <span className="text-[17px] font-bold text-[#ffffff] tracking-tight">
+            <span className="text-[17px] font-bold text-[var(--theme-text-primary)] tracking-tight">
               CrossBorder Hub
             </span>
           </Link>
@@ -101,7 +103,7 @@ export function Header() {
                 key={item.name}
                 href={item.href}
                 onClick={(e) => handleNavClick(e, item)}
-                className="px-5 py-2 text-[15px] text-[#a0a0a0] hover:text-[#ffffff] transition-colors duration-200 rounded-full hover:bg-[#141414] font-semibold cursor-pointer"
+                className="px-5 py-2 text-[15px] text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors duration-200 rounded-full hover:bg-[var(--theme-bg-subtle)] font-semibold cursor-pointer"
               >
                 {item.name}
               </a>
@@ -111,7 +113,7 @@ export function Header() {
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setContactDropdownOpen(!contactDropdownOpen)}
-                className="flex items-center gap-1.5 px-5 py-2 text-[15px] text-[#a0a0a0] hover:text-[#ffffff] transition-colors duration-200 rounded-full hover:bg-[#141414] font-semibold cursor-pointer"
+                className="flex items-center gap-1.5 px-5 py-2 text-[15px] text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors duration-200 rounded-full hover:bg-[var(--theme-bg-subtle)] font-semibold cursor-pointer"
               >
                 <Headphones className="w-4 h-4" />
                 联系客服
@@ -179,6 +181,19 @@ export function Header() {
                 </div>
               )}
             </div>
+
+            {/* 主题切换按钮 */}
+            <button
+              onClick={toggleTheme}
+              className="p-2.5 rounded-full text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-subtle)] transition-all duration-200"
+              aria-label={theme === "dark" ? "切换到浅色模式" : "切换到深色模式"}
+            >
+              {theme === "dark" ? (
+                <Sun className="w-[18px] h-[18px]" />
+              ) : (
+                <Moon className="w-[18px] h-[18px]" />
+              )}
+            </button>
           </nav>
 
           {/* Mobile Menu Button */}
