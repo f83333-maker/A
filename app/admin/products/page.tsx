@@ -81,6 +81,8 @@ interface Product {
   logo_url: string
   logo_data: string | null
   logo_bg_color: string | null
+  icon_url: string | null
+  tag_label: string | null
   delivery_type: string
   sort_order: number
   categories: { name: string } | null
@@ -571,7 +573,8 @@ export default function ProductsPage() {
                 <tr key={product.id} className="hover:bg-[#2d2e30]/30 transition-colors h-10">
                   {/* 商品信息 */}
                   <td className="px-3 py-1.5">
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-2">
+                      {/* 排序按钮 */}
                       <div className="flex gap-0.5 shrink-0">
                         <button
                           onClick={() => handleMoveUp(index)}
@@ -588,8 +591,31 @@ export default function ProductsPage() {
                           <ArrowDown className="w-2.5 h-2.5" />
                         </button>
                       </div>
-                      <span className="text-[13px] font-medium text-[#e3e3e3] truncate max-w-[360px]" title={product.name}>
+                      {/* 国旗图标 */}
+                      {product.icon_url && (
+                        <img 
+                          src={product.icon_url} 
+                          alt="" 
+                          className="w-5 h-3.5 object-cover rounded-sm shrink-0"
+                        />
+                      )}
+                      {/* 产品名称 */}
+                      <span className="text-[13px] font-medium text-[#e3e3e3] truncate max-w-[280px]" title={product.name}>
                         {product.name}
+                      </span>
+                      {/* 标签 */}
+                      {product.tag_label && (
+                        <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-[#FF3B3B]/20 text-[#FF3B3B] shrink-0">
+                          {product.tag_label}
+                        </span>
+                      )}
+                      {/* 发货方式 */}
+                      <span className={`px-1.5 py-0.5 text-[9px] font-medium rounded shrink-0 ${
+                        product.delivery_type === "自动发货" 
+                          ? "bg-[#7CFF00]/15 text-[#7CFF00]" 
+                          : "bg-[#F7931A]/15 text-[#F7931A]"
+                      }`}>
+                        {product.delivery_type || "自动发货"}
                       </span>
                     </div>
                   </td>
