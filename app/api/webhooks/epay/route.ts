@@ -2,8 +2,8 @@ import { verifyEpaySign } from "@/lib/epay"
 import { createClient } from "@/lib/supabase/server"
 import { NextRequest, NextResponse } from "next/server"
 
-// 生产域名
-const PRODUCTION_URL = "https://www.pcccc.cc"
+// 生产域名（不带www，与订单创建保持一致）
+const PRODUCTION_URL = "https://pcccc.cc"
 
 async function processPayment(data: Record<string, any>): Promise<boolean> {
   console.log("[v0] 易支付回调数据:", JSON.stringify(data))
@@ -35,15 +35,32 @@ async function processPayment(data: Record<string, any>): Promise<boolean> {
 
   const supabase = await createClient()
 
-  // 检查订单是否存在
-  const { data: order, error: queryError } = await supabase
-    .from("orders")
-    .select("*")
-    .eq("order_no", orderNo)
-    .single()
+  // 检查订单是否存在（增加重试机制，因为可能数据库写入有延迟）
+  let order = null
+  let retryCount = 0
+  const maxRetries = 3
+  
+  while (!order && retryCount < maxRetries) {
+    const { data, error: queryError } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("order_no", orderNo)
+      .single()
+    
+    if (!queryError && data) {
+      order = data
+      break
+    }
+    
+    retryCount++
+    if (retryCount < maxRetries) {
+      console.log(`[v0] 订单 ${orderNo} 未找到，等待重试 (${retryCount}/${maxRetries})`)
+      await new Promise(resolve => setTimeout(resolve, 1000)) // 等待1秒后重试
+    }
+  }
 
-  if (queryError || !order) {
-    console.error("[v0] 订单不存在:", orderNo)
+  if (!order) {
+    console.error("[v0] 订单不存在（重试后仍未找到）:", orderNo)
     return false
   }
 
