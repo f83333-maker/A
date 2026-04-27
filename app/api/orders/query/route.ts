@@ -16,36 +16,14 @@ export async function GET(request: NextRequest) {
     const fields = "id, order_no, product_name, quantity, unit_price, total_amount, status, created_at, buyer_email, buyer_name, query_password"
 
     if (orderNo && orderNo.trim()) {
-      // 订单号精确查询（同时兼容商户单号和易支付单号）
-      const no = orderNo.trim()
-      let { data: order, error } = await supabase
+      // 订单号精确查询
+      const { data: order, error } = await supabase
         .from("orders")
         .select(fields)
-        .eq("order_no", no)
+        .eq("order_no", orderNo.trim())
         .single()
 
       if (error || !order) {
-        // 尝试通过 stripe_payment_intent_id 查询
-        const { data: orderByStripe } = await supabase
-          .from("orders")
-          .select(fields)
-          .eq("stripe_payment_intent_id", no)
-          .single()
-        
-        if (orderByStripe) {
-          order = orderByStripe
-        } else {
-          // 尝试通过 epay_trade_no 查询
-          const { data: orderByEpay } = await supabase
-            .from("orders")
-            .select(fields)
-            .eq("epay_trade_no", no)
-            .single()
-          order = orderByEpay || null
-        }
-      }
-
-      if (!order) {
         return NextResponse.json({ success: false, error: "未找到该订单，请检查订单号是否正确" })
       }
 
