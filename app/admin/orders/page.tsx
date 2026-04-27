@@ -501,7 +501,7 @@ export default function OrdersPage() {
                     <button
                       onClick={handleDeliver}
                       disabled={isDelivering || !deliverContent.trim()}
-                      className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-[#81c995] hover:bg-[#a8d4b8] disabled:bg-[#3c3c3f] disabled:cursor-not-allowed rounded-xl text-[14px] font-medium text-[#131314] disabled:text-[#6e6e73] transition-colors"
+                      className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-[#81c995]/10 hover:bg-[#81c995]/20 disabled:bg-[#3c3c3f] disabled:cursor-not-allowed rounded-xl text-[14px] font-medium text-[#81c995] disabled:text-[#6e6e73] transition-colors"
                     >
                       {isDelivering ? (
                         <>
