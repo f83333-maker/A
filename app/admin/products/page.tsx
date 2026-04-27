@@ -611,16 +611,13 @@ export default function ProductsPage() {
           <Plus className="w-3.5 h-3.5" />
           商品发布
         </button>
-        <button
-          onClick={() => {
-            // 打开库存管理：选取第一个产品，或让用户从列表里点
-            if (filteredProducts.length > 0) openInventoryModal(filteredProducts[0])
-          }}
+        <Link
+          href="/admin/inventory"
           className="h-8 px-3 bg-[#2d2e30] hover:bg-[#3c3c3f] border border-[#3c3c3f] text-[#e3e3e3] font-medium rounded-lg text-[12px] transition-colors flex items-center gap-1.5"
         >
           <Package className="w-3.5 h-3.5 text-[#81c995]" />
           库存管理
-        </button>
+        </Link>
         {(searchName || filterCategoryId) && (
           <button
             onClick={() => { setSearchName(""); setSearchInput(""); setFilterCategoryId("") }}
