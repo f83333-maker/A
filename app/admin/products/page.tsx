@@ -685,7 +685,7 @@ export default function ProductsPage() {
                   />
                 </th>
                 <th className="px-3 py-3 text-left text-[13px] font-semibold text-[#9aa0a6]">商品信息</th>
-                <th className="px-3 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] w-32">操作</th>
+                <th className="px-3 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] w-10">操作</th>
                 <th className="px-3 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] w-20">售价</th>
                 <th className="px-3 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] w-32">状态</th>
                 <th className="px-3 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] w-14">销量</th>
@@ -750,28 +750,13 @@ export default function ProductsPage() {
                   </td>
                   {/* 操作 */}
                   <td className="px-3 py-2 whitespace-nowrap">
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => openModal(product)}
-                        className="text-[13px] font-medium text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
-                      >
-                        编辑
-                      </button>
-                      <span className="text-[#3c3c3f]">|</span>
-                      <button
-                        onClick={() => handleDuplicate(product)}
-                        className="text-[13px] font-medium text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
-                      >
-                        复制
-                      </button>
-                      <span className="text-[#3c3c3f]">|</span>
-                      <button
-                        onClick={() => handleDelete(product.id)}
-                        className="text-[13px] font-medium text-[#9aa0a6] hover:text-[#ee675c] transition-colors"
-                      >
-                        删除
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => openModal(product)}
+                      className="p-1 text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
+                      title="编辑"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
                   </td>
                   {/* 售价 */}
                   <td className="px-3 py-2">
@@ -807,6 +792,13 @@ export default function ProductsPage() {
                         className="px-2 py-0.5 text-[12px] font-medium bg-[#3c3c3f]/60 text-[#9aa0a6] hover:text-[#7CFF00] rounded-md transition-colors"
                       >
                         库存
+                      </button>
+                      <button
+                        onClick={() => handleDelete(product.id)}
+                        className="p-1 text-[#9aa0a6] hover:text-[#ee675c] transition-colors"
+                        title="删除"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </td>
