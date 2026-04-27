@@ -254,7 +254,7 @@ export default function InventoryPage() {
   }
 
   // 全选 / 取消全选（当前可见产品）
-  const toggleSelectAll = () => {
+  const toggleSelectAllProducts = () => {
     if (selectedIds.size === filteredProducts.length) {
       setSelectedIds(new Set())
     } else {
@@ -437,7 +437,7 @@ export default function InventoryPage() {
                 {/* 全选 + 已选数量 */}
                 <div className="flex items-center justify-between">
                   <button
-                    onClick={toggleSelectAll}
+                    onClick={toggleSelectAllProducts}
                     className="flex items-center gap-1.5 text-[12px] text-[#9aa0a6] hover:text-[#e3e3e3] transition-colors"
                   >
                     {allSelected
