@@ -145,12 +145,12 @@ export default function AdminLayout({
                     }
                   `}
                 >
-                  <item.icon className="w-4 h-4 shrink-0" />
+                  <item.icon className="w-5 h-5 shrink-0" />
                   <span className="opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-150 flex-1">
                     {item.name}
                   </span>
                   {isActive && (
-                    <ChevronRight className="w-3.5 h-3.5 shrink-0 opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-150" />
+                    <ChevronRight className="w-4 h-4 shrink-0 opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-150" />
                   )}
                 </Link>
               )
