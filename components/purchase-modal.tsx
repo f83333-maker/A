@@ -44,6 +44,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
   const [copied, setCopied] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+  const [formError, setFormError] = useState("")
   const [paymentType, setPaymentType] = useState<"wxpay" | "alipay">("wxpay")
   const [deliveryText, setDeliveryText] = useState("自动发货")
 
@@ -68,6 +69,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
       setCaptchaError("")
       setCopied(false)
       setError("")
+      setFormError("")
       setPaymentType("wxpay")
     }
   }, [isOpen])
@@ -119,12 +121,13 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
   }
 
   const handlePurchase = async () => {
+    setFormError("")
     if (!contact.trim()) {
-      setError("请填写联系方式")
+      setFormError("请填写联系方式")
       return
     }
     if (!queryPassword.trim() || queryPassword.length < 6) {
-      setError("请设置6位以上的查询密码")
+      setFormError("请设置6位以上的查询密码")
       return
     }
     if (captchaInput.toUpperCase() !== captcha) {
@@ -163,14 +166,14 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* 背景遮罩 */}
+      {/* 背景遮罩 - 80% 透明状态 */}
       <div 
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-fade-in"
+        className="absolute inset-0 bg-black/20 backdrop-blur-sm animate-fade-in"
         onClick={onClose}
       />
       
-      {/* 弹窗主体 */}
-      <div className="relative w-full max-w-lg bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] shadow-2xl animate-scale-in max-h-[90vh] overflow-hidden flex flex-col">
+      {/* 弹窗主体 - 80% 透明背景 */}
+      <div className="relative w-full max-w-lg bg-[#1e1f20]/20 backdrop-blur-xl rounded-2xl border border-[#3c3c3f]/40 shadow-2xl animate-scale-in max-h-[90vh] overflow-hidden flex flex-col">
         
         {/* 关闭按钮 */}
         <button
@@ -388,26 +391,37 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
 
         {/* 底部按钮 */}
         <div className="p-4 border-t border-[#3c3c3f]/50 bg-[#1e1f20]">
-          <button
-            onClick={handlePurchase}
-            disabled={isLoading || !contact.trim() || !queryPassword.trim() || queryPassword.length < 6 || captchaInput.length < 4 || product.stock < 1}
-            className={`w-full py-3 font-semibold rounded-xl transition-all duration-200 text-[15px] flex items-center justify-center gap-2 ${
-              paymentType === "wxpay" 
-                ? "bg-[#07c160] hover:bg-[#06ad56] text-white disabled:bg-[#3c3c3f]" 
-                : "bg-[#1677ff] hover:bg-[#0958d9] text-white disabled:bg-[#3c3c3f]"
-            } disabled:cursor-not-allowed disabled:text-[#6e6e73]`}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                处理中...
-              </>
-            ) : (
-              <>
-                {paymentType === "wxpay" ? "微信支付" : "支付宝支付"} · ¥{totalPrice}
-              </>
+          <div className="relative">
+            {/* 表单校验错误气泡 */}
+            {formError && (
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap">
+                <div className="bg-[#ee675c] text-white text-[13px] font-medium px-3 py-1.5 rounded-lg shadow-lg">
+                  {formError}
+                </div>
+                <div className="w-2 h-2 bg-[#ee675c] rotate-45 mx-auto -mt-1" />
+              </div>
             )}
-          </button>
+            <button
+              onClick={handlePurchase}
+              disabled={isLoading || product.stock < 1}
+              className={`w-full py-3 font-semibold rounded-xl transition-all duration-200 text-[15px] flex items-center justify-center gap-2 ${
+                paymentType === "wxpay"
+                  ? "bg-[#07c160] hover:bg-[#06ad56] text-white disabled:bg-[#3c3c3f]"
+                  : "bg-[#1677ff] hover:bg-[#0958d9] text-white disabled:bg-[#3c3c3f]"
+              } disabled:cursor-not-allowed disabled:text-[#6e6e73]`}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  处理中...
+                </>
+              ) : (
+                <>
+                  {paymentType === "wxpay" ? "微信支付" : "支付宝支付"} · ¥{totalPrice}
+                </>
+              )}
+            </button>
+          </div>
           {/* 免责声明 */}
           <p className="mt-3 text-[11px] text-[#6e6e73] text-center leading-relaxed">
             点击支付即表示您已阅读并同意本站

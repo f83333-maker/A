@@ -287,17 +287,23 @@ export default function CategoriesPage() {
                 </td>
                 <td className="px-5 py-4">
                   <button
-                    onClick={async () => {
-                      try {
-                        await fetch(`/api/admin/categories/${category.id}`, {
-                          method: "PUT",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ ...category, is_active: !category.is_active }),
-                        })
-                        fetchCategories()
-                      } catch (error) {
-                        console.error("Failed to toggle category:", error)
-                      }
+                    onClick={() => {
+                      // 乐观更新：立即更新本地状态，无需等待 API
+                      const newValue = !category.is_active
+                      setCategories(prev =>
+                        prev.map(c => c.id === category.id ? { ...c, is_active: newValue } : c)
+                      )
+                      // 后台静默同步
+                      fetch(`/api/admin/categories/${category.id}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ ...category, is_active: newValue }),
+                      }).catch(() => {
+                        // 失败时回滚
+                        setCategories(prev =>
+                          prev.map(c => c.id === category.id ? { ...c, is_active: !newValue } : c)
+                        )
+                      })
                     }}
                     className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${
                       category.is_active ? "bg-[#7CFF00]" : "bg-[#3c3c3f]"
@@ -408,7 +414,7 @@ export default function CategoriesPage() {
                       }}
                       className="text-[12px] text-[#ee675c] hover:underline"
                     >
-                      清除
+                      ���除
                     </button>
                   </div>
                 )}

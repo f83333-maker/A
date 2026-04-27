@@ -1,12 +1,50 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, Pencil, Trash2, Loader2, X, Package, ArrowUp, ArrowDown, Flag, Search } from "lucide-react"
+import { Plus, Pencil, Trash2, Loader2, X, Package, ArrowUp, ArrowDown, Flag, Search, BookmarkPlus, BookOpen, ChevronDown } from "lucide-react"
 import Link from "next/link"
 
 interface Category {
   id: string
   name: string
+}
+
+interface ProductTemplate {
+  id: string
+  name: string
+  data: typeof initialFormData
+  createdAt: string
+}
+
+const TEMPLATES_KEY = "product_templates_v1"
+
+const initialFormData = {
+  name: "",
+  description: "",
+  price: 0,
+  cost_price: 0,
+  stock: 0,
+  sales: 0,
+  tag_label: "",
+  is_active: true,
+  category_id: "",
+  product_info: "",
+  usage_instructions: "",
+  logo_data: "",
+  logo_bg_color: "#2d2e30",
+  delivery_type: "自动发货",
+}
+
+function loadTemplates(): ProductTemplate[] {
+  try {
+    return JSON.parse(localStorage.getItem(TEMPLATES_KEY) || "[]")
+  } catch {
+    return []
+  }
+}
+
+function saveTemplates(templates: ProductTemplate[]) {
+  localStorage.setItem(TEMPLATES_KEY, JSON.stringify(templates))
 }
 
 interface Product {
@@ -38,25 +76,14 @@ export default function ProductsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    price: 0,
-    cost_price: 0,
-    stock: 0,
-    sales: 0,
-    tag_label: "", // 产品标签，如 HOT、NEW 等
-    is_active: true,
-    category_id: "",
-    product_info: "",
-    usage_instructions: "",
-    logo_data: "",
-    logo_bg_color: "#2d2e30",
-    delivery_type: "自动发货",
-  })
+  const [formData, setFormData] = useState({ ...initialFormData })
   const [isSaving, setIsSaving] = useState(false)
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
   const [error, setError] = useState<string>("")
+  const [templates, setTemplates] = useState<ProductTemplate[]>([])
+  const [showTemplatePanel, setShowTemplatePanel] = useState(false)
+  const [saveTemplateName, setSaveTemplateName] = useState("")
+  const [showSaveInput, setShowSaveInput] = useState(false)
   
   // 筛选状态
   const [filterCategoryId, setFilterCategoryId] = useState<string>("")
@@ -97,6 +124,10 @@ export default function ProductsPage() {
     setError("")
     setFlagSearchQuery("")
     setFlagResults([])
+    setShowTemplatePanel(false)
+    setShowSaveInput(false)
+    setSaveTemplateName("")
+    setTemplates(loadTemplates())
     if (product) {
       setEditingProduct(product)
       setFormData({
@@ -118,22 +149,7 @@ export default function ProductsPage() {
       setLogoPreview(product.logo_data || null)
     } else {
       setEditingProduct(null)
-      setFormData({
-        name: "",
-        description: "",
-        price: 0,
-        cost_price: 0,
-        stock: 0,
-        sales: 0,
-        tag_label: "",
-        is_active: true,
-        category_id: categories[0]?.id || "",
-        product_info: "",
-        usage_instructions: "",
-        logo_data: "",
-        logo_bg_color: "#2d2e30",
-        delivery_type: "自动发货",
-      })
+      setFormData({ ...initialFormData, category_id: categories[0]?.id || "" })
       setLogoPreview(null)
     }
     setIsModalOpen(true)
@@ -440,6 +456,131 @@ export default function ProductsPage() {
               </button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
+
+              {/* 模板工具栏 - 仅添加模式显示 */}
+              {!editingProduct && (
+                <div className="flex items-center gap-2">
+                  {/* 选择模板 */}
+                  <div className="relative flex-1">
+                    <button
+                      type="button"
+                      onClick={() => { setShowTemplatePanel(v => !v); setShowSaveInput(false) }}
+                      className="w-full flex items-center justify-between gap-2 px-3 h-9 bg-[#2d2e30] border border-[#3c3c3f] hover:border-[#7CFF00]/50 rounded-xl text-[13px] text-[#9aa0a6] font-medium transition-colors"
+                    >
+                      <span className="flex items-center gap-2">
+                        <BookOpen className="w-3.5 h-3.5 text-[#7CFF00]" />
+                        {templates.length > 0 ? `选择模板（${templates.length}）` : "暂无模板"}
+                      </span>
+                      <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showTemplatePanel ? "rotate-180" : ""}`} />
+                    </button>
+                    {showTemplatePanel && templates.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-[#1e1f20] border border-[#3c3c3f] rounded-xl shadow-2xl z-10 overflow-hidden max-h-48 overflow-y-auto">
+                        {templates.map(tpl => (
+                          <div key={tpl.id} className="flex items-center justify-between px-3 py-2.5 hover:bg-[#2d2e30] transition-colors group">
+                            <button
+                              type="button"
+                              className="flex-1 text-left text-[13px] text-[#e3e3e3] font-medium truncate"
+                              onClick={() => {
+                                setFormData({ ...tpl.data })
+                                setLogoPreview(tpl.data.logo_data || null)
+                                setShowTemplatePanel(false)
+                              }}
+                            >
+                              {tpl.name}
+                              <span className="ml-2 text-[11px] text-[#6e6e73]">{new Date(tpl.createdAt).toLocaleDateString("zh-CN")}</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = templates.filter(t => t.id !== tpl.id)
+                                saveTemplates(updated)
+                                setTemplates(updated)
+                              }}
+                              className="opacity-0 group-hover:opacity-100 ml-2 p-1 text-[#6e6e73] hover:text-[#ee675c] transition-all"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {showTemplatePanel && templates.length === 0 && (
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-[#1e1f20] border border-[#3c3c3f] rounded-xl shadow-2xl z-10 px-3 py-3 text-[13px] text-[#6e6e73] text-center">
+                        还没有保存的模板
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 保存模板 */}
+                  {!showSaveInput ? (
+                    <button
+                      type="button"
+                      onClick={() => { setShowSaveInput(true); setShowTemplatePanel(false); setSaveTemplateName("") }}
+                      className="flex items-center gap-1.5 px-3 h-9 bg-[#2d2e30] border border-[#3c3c3f] hover:border-[#7CFF00]/50 rounded-xl text-[13px] text-[#9aa0a6] font-medium transition-colors whitespace-nowrap"
+                    >
+                      <BookmarkPlus className="w-3.5 h-3.5 text-[#7CFF00]" />
+                      保存模板
+                    </button>
+                  ) : (
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="text"
+                        autoFocus
+                        value={saveTemplateName}
+                        onChange={e => setSaveTemplateName(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === "Escape") setShowSaveInput(false)
+                          if (e.key === "Enter") {
+                            e.preventDefault()
+                            if (!saveTemplateName.trim()) return
+                            const tpl: ProductTemplate = {
+                              id: Date.now().toString(),
+                              name: saveTemplateName.trim(),
+                              data: { ...formData },
+                              createdAt: new Date().toISOString(),
+                            }
+                            const updated = [tpl, ...templates]
+                            saveTemplates(updated)
+                            setTemplates(updated)
+                            setShowSaveInput(false)
+                            setSaveTemplateName("")
+                          }
+                        }}
+                        placeholder="模板名称，回车保存"
+                        className="w-36 h-9 px-2 bg-[#2d2e30] border border-[#7CFF00]/50 rounded-xl text-[#e3e3e3] text-[13px] focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!saveTemplateName.trim()) return
+                          const tpl: ProductTemplate = {
+                            id: Date.now().toString(),
+                            name: saveTemplateName.trim(),
+                            data: { ...formData },
+                            createdAt: new Date().toISOString(),
+                          }
+                          const updated = [tpl, ...templates]
+                          saveTemplates(updated)
+                          setTemplates(updated)
+                          setShowSaveInput(false)
+                          setSaveTemplateName("")
+                        }}
+                        className="h-9 px-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-bold rounded-xl text-[12px] transition-colors"
+                      >
+                        保存
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowSaveInput(false)}
+                        className="h-9 w-9 flex items-center justify-center text-[#6e6e73] hover:text-[#e3e3e3] transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* 错误提示 */}
               {error && (
                 <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-[#ee675c]/10 border border-[#ee675c]/30">

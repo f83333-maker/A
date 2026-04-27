@@ -3,31 +3,35 @@
 import { Search, Sparkles, ArrowRight, X, Shield, Zap, Globe } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 
+
 interface SearchBannerProps {
   searchQuery: string
   onSearch: (query: string) => void
+  initialTitle?: string
+  initialSubtitle?: string
+  initialPlaceholder?: string
+  initialHotTags?: string[]
 }
 
-export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
+export function SearchBanner({
+  searchQuery,
+  onSearch,
+  initialTitle = "",
+  initialSubtitle = "",
+  initialPlaceholder = "搜索产品名称、价格、库存、标签...",
+  initialHotTags = ["社交媒体", "海外邮箱", "营销工具", "出海必备"],
+}: SearchBannerProps) {
   const [isFocused, setIsFocused] = useState(false)
-  const [searchPlaceholder, setSearchPlaceholder] = useState("搜索产品名称、价格、库存、标签...")
-  const [hotSearchTags, setHotSearchTags] = useState<string[]>(["社交媒体", "海外邮箱", "营销工具", "出海必备"])
-  const [bannerTitle, setBannerTitle] = useState("跨境资源铺")
-  const [bannerSubtitle, setBannerSubtitle] = useState("一站式跨境资源采购平台，助力全球化业务拓展")
+  // 直接使用服务端传来的初始值，无需客户端 fetch
+  const searchPlaceholder = initialPlaceholder
+  const hotSearchTags = initialHotTags
+  const bannerTitle = initialTitle
+  const bannerSubtitle = initialSubtitle
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const bannerRef = useRef<HTMLElement>(null)
 
+  // 只记录访客，不再 fetch 设置
   useEffect(() => {
-    fetch("/api/site-settings")
-      .then(res => res.json())
-      .then(data => {
-        if (data.search_placeholder) setSearchPlaceholder(data.search_placeholder)
-        if (data.hot_search_tags && data.hot_search_tags.length > 0) setHotSearchTags(data.hot_search_tags)
-        if (data.banner_title) setBannerTitle(data.banner_title)
-        if (data.banner_subtitle) setBannerSubtitle(data.banner_subtitle)
-      })
-      .catch(err => console.error("获取设置失败:", err))
-    
     fetch("/api/visitor", { 
       method: "POST", 
       headers: { "Content-Type": "application/json" },
@@ -137,7 +141,7 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
           <ArrowRight className="w-4 h-4 text-[#525252] group-hover:text-[#7CFF00] group-hover:translate-x-0.5 transition-all duration-300" />
         </div>
         
-        {/* 主标题 - 带渐变动画 */}
+        {/* 主标题 - 服务端直接渲染，无闪烁 */}
         <h1 className="text-[42px] sm:text-[56px] lg:text-[72px] font-bold text-white mb-6 tracking-[-0.03em] leading-[1.05] animate-fade-in-up delay-100">
           {bannerTitle.includes(" ") ? (
             <>
@@ -157,8 +161,8 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
             </span>
           )}
         </h1>
-        
-        {/* 副标题 */}
+
+        {/* 副标题 - 服务端直接渲染，无闪烁 */}
         <p className="text-[17px] sm:text-[19px] text-[#737373] mb-8 max-w-2xl mx-auto leading-relaxed font-medium animate-fade-in-up delay-200">
           {bannerSubtitle}
         </p>
