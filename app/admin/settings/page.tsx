@@ -808,7 +808,13 @@ export default function SettingsPage() {
                     <div className="flex items-center justify-between">
                       <span className="text-[#6e6e73]">API地址</span>
                       <span className="text-[#9aa0a6] truncate max-w-[150px]" title={config.api_url}>
-                        {config.api_url ? new URL(config.api_url).hostname : "-"}
+                        {config.api_url ? (() => {
+                          try {
+                            return new URL(config.api_url).hostname
+                          } catch {
+                            return config.api_url.substring(0, 20) + (config.api_url.length > 20 ? "..." : "")
+                          }
+                        })() : "-"}
                       </span>
                     </div>
                   </div>
