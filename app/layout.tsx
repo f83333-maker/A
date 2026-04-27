@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Figtree } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
 // Oak Sans 基于 Figtree 字体设计，使用 Figtree 作为等效替代
@@ -29,7 +30,9 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" className={`${figtree.variable} bg-background`}>
       <body className="font-oak-sans antialiased min-h-screen">
-        {children}
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

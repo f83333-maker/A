@@ -96,21 +96,21 @@ export default function TwoFAPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#131314]">
+    <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <main className="flex-1 pt-24 pb-16 px-4">
         <div className="max-w-lg mx-auto">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#7CFF00]/10 mb-4">
-              <Shield className="w-8 h-8 text-[#7CFF00]" />
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4">
+              <Shield className="w-8 h-8 text-primary" />
             </div>
-            <h1 className="text-2xl font-bold text-[#e3e3e3] mb-2">2FA 验证码生成器</h1>
-            <p className="text-[#9aa0a6]">输入密钥生成动态验证码</p>
+            <h1 className="text-2xl font-bold text-foreground mb-2">2FA 验证码生成器</h1>
+            <p className="text-muted-foreground">输入密钥生成动态验证码</p>
           </div>
 
-          <div className="bg-[#1e1f20] rounded-xl border border-[#3c3c3f] p-6">
+          <div className="bg-card rounded-xl border border-border p-6">
             <div className="mb-6">
-              <label className="block text-sm font-medium text-[#e3e3e3] mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 密钥 (Secret Key)
               </label>
               <input
@@ -121,16 +121,16 @@ export default function TwoFAPage() {
                   setError("")
                 }}
                 placeholder="输入 Base32 格式的密钥"
-                className="w-full h-12 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] placeholder-[#6e6e73] focus:outline-none focus:border-[#7CFF00] font-mono"
+                className="w-full h-12 px-4 bg-muted border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary font-mono"
               />
-              <p className="mt-2 text-xs text-[#6e6e73]">
+              <p className="mt-2 text-xs text-muted-foreground">
                 密钥通常在账号的安全设置中获取，格式如: JBSWY3DPEHPK3PXP
               </p>
             </div>
 
             {error && (
-              <div className="mb-4 p-3 bg-[#ee675c]/10 border border-[#ee675c]/30 rounded-lg">
-                <p className="text-[#ee675c] text-sm">{error}</p>
+              <div className="mb-4 p-3 bg-destructive/10 border border-destructive/30 rounded-lg">
+                <p className="text-destructive text-sm">{error}</p>
               </div>
             )}
 
@@ -138,7 +138,7 @@ export default function TwoFAPage() {
               <div className="text-center">
                 <div className="relative inline-block">
                   <div 
-                    className="text-5xl font-mono font-bold text-[#e3e3e3] tracking-[0.3em] mb-4 cursor-pointer hover:text-[#7CFF00] transition-colors"
+                    className="text-5xl font-mono font-bold text-foreground tracking-[0.3em] mb-4 cursor-pointer hover:text-primary transition-colors"
                     onClick={handleCopy}
                   >
                     {code}
@@ -146,22 +146,22 @@ export default function TwoFAPage() {
                   
                   <div className="flex items-center justify-center gap-4">
                     <div className="flex items-center gap-2">
-                      <RefreshCw className={`w-4 h-4 text-[#9aa0a6] ${timeLeft <= 5 ? "animate-spin" : ""}`} />
-                      <span className={`text-sm font-medium ${timeLeft <= 5 ? "text-[#ee675c]" : "text-[#9aa0a6]"}`}>
+                      <RefreshCw className={`w-4 h-4 text-muted-foreground ${timeLeft <= 5 ? "animate-spin" : ""}`} />
+                      <span className={`text-sm font-medium ${timeLeft <= 5 ? "text-destructive" : "text-muted-foreground"}`}>
                         {timeLeft}s
                       </span>
                     </div>
                     
-                    <div className="w-32 h-1.5 bg-[#2d2e30] rounded-full overflow-hidden">
+                    <div className="w-32 h-1.5 bg-muted rounded-full overflow-hidden">
                       <div 
-                        className={`h-full transition-all duration-1000 ${timeLeft <= 5 ? "bg-[#ee675c]" : "bg-[#7CFF00]"}`}
+                        className={`h-full transition-all duration-1000 ${timeLeft <= 5 ? "bg-destructive" : "bg-primary"}`}
                         style={{ width: `${(timeLeft / 30) * 100}%` }}
                       />
                     </div>
                     
                     <button
                       onClick={handleCopy}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2d2e30] hover:bg-[#3c3c3f] rounded-lg text-sm text-[#9aa0a6] hover:text-[#e3e3e3] transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-muted hover:bg-border rounded-lg text-sm text-muted-foreground hover:text-foreground transition-colors"
                     >
                       {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                       {copied ? "已复制" : "复制"}
@@ -172,9 +172,9 @@ export default function TwoFAPage() {
             )}
           </div>
 
-          <div className="mt-6 p-4 bg-[#fdd663]/10 border border-[#fdd663]/30 rounded-xl">
-            <h3 className="text-sm font-semibold text-[#fdd663] mb-2">使用说明</h3>
-            <ul className="text-sm text-[#9aa0a6] space-y-1">
+          <div className="mt-6 p-4 bg-[var(--okx-yellow)]/10 border border-[var(--okx-yellow)]/30 rounded-xl">
+            <h3 className="text-sm font-semibold text-[var(--okx-yellow)] mb-2">使用说明</h3>
+            <ul className="text-sm text-muted-foreground space-y-1">
               <li>1. 从账号安全设置中获取 2FA 密钥</li>
               <li>2. 将密钥粘贴到上方输入框</li>
               <li>3. 系统会自动生成 6 位动态验证码</li>

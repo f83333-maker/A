@@ -1,9 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { Menu, X, Headphones, Send, MessageCircle, Mail } from "lucide-react"
+import { Menu, X, Headphones, Send, MessageCircle, Mail, Sun, Moon } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import { useRouter, usePathname } from "next/navigation"
+import { useTheme } from "./theme-provider"
 
 const navItems = [
   { name: "首页", href: "#top", isAnchor: true },
@@ -14,6 +15,7 @@ const navItems = [
 ]
 
 export function Header() {
+  const { theme, toggleTheme } = useTheme()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [contactDropdownOpen, setContactDropdownOpen] = useState(false)
   const [contactInfo, setContactInfo] = useState({
@@ -79,17 +81,17 @@ export function Header() {
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[#000000]/95 backdrop-blur-xl border-b border-[#262626]">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-[#141414] flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:bg-[#1a1a1a]">
+            <div className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:bg-accent/10">
               <svg className="w-[26px] h-[26px]" viewBox="0 0 24 24" fill="none">
-                <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" fill="#7CFF00" stroke="#7CFF00" strokeWidth="0.5" strokeLinejoin="round"/>
+                <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" fill="var(--okx-green)" stroke="var(--okx-green)" strokeWidth="0.5" strokeLinejoin="round"/>
               </svg>
             </div>
-            <span className="text-[17px] font-bold text-[#ffffff] tracking-tight">
+            <span className="text-[17px] font-bold text-foreground tracking-tight">
               CrossBorder Hub
             </span>
           </Link>
@@ -101,7 +103,7 @@ export function Header() {
                 key={item.name}
                 href={item.href}
                 onClick={(e) => handleNavClick(e, item)}
-                className="px-5 py-2 text-[15px] text-[#a0a0a0] hover:text-[#ffffff] transition-colors duration-200 rounded-full hover:bg-[#141414] font-semibold cursor-pointer"
+                className="px-5 py-2 text-[15px] text-muted-foreground hover:text-foreground transition-colors duration-200 rounded-full hover:bg-muted font-semibold cursor-pointer"
               >
                 {item.name}
               </a>
@@ -111,7 +113,7 @@ export function Header() {
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setContactDropdownOpen(!contactDropdownOpen)}
-                className="flex items-center gap-1.5 px-5 py-2 text-[15px] text-[#a0a0a0] hover:text-[#ffffff] transition-colors duration-200 rounded-full hover:bg-[#141414] font-semibold cursor-pointer"
+                className="flex items-center gap-1.5 px-5 py-2 text-[15px] text-muted-foreground hover:text-foreground transition-colors duration-200 rounded-full hover:bg-muted font-semibold cursor-pointer"
               >
                 <Headphones className="w-4 h-4" />
                 联系客服
@@ -119,22 +121,22 @@ export function Header() {
               
               {/* 下拉菜单 */}
               {contactDropdownOpen && (
-                <div className="absolute right-0 top-full mt-2 w-56 bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl shadow-xl overflow-hidden z-50">
+                <div className="absolute right-0 top-full mt-2 w-56 bg-card border border-border rounded-xl shadow-xl overflow-hidden z-50">
                   <div className="p-2">
                     {contactInfo.telegram && (
                       <a
                         href={contactInfo.telegram.startsWith("http") ? contactInfo.telegram : `https://t.me/${contactInfo.telegram.replace("@", "")}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-[#a0a0a0] hover:text-white hover:bg-[#252525] rounded-lg transition-colors"
+                        className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
                         onClick={() => setContactDropdownOpen(false)}
                       >
                         <div className="w-8 h-8 rounded-lg bg-[#0088cc]/15 flex items-center justify-center">
                           <Send className="w-4 h-4 text-[#0088cc]" />
                         </div>
                         <div>
-                          <div className="font-medium">Telegram</div>
-                          <div className="text-[12px] text-[#6e6e73]">{contactInfo.telegram}</div>
+                          <div className="font-medium text-foreground">Telegram</div>
+                          <div className="text-[12px] text-muted-foreground">{contactInfo.telegram}</div>
                         </div>
                       </a>
                     )}
@@ -143,35 +145,35 @@ export function Header() {
                         href={contactInfo.qq.startsWith("http") ? contactInfo.qq : `tencent://message/?uin=${contactInfo.qq}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-[#a0a0a0] hover:text-white hover:bg-[#252525] rounded-lg transition-colors"
+                        className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
                         onClick={() => setContactDropdownOpen(false)}
                       >
                         <div className="w-8 h-8 rounded-lg bg-[#12B7F5]/15 flex items-center justify-center">
                           <MessageCircle className="w-4 h-4 text-[#12B7F5]" />
                         </div>
                         <div>
-                          <div className="font-medium">QQ</div>
-                          <div className="text-[12px] text-[#6e6e73]">{contactInfo.qq}</div>
+                          <div className="font-medium text-foreground">QQ</div>
+                          <div className="text-[12px] text-muted-foreground">{contactInfo.qq}</div>
                         </div>
                       </a>
                     )}
                     {contactInfo.email && (
                       <a
                         href={`mailto:${contactInfo.email}`}
-                        className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-[#a0a0a0] hover:text-white hover:bg-[#252525] rounded-lg transition-colors"
+                        className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
                         onClick={() => setContactDropdownOpen(false)}
                       >
-                        <div className="w-8 h-8 rounded-lg bg-[#7CFF00]/15 flex items-center justify-center">
-                          <Mail className="w-4 h-4 text-[#7CFF00]" />
+                        <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
+                          <Mail className="w-4 h-4 text-primary" />
                         </div>
                         <div>
-                          <div className="font-medium">邮箱</div>
-                          <div className="text-[12px] text-[#6e6e73]">{contactInfo.email}</div>
+                          <div className="font-medium text-foreground">邮箱</div>
+                          <div className="text-[12px] text-muted-foreground">{contactInfo.email}</div>
                         </div>
                       </a>
                     )}
                     {!contactInfo.telegram && !contactInfo.qq && !contactInfo.email && (
-                      <div className="px-3 py-4 text-[13px] text-[#6e6e73] text-center">
+                      <div className="px-3 py-4 text-[13px] text-muted-foreground text-center">
                         暂未设置联系方式
                       </div>
                     )}
@@ -179,15 +181,37 @@ export function Header() {
                 </div>
               )}
             </div>
+            
+            {/* 主题切换按钮 */}
+            <button
+              onClick={toggleTheme}
+              className="ml-2 p-2.5 text-muted-foreground hover:text-foreground transition-colors duration-200 rounded-full hover:bg-muted"
+              aria-label="切换主题"
+            >
+              {theme === "dark" ? (
+                <Sun className="w-5 h-5" />
+              ) : (
+                <Moon className="w-5 h-5" />
+              )}
+            </button>
           </nav>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden p-2 text-[#8c8c8c] hover:text-[#ffffff] rounded-full hover:bg-[#141414] transition-all duration-200"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+          {/* Mobile Menu Buttons */}
+          <div className="md:hidden flex items-center gap-1">
+            <button
+              onClick={toggleTheme}
+              className="p-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted transition-all duration-200"
+              aria-label="切换主题"
+            >
+              {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+            <button
+              className="p-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted transition-all duration-200"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}
@@ -196,29 +220,29 @@ export function Header() {
             mobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
           }`}
         >
-          <div className="py-4 border-t border-[#262626]">
+          <div className="py-4 border-t border-border">
             <nav className="flex flex-col gap-1">
               {navItems.map((item) => (
                 <a
                   key={item.name}
                   href={item.href}
                   onClick={(e) => handleNavClick(e, item)}
-                  className="px-4 py-3 text-[14px] text-[#8c8c8c] hover:text-[#ffffff] hover:bg-[#141414] rounded-xl transition-all duration-200 font-medium cursor-pointer"
+                  className="px-4 py-3 text-[14px] text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-all duration-200 font-medium cursor-pointer"
                 >
                   {item.name}
                 </a>
               ))}
               
               {/* 移动端联系客服 */}
-              <div className="mt-2 pt-2 border-t border-[#262626]">
-                <div className="px-4 py-2 text-[12px] text-[#6e6e73] font-medium">联系客服</div>
+              <div className="mt-2 pt-2 border-t border-border">
+                <div className="px-4 py-2 text-[12px] text-muted-foreground font-medium">联系客服</div>
                 <div className="flex flex-col gap-1">
                   {contactInfo.telegram && (
                     <a
                       href={contactInfo.telegram.startsWith("http") ? contactInfo.telegram : `https://t.me/${contactInfo.telegram.replace("@", "")}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-3 px-4 py-2.5 text-[14px] text-[#8c8c8c] hover:text-white hover:bg-[#141414] rounded-xl transition-colors"
+                      className="flex items-center gap-3 px-4 py-2.5 text-[14px] text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <Send className="w-4 h-4 text-[#0088cc]" />
@@ -230,7 +254,7 @@ export function Header() {
                       href={contactInfo.qq.startsWith("http") ? contactInfo.qq : `tencent://message/?uin=${contactInfo.qq}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-3 px-4 py-2.5 text-[14px] text-[#8c8c8c] hover:text-white hover:bg-[#141414] rounded-xl transition-colors"
+                      className="flex items-center gap-3 px-4 py-2.5 text-[14px] text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <MessageCircle className="w-4 h-4 text-[#12B7F5]" />
@@ -240,10 +264,10 @@ export function Header() {
                   {contactInfo.email && (
                     <a
                       href={`mailto:${contactInfo.email}`}
-                      className="flex items-center gap-3 px-4 py-2.5 text-[14px] text-[#8c8c8c] hover:text-white hover:bg-[#141414] rounded-xl transition-colors"
+                      className="flex items-center gap-3 px-4 py-2.5 text-[14px] text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      <Mail className="w-4 h-4 text-[#7CFF00]" />
+                      <Mail className="w-4 h-4 text-primary" />
                       <span>邮箱</span>
                     </a>
                   )}

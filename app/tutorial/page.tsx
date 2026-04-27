@@ -54,38 +54,38 @@ const faqs = [
 
 export default function TutorialPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-[#131314]">
+    <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <main className="flex-1 pt-24 pb-16 px-4">
         <div className="max-w-4xl mx-auto">
           {/* 标题 */}
           <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#81c995]/10 mb-4">
-              <BookOpen className="w-8 h-8 text-[#81c995]" />
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4">
+              <BookOpen className="w-8 h-8 text-primary" />
             </div>
-            <h1 className="text-3xl font-bold text-[#e3e3e3] mb-3">使用教程</h1>
-            <p className="text-[#9aa0a6] text-lg">简单几步，轻松购买和使用账号</p>
+            <h1 className="text-3xl font-bold text-foreground mb-3">使用教程</h1>
+            <p className="text-muted-foreground text-lg">简单几步，轻松购买和使用账号</p>
           </div>
 
           {/* 购买流程 */}
           <div className="mb-16">
-            <h2 className="text-xl font-semibold text-[#e3e3e3] mb-6 flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-[#7CFF00]" />
+            <h2 className="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-primary" />
               购买流程
             </h2>
             <div className="grid md:grid-cols-2 gap-4">
               {steps.map((step, index) => (
                 <div
                   key={index}
-                  className="bg-[#1e1f20] rounded-xl border border-[#3c3c3f] p-6 hover:border-[#7CFF00]/50 transition-colors"
+                  className="bg-card rounded-xl border border-border p-6 hover:border-primary/50 transition-colors"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-[#7CFF00]/10 flex items-center justify-center shrink-0">
-                      <step.icon className="w-6 h-6 text-[#7CFF00]" />
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                      <step.icon className="w-6 h-6 text-primary" />
                     </div>
                     <div>
-                      <h3 className="text-base font-semibold text-[#e3e3e3] mb-2">{step.title}</h3>
-                      <p className="text-sm text-[#9aa0a6] leading-relaxed">{step.description}</p>
+                      <h3 className="text-base font-semibold text-foreground mb-2">{step.title}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
                     </div>
                   </div>
                 </div>
@@ -95,30 +95,30 @@ export default function TutorialPage() {
 
           {/* 常见问题 */}
           <div className="mb-16">
-            <h2 className="text-xl font-semibold text-[#e3e3e3] mb-6 flex items-center gap-2">
-              <MessageCircle className="w-5 h-5 text-[#fdd663]" />
+            <h2 className="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
+              <MessageCircle className="w-5 h-5 text-[var(--okx-yellow)]" />
               常见问题
             </h2>
             <div className="space-y-3">
               {faqs.map((faq, index) => (
                 <div
                   key={index}
-                  className="bg-[#1e1f20] rounded-xl border border-[#3c3c3f] p-5"
+                  className="bg-card rounded-xl border border-border p-5"
                 >
-                  <h3 className="text-base font-semibold text-[#e3e3e3] mb-2">{faq.question}</h3>
-                  <p className="text-sm text-[#9aa0a6] leading-relaxed">{faq.answer}</p>
+                  <h3 className="text-base font-semibold text-foreground mb-2">{faq.question}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{faq.answer}</p>
                 </div>
               ))}
             </div>
           </div>
 
           {/* 联系客服 */}
-          <div className="bg-gradient-to-r from-[#7CFF00]/10 to-[#81c995]/10 rounded-2xl border border-[#3c3c3f] p-8 text-center">
-            <h2 className="text-xl font-semibold text-[#e3e3e3] mb-3">还有其他问题？</h2>
-            <p className="text-[#9aa0a6] mb-6">如果您在使用过程中遇到任何问题，欢迎随时联系我们的客服团队</p>
+          <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-2xl border border-border p-8 text-center">
+            <h2 className="text-xl font-semibold text-foreground mb-3">还有其他问题？</h2>
+            <p className="text-muted-foreground mb-6">如果您在使用过程中遇到任何问题，欢迎随时联系我们的客服团队</p>
             <a
               href="mailto:support@example.com"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-full transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:opacity-90 text-primary-foreground font-semibold rounded-full transition-colors"
             >
               <MessageCircle className="w-5 h-5" />
               联系客服
