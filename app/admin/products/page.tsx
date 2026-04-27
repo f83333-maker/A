@@ -681,11 +681,11 @@ export default function ProductsPage() {
                   />
                 </th>
                 <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#9aa0a6]">商品信息</th>
+                <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] w-28">操作</th>
                 <th className="px-2 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] w-16">售价</th>
                 <th className="px-2 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] w-24">状态</th>
                 <th className="px-2 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] w-12">销量</th>
                 <th className="px-2 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] w-20">库存</th>
-                <th className="px-3 py-2 text-right text-[11px] font-semibold text-[#9aa0a6] w-28">操作</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#3c3c3f]/50">
@@ -745,6 +745,29 @@ export default function ProductsPage() {
 
                     </div>
                   </td>
+                  {/* 操作 */}
+                  <td className="px-3 py-1.5 whitespace-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => openModal(product)}
+                        className="text-[11px] text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
+                      >
+                        编辑
+                      </button>
+                      <button
+                        onClick={() => handleDuplicate(product)}
+                        className="text-[11px] text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
+                      >
+                        复制
+                      </button>
+                      <button
+                        onClick={() => handleDelete(product.id)}
+                        className="text-[11px] text-[#9aa0a6] hover:text-[#ee675c] transition-colors"
+                      >
+                        删除
+                      </button>
+                    </div>
+                  </td>
                   {/* 售价 */}
                   <td className="px-2 py-1.5">
                     <span className="text-[12px] font-semibold text-[#e3e3e3]">{product.price}</span>
@@ -779,29 +802,6 @@ export default function ProductsPage() {
                         className="px-1 py-0.5 text-[9px] font-medium text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
                       >
                         库存
-                      </button>
-                    </div>
-                  </td>
-                  {/* 操作 */}
-                  <td className="px-3 py-1.5 whitespace-nowrap">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <button
-                        onClick={() => openModal(product)}
-                        className="text-[11px] text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
-                      >
-                        编辑
-                      </button>
-                      <button
-                        onClick={() => handleDuplicate(product)}
-                        className="text-[11px] text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
-                      >
-                        复制
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product.id)}
-                        className="text-[11px] text-[#9aa0a6] hover:text-[#ee675c] transition-colors"
-                      >
-                        删除
                       </button>
                     </div>
                   </td>
