@@ -239,9 +239,9 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                           <span className="text-[14px] text-white font-medium truncate">
                             <Highlight text={product.name} query={searchQuery} />
                           </span>
-                          {product.is_hot && (
+                          {(product.tag_label || product.is_hot) && (
                             <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-[#FF3B3B]/20 text-[#FF3B3B]">
-                              HOT
+                              {product.tag_label || "HOT"}
                             </span>
                           )}
                         </div>
@@ -302,9 +302,9 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                         <span className="text-[13px] text-white font-medium truncate">
                           <Highlight text={product.name} query={searchQuery} />
                         </span>
-                        {product.is_hot && (
+                        {(product.tag_label || product.is_hot) && (
                           <span className="px-1 py-0.5 text-[9px] font-bold rounded bg-[#FF3B3B]/20 text-[#FF3B3B]">
-                            HOT
+                            {product.tag_label || "HOT"}
                           </span>
                         )}
                       </div>
