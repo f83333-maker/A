@@ -815,8 +815,8 @@ export default function ProductsPage() {
       {/* 编辑弹窗 */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#3c3c3f] sticky top-0 bg-[#1e1f20]">
+          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#3c3c3f] shrink-0">
               <h2 className="text-[18px] font-semibold text-[#e3e3e3]">
                 {editingProduct ? "编辑产品" : "添加产品"}
               </h2>
@@ -827,11 +827,11 @@ export default function ProductsPage() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
 
               {/* 模板工具栏 - 仅添加模式显示 */}
               {!editingProduct && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 px-6 pt-4 shrink-0">
                   {/* 选择模板 */}
                   <div className="relative flex-1">
                     <button
@@ -939,11 +939,293 @@ export default function ProductsPage() {
 
               {/* 错误提示 */}
               {error && (
-                <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-[#ee675c]/10 border border-[#ee675c]/30">
+                <div className="flex items-start gap-3 px-4 py-3 mx-6 mt-4 rounded-xl bg-[#ee675c]/10 border border-[#ee675c]/30">
                   <div className="text-[#ee675c] mt-0.5">⚠</div>
                   <span className="text-[13px] font-medium text-[#ee675c]">{error}</span>
                 </div>
               )}
+
+              {/* 横向两列内容区 */}
+              <div className="flex divide-x divide-[#3c3c3f] overflow-y-auto flex-1">
+                {/* 左列：名称/分类/描述/图标/价格库存 */}
+                <div className="flex-1 p-6 space-y-4 overflow-y-auto">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">产品名称</label>
+                      <input
+                        type="text"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">所属分类</label>
+                      <select
+                        value={formData.category_id}
+                        onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
+                        className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
+                        required
+                      >
+                        <option value="">选择分类</option>
+                        {categories.map((cat) => (
+                          <option key={cat.id} value={cat.id}>{cat.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">产品描述</label>
+                    <input
+                      type="text"
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
+                    />
+                  </div>
+
+                  {/* 产品图标 */}
+                  <div className="p-4 bg-[#2d2e30] rounded-xl border border-[#3c3c3f]">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Flag className="w-4 h-4 text-[#7CFF00]" />
+                      <label className="text-[13px] font-medium text-[#9aa0a6]">产品图标</label>
+                    </div>
+                    <div className="flex gap-2 mb-3">
+                      <input
+                        type="text"
+                        value={flagSearchQuery}
+                        onChange={(e) => setFlagSearchQuery(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), searchCountryFlag())}
+                        placeholder="搜索国旗，如：美国、+95"
+                        className="flex-1 h-9 px-3 bg-[#1e1f20] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[13px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
+                      />
+                      <button
+                        type="button"
+                        onClick={searchCountryFlag}
+                        disabled={isSearchingFlag || !flagSearchQuery.trim()}
+                        className="px-3 h-9 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg transition-all duration-200 text-[12px] disabled:bg-[#3c3c3f] disabled:text-[#6e6e73] disabled:cursor-not-allowed flex items-center gap-1"
+                      >
+                        {isSearchingFlag ? <Loader2 className="w-3 h-3 animate-spin" /> : <Search className="w-3 h-3" />}
+                        搜索
+                      </button>
+                    </div>
+                    {flagResults.length > 0 && (
+                      <div className="grid grid-cols-3 gap-2 mb-3">
+                        {flagResults.map((result) => (
+                          <button
+                            key={result.code}
+                            type="button"
+                            onClick={() => {
+                              setFormData({ ...formData, logo_data: result.flagUrl, icon_url: result.flagUrl })
+                              setLogoPreview(result.flagUrl)
+                              setFlagResults([])
+                            }}
+                            className="flex items-center gap-2 px-2 py-1.5 bg-[#1e1f20] hover:bg-[#3c3c3f] border border-[#3c3c3f] rounded-lg transition-all"
+                          >
+                            <img src={result.flagUrl} alt={result.name} className="w-6 h-4 object-cover rounded" />
+                            <span className="text-[11px] text-[#e3e3e3] truncate">{result.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-12 h-12 rounded-lg flex items-center justify-center overflow-hidden border border-[#3c3c3f]"
+                        style={{ backgroundColor: formData.logo_bg_color }}
+                      >
+                        {logoPreview ? (
+                          <img src={logoPreview} alt="Logo预览" className="w-8 h-8 object-contain" />
+                        ) : (
+                          <Package className="w-5 h-5 text-[#6e6e73]" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <input
+                          type="text"
+                          value={formData.logo_data}
+                          onChange={(e) => {
+                            setFormData({ ...formData, logo_data: e.target.value })
+                            setLogoPreview(e.target.value)
+                          }}
+                          placeholder="或直接粘贴图片URL"
+                          className="w-full h-8 px-2 bg-[#1e1f20] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[12px] focus:outline-none focus:border-[#7CFF00] transition-colors"
+                        />
+                      </div>
+                      <input
+                        type="color"
+                        value={formData.logo_bg_color}
+                        onChange={(e) => setFormData({ ...formData, logo_bg_color: e.target.value })}
+                        className="w-8 h-8 rounded cursor-pointer border-0"
+                        title="背景色"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">售价</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={formData.price}
+                        onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
+                        className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">成本价</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={formData.cost_price}
+                        onChange={(e) => setFormData({ ...formData, cost_price: parseFloat(e.target.value) })}
+                        className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">库存</label>
+                      <input
+                        type="number"
+                        value={formData.stock}
+                        onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) })}
+                        className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">销量</label>
+                      <input
+                        type="number"
+                        value={formData.sales}
+                        onChange={(e) => setFormData({ ...formData, sales: parseInt(e.target.value) })}
+                        className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 右列：标签/使用说明/开关/发货/按钮 */}
+                <div className="w-80 p-6 flex flex-col gap-4 overflow-y-auto">
+                  {/* 产品标签 */}
+                  <div>
+                    <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
+                      产品标签 <span className="text-[#6e6e73] font-normal">（右上角）</span>
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={formData.tag_label}
+                        onChange={(e) => setFormData({ ...formData, tag_label: e.target.value.toUpperCase() })}
+                        className="flex-1 h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors uppercase"
+                        placeholder="HOT、NEW..."
+                        maxLength={10}
+                      />
+                      {formData.tag_label && (
+                        <div className="px-2.5 py-1 bg-[#ee675c] rounded text-white text-[11px] font-bold shrink-0">
+                          {formData.tag_label}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex gap-1.5 mt-2 flex-wrap">
+                      {["HOT", "NEW", "促销", "推荐"].map(tag => (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, tag_label: tag })}
+                          className={`px-2 py-1 text-[11px] rounded-md border transition-colors ${
+                            formData.tag_label === tag
+                              ? "bg-[#7CFF00]/20 border-[#7CFF00] text-[#7CFF00]"
+                              : "bg-[#2d2e30] border-[#3c3c3f] text-[#9aa0a6] hover:border-[#5f6368]"
+                          }`}
+                        >
+                          {tag}
+                        </button>
+                      ))}
+                      {formData.tag_label && (
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, tag_label: "" })}
+                          className="px-2 py-1 text-[11px] rounded-md bg-[#ee675c]/20 border border-[#ee675c] text-[#ee675c]"
+                        >
+                          清除
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 使用说明 */}
+                  <div className="flex-1 flex flex-col">
+                    <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
+                      使用说明 <span className="text-[#6e6e73] font-normal">（支持HTML）</span>
+                    </label>
+                    <textarea
+                      value={formData.usage_instructions}
+                      onChange={(e) => setFormData({ ...formData, usage_instructions: e.target.value })}
+                      className="flex-1 w-full px-4 py-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[13px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors resize-none font-mono"
+                      placeholder={"使用说明，支持HTML格式\n1. 登录账号\n2. 进入设置"}
+                      rows={7}
+                    />
+                  </div>
+
+                  {/* 上架开关 + 发货类型 */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 bg-[#2d2e30] rounded-xl">
+                      <span className="text-[13px] font-medium text-[#e3e3e3]">
+                        {formData.is_active ? "已上架" : "已下架"}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, is_active: !formData.is_active })}
+                        className={`relative w-10 h-5 rounded-full transition-colors duration-200 ${
+                          formData.is_active ? "bg-[#7CFF00]" : "bg-[#3c3c3f]"
+                        }`}
+                      >
+                        <span
+                          className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform duration-200 ${
+                            formData.is_active ? "translate-x-5" : "translate-x-0"
+                          }`}
+                        />
+                      </button>
+                    </div>
+                    <div>
+                      <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">发货类型</label>
+                      <select
+                        value={formData.delivery_type}
+                        onChange={(e) => setFormData({ ...formData, delivery_type: e.target.value })}
+                        className="w-full h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[13px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
+                      >
+                        <option value="自动发货">自动发货</option>
+                        <option value="人工发货">人工发货</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* 操作按钮 */}
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsModalOpen(false)}
+                      className="flex-1 h-11 bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#e3e3e3] font-semibold rounded-xl transition-all duration-200 text-[14px]"
+                    >
+                      取消
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSaving}
+                      className="flex-1 h-11 bg-[#7CFF00] hover:bg-[#9FFF40] disabled:opacity-50 text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px] flex items-center justify-center gap-2"
+                    >
+                      {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+                      {editingProduct ? "保存" : "添加"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2 sm:col-span-1">
                   <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
@@ -1126,7 +1408,7 @@ export default function ProductsPage() {
                     value={formData.tag_label}
                     onChange={(e) => setFormData({ ...formData, tag_label: e.target.value.toUpperCase() })}
                     className="flex-1 h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors uppercase"
-                    placeholder="如：HOT、NEW、促销"
+                    placeholder="如：HOT、NEW、���销"
                     maxLength={10}
                   />
                   {formData.tag_label && (

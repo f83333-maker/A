@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ArrowLeft, Plus, Trash2, Package, CheckCircle, Clock, Loader2 } from "lucide-react"
+import { ArrowLeft, Plus, Trash2, Package, CheckCircle, Clock, Loader2, X } from "lucide-react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 
@@ -240,31 +240,62 @@ export default function InventoryPage() {
       {/* 添加库存弹窗 */}
       {showAddForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
-          <div className="w-full max-w-lg bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] p-6">
-            <h3 className="text-lg font-semibold text-[#e3e3e3] mb-4">添加库存</h3>
-            <p className="text-[#9aa0a6] text-sm mb-4">每行一个账号，自动按行分割</p>
-            <textarea
-              value={newContent}
-              onChange={(e) => setNewContent(e.target.value)}
-              placeholder="账号1&#10;账号2&#10;账号3"
-              rows={10}
-              className="w-full px-4 py-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-sm font-mono focus:outline-none focus:border-[#7CFF00] resize-none"
-            />
-            <div className="flex justify-end gap-3 mt-4">
+          <div className="w-full max-w-3xl bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#3c3c3f]">
+              <h3 className="text-[18px] font-semibold text-[#e3e3e3]">添加库存</h3>
               <button
                 onClick={() => setShowAddForm(false)}
-                className="px-4 py-2 text-[#9aa0a6] hover:text-[#e3e3e3] transition-colors"
+                className="p-1 text-[#9aa0a6] hover:text-[#e3e3e3] transition-colors"
               >
-                取消
+                <X className="w-5 h-5" />
               </button>
-              <button
-                onClick={handleAddInventory}
-                disabled={adding || !newContent.trim()}
-                className="px-4 py-2 bg-[#7CFF00] text-[#131314] rounded-lg font-medium hover:bg-[#9FFF40] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-              >
-                {adding && <Loader2 className="w-4 h-4 animate-spin" />}
-                添加
-              </button>
+            </div>
+            <div className="flex divide-x divide-[#3c3c3f]">
+              {/* 左列：说明 */}
+              <div className="w-56 p-6 flex flex-col gap-3">
+                <p className="text-[13px] font-semibold text-[#9aa0a6]">使用说明</p>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2 text-[12px] text-[#6e6e73]">
+                    <span className="mt-0.5 w-1.5 h-1.5 rounded-full bg-[#7CFF00] shrink-0" />
+                    每行一个账号
+                  </li>
+                  <li className="flex items-start gap-2 text-[12px] text-[#6e6e73]">
+                    <span className="mt-0.5 w-1.5 h-1.5 rounded-full bg-[#7CFF00] shrink-0" />
+                    自动按行分割
+                  </li>
+                  <li className="flex items-start gap-2 text-[12px] text-[#6e6e73]">
+                    <span className="mt-0.5 w-1.5 h-1.5 rounded-full bg-[#7CFF00] shrink-0" />
+                    支持批量粘贴
+                  </li>
+                </ul>
+              </div>
+
+              {/* 右列：输入区 + 按钮 */}
+              <div className="flex-1 p-6 flex flex-col gap-4">
+                <textarea
+                  value={newContent}
+                  onChange={(e) => setNewContent(e.target.value)}
+                  placeholder={"账号1\n账号2\n账号3"}
+                  rows={8}
+                  className="w-full px-4 py-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] font-mono focus:outline-none focus:border-[#7CFF00] resize-none"
+                />
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setShowAddForm(false)}
+                    className="px-5 h-11 bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#e3e3e3] font-semibold rounded-xl transition-colors text-[14px]"
+                  >
+                    取消
+                  </button>
+                  <button
+                    onClick={handleAddInventory}
+                    disabled={adding || !newContent.trim()}
+                    className="px-5 h-11 bg-[#7CFF00] text-[#131314] rounded-xl font-semibold hover:bg-[#9FFF40] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 text-[14px]"
+                  >
+                    {adding && <Loader2 className="w-4 h-4 animate-spin" />}
+                    添加库存
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
