@@ -344,27 +344,15 @@ export default function InventoryPage() {
                         : "hover:bg-[#1e1f20] border-l-2 border-l-transparent"
                     }`}
                   >
-                    {/* 国旗图标（与产品管理一致） */}
-                    {product.icon_url ? (
-                      <img
-                        src={product.icon_url}
-                        alt=""
-                        className="w-5 h-3.5 object-cover rounded-sm shrink-0"
-                      />
-                    ) : (
-                      <div
-                        className="w-7 h-7 rounded-lg flex items-center justify-center overflow-hidden shrink-0"
-                        style={{ backgroundColor: product.logo_bg_color || "#2d2e30" }}
-                      >
-                        {product.logo_data ? (
-                          <img src={product.logo_data} alt="" className="w-5 h-5 object-contain" />
-                        ) : (
-                          <Package className="w-3.5 h-3.5 text-[#6e6e73]" />
-                        )}
-                      </div>
-                    )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
+                        {product.icon_url && (
+                          <img
+                            src={product.icon_url}
+                            alt=""
+                            className="w-5 h-3.5 object-cover rounded-sm shrink-0"
+                          />
+                        )}
                         <p className="text-[13px] font-medium text-[#e3e3e3] truncate">{product.name}</p>
                         {product.tag_label && (
                           <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-[#FF3B3B]/20 text-[#FF3B3B] shrink-0">
