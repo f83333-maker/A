@@ -594,18 +594,25 @@ export default function InventoryPage() {
                 ) : (
                   <div className="divide-y divide-[#3c3c3f]/30">
                     {filteredInventory.map(item => (
-                      <div key={item.id} className="flex items-center justify-between px-6 py-3 hover:bg-[#1e1f20]/50 group transition-colors">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[13px] font-mono text-[#e3e3e3] truncate">{item.content}</p>
-                          <p className={`text-[11px] mt-1 ${item.status === "available" ? "text-[#81c995]" : "text-[#9aa0a6]"}`}>
-                            {item.status === "available" ? "可用" : "已售"}
-                          </p>
+                      <div key={item.id} className="flex items-center gap-3 px-6 py-2 hover:bg-[#1e1f20]/50 group transition-colors">
+                        <div className="flex-1 min-w-0 flex items-center gap-2">
+                          <p className="text-[12px] font-mono text-[#e3e3e3] truncate">{item.content}</p>
+                          <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-[#FF3B3B]/20 text-[#FF3B3B] shrink-0 whitespace-nowrap">
+                            {new Date(item.created_at).toLocaleDateString("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                          </span>
                         </div>
+                        <span className={`shrink-0 text-[11px] font-medium px-2 py-0.5 rounded-full ${
+                          item.status === "available"
+                            ? "bg-[#81c995]/10 text-[#81c995]"
+                            : "bg-[#6e6e73]/10 text-[#6e6e73]"
+                        }`}>
+                          {item.status === "available" ? "可用" : "已售"}
+                        </span>
                         <button
                           onClick={() => handleDelete(item.id)}
-                          className="ml-3 p-1.5 text-[#6e6e73] hover:text-[#ee675c] hover:bg-[#ee675c]/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                          className="p-1.5 text-[#6e6e73] hover:text-[#ee675c] hover:bg-[#ee675c]/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 shrink-0"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     ))}
