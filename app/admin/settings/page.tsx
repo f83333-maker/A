@@ -76,7 +76,6 @@ export default function SettingsPage() {
     is_active: true,
   })
   const [paymentSaving, setPaymentSaving] = useState(false)
-  const [syncingEpay, setSyncingEpay] = useState(false)
 
   useEffect(() => {
     fetchSettings()
@@ -240,37 +239,6 @@ export default function SettingsPage() {
         ? prev.supported_methods.filter(m => m !== method)
         : [...prev.supported_methods, method],
     }))
-  }
-
-  // 同步易支付配置
-  async function syncEpayConfig() {
-    if (!confirm("确定要从现有易支付配置中导入吗？")) return
-    setSyncingEpay(true)
-    try {
-      const res = await fetch("/api/admin/payment-configs/sync-epay", { method: "POST" })
-      const data = await res.json()
-      
-      if (!res.ok) {
-        if (data.code === "ALREADY_EXISTS") {
-          alert("该易支付配置已存在，请勿重复导入")
-        } else if (data.code === "NO_CONFIG") {
-          alert("未找到现有的易支付配置")
-        } else if (data.code === "INCOMPLETE_CONFIG") {
-          alert("现有易支付配置不完整，请先在基础设置中完成配置")
-        } else {
-          alert(data.error || "导入失败")
-        }
-        return
-      }
-      
-      alert("易支付配置已导入成功！")
-      await fetchPaymentConfigs()
-    } catch (error) {
-      console.error("同步失败:", error)
-      alert("同步失败，请稍后重试")
-    } finally {
-      setSyncingEpay(false)
-    }
   }
 
   async function saveMultipleSettings(settings: { key: string; value: any }[]) {
