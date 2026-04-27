@@ -677,12 +677,12 @@ export default function ProductsPage() {
                     className="w-3.5 h-3.5 rounded accent-[#7CFF00] cursor-pointer"
                   />
                 </th>
-                <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#9aa0a6]">商品信息</th>
-                <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] w-28">操作</th>
-                <th className="px-2 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] w-16">售价</th>
-                <th className="px-2 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] w-24">状态</th>
-                <th className="px-2 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] w-12">销量</th>
-                <th className="px-2 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] w-20">库存</th>
+                <th className="px-3 py-2 text-left text-[13px] font-semibold text-[#9aa0a6]">商品信息</th>
+                <th className="px-3 py-2 text-left text-[13px] font-semibold text-[#9aa0a6] w-28">操作</th>
+                <th className="px-2 py-2 text-left text-[13px] font-semibold text-[#9aa0a6] w-16">售价</th>
+                <th className="px-2 py-2 text-left text-[13px] font-semibold text-[#9aa0a6] w-24">状态</th>
+                <th className="px-2 py-2 text-left text-[13px] font-semibold text-[#9aa0a6] w-12">销量</th>
+                <th className="px-2 py-2 text-left text-[13px] font-semibold text-[#9aa0a6] w-20">库存</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#3c3c3f]/50">
@@ -747,19 +747,19 @@ export default function ProductsPage() {
                     <div className="flex items-center gap-1.5">
                       <button
                         onClick={() => openModal(product)}
-                        className="text-[11px] text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
+                        className="text-[12px] text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
                       >
                         编辑
                       </button>
                       <button
                         onClick={() => handleDuplicate(product)}
-                        className="text-[11px] text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
+                        className="text-[12px] text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
                       >
                         复制
                       </button>
                       <button
                         onClick={() => handleDelete(product.id)}
-                        className="text-[11px] text-[#9aa0a6] hover:text-[#ee675c] transition-colors"
+                        className="text-[12px] text-[#9aa0a6] hover:text-[#ee675c] transition-colors"
                       >
                         删除
                       </button>
@@ -767,18 +767,18 @@ export default function ProductsPage() {
                   </td>
                   {/* 售价 */}
                   <td className="px-2 py-1.5">
-                    <span className="text-[12px] font-semibold text-[#e3e3e3]">{product.price}</span>
+                    <span className="text-[13px] font-semibold text-[#e3e3e3]">{product.price}</span>
                   </td>
                   {/* 状态 */}
                   <td className="px-2 py-1.5">
                     <div className="flex items-center gap-1">
-                      <span className={`inline-flex items-center gap-1 text-[11px] font-medium ${product.is_active ? "text-[#81c995]" : "text-[#6e6e73]"}`}>
+                      <span className={`inline-flex items-center gap-1 text-[12px] font-medium ${product.is_active ? "text-[#81c995]" : "text-[#6e6e73]"}`}>
                         <span className={`w-1 h-1 rounded-full ${product.is_active ? "bg-[#81c995]" : "bg-[#6e6e73]"}`} />
                         {product.is_active ? "销售中" : "已下架"}
                       </span>
                       <button
                         onClick={() => handleToggleActive(product)}
-                        className="px-1 py-0.5 text-[9px] font-medium bg-[#3c3c3f]/60 text-[#9aa0a6] hover:text-[#7CFF00] rounded transition-colors"
+                        className="px-1 py-0.5 text-[10px] font-medium bg-[#3c3c3f]/60 text-[#9aa0a6] hover:text-[#7CFF00] rounded transition-colors"
                       >
                         {product.is_active ? "下架" : "上架"}
                       </button>
@@ -786,17 +786,17 @@ export default function ProductsPage() {
                   </td>
                   {/* 销量 */}
                   <td className="px-2 py-1.5">
-                    <span className="text-[12px] text-[#9aa0a6]">{product.sales || 0}</span>
+                    <span className="text-[13px] text-[#9aa0a6]">{product.sales || 0}</span>
                   </td>
                   {/* 库存 */}
                   <td className="px-2 py-1.5">
                     <div className="flex items-center gap-1">
-                      <span className={`text-[11px] font-semibold px-1 rounded ${product.stock > 0 ? "bg-[#81c995]/10 text-[#81c995]" : "bg-[#ee675c]/10 text-[#ee675c]"}`}>
+                      <span className={`text-[12px] font-semibold px-1 rounded ${product.stock > 0 ? "bg-[#81c995]/10 text-[#81c995]" : "bg-[#ee675c]/10 text-[#ee675c]"}`}>
                         {product.stock}
                       </span>
                       <button
                         onClick={() => openInventoryModal(product)}
-                        className="px-1 py-0.5 text-[9px] font-medium text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
+                        className="px-1 py-0.5 text-[10px] font-medium text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
                       >
                         库存
                       </button>
