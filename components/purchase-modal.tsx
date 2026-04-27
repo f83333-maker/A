@@ -169,8 +169,8 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
         onClick={onClose}
       />
       
-      {/* 弹窗主体 */}
-      <div className="relative w-full max-w-lg bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] shadow-2xl animate-scale-in max-h-[90vh] overflow-hidden flex flex-col">
+      {/* 弹窗主体 - 80% 透明背景 */}
+      <div className="relative w-full max-w-lg bg-[#1e1f20]/20 backdrop-blur-xl rounded-2xl border border-[#3c3c3f]/40 shadow-2xl animate-scale-in max-h-[90vh] overflow-hidden flex flex-col">
         
         {/* 关闭按钮 */}
         <button
