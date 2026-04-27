@@ -163,9 +163,9 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* 背景遮罩 */}
+      {/* 背景遮罩 - 80% 透明状态 */}
       <div 
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-fade-in"
+        className="absolute inset-0 bg-black/20 backdrop-blur-sm animate-fade-in"
         onClick={onClose}
       />
       
