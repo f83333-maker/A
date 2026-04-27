@@ -1,17 +1,5 @@
-import { createClient } from "@supabase/supabase-js"
+import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
-
-// 使用 Service Role Key 创建管理员客户端
-function createAdminClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-  if (!supabaseUrl || !supabaseServiceKey) {
-    throw new Error("Missing Supabase environment variables")
-  }
-
-  return createClient(supabaseUrl, supabaseServiceKey)
-}
 
 // 删除模板
 export async function DELETE(
@@ -19,7 +7,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createAdminClient()
+    const supabase = await createClient()
     const { id } = await params
 
     const { error } = await supabase
@@ -28,11 +16,13 @@ export async function DELETE(
       .eq("id", id)
 
     if (error) {
+      console.error("删除模板失败:", error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
+    console.error("删除模板异常:", error)
     return NextResponse.json({ error: String(error) }, { status: 500 })
   }
 }
@@ -43,26 +33,25 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createAdminClient()
+    const supabase = await createClient()
     const { id } = await params
     const body = await request.json()
 
     const { data, error } = await supabase
       .from("product_templates")
-      .update({
-        name: body.name,
-        data: body.data,
-      })
+      .update({ name: body.name, data: body.data })
       .eq("id", id)
       .select()
       .single()
 
     if (error) {
+      console.error("更新模板失败:", error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json(data)
   } catch (error) {
+    console.error("更新模板异常:", error)
     return NextResponse.json({ error: String(error) }, { status: 500 })
   }
 }
