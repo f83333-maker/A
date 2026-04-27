@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Save, Plus, Trash2, Loader2, Search, Tag, Link as LinkIcon, Truck, Settings, Type, Navigation, CreditCard } from "lucide-react"
+import { Save, Plus, Trash2, Loader2, Search, Tag, Link as LinkIcon, Truck, Settings, Type, Navigation, CreditCard, X, ToggleLeft, ToggleRight, Pencil, Check } from "lucide-react"
 
 interface FooterLink {
   name: string
@@ -11,6 +11,21 @@ interface FooterLink {
 interface NavLink {
   name: string
   url: string
+}
+
+interface PaymentConfig {
+  id: string
+  name: string
+  type: string
+  api_url: string
+  merchant_id: string
+  merchant_key: string
+  extra_config: Record<string, unknown>
+  supported_methods: string[]
+  is_active: boolean
+  sort_order: number
+  created_at: string
+  updated_at: string
 }
 
 export default function SettingsPage() {
@@ -41,13 +56,30 @@ export default function SettingsPage() {
   // 底部链接设置
   const [footerLinks, setFooterLinks] = useState<FooterLink[]>([])
   
-  // 支付设置
+  // 支付设置（旧版，保留兼容）
   const [epayApiUrl, setEpayApiUrl] = useState("")
   const [epayPid, setEpayPid] = useState("")
   const [epayKey, setEpayKey] = useState("")
 
+  // 新版支付配置
+  const [paymentConfigs, setPaymentConfigs] = useState<PaymentConfig[]>([])
+  const [paymentConfigsLoading, setPaymentConfigsLoading] = useState(false)
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [editingPayment, setEditingPayment] = useState<PaymentConfig | null>(null)
+  const [paymentForm, setPaymentForm] = useState({
+    name: "",
+    type: "epay",
+    api_url: "",
+    merchant_id: "",
+    merchant_key: "",
+    supported_methods: ["wxpay", "alipay"] as string[],
+    is_active: true,
+  })
+  const [paymentSaving, setPaymentSaving] = useState(false)
+
   useEffect(() => {
     fetchSettings()
+    fetchPaymentConfigs()
   }, [])
 
   async function fetchSettings() {
@@ -95,6 +127,118 @@ export default function SettingsPage() {
 
   async function saveSetting(key: string, value: any) {
     await saveMultipleSettings([{ key, value }])
+  }
+
+  // 获取支付配置列表
+  async function fetchPaymentConfigs() {
+    setPaymentConfigsLoading(true)
+    try {
+      const res = await fetch("/api/admin/payment-configs")
+      const data = await res.json()
+      if (Array.isArray(data)) {
+        setPaymentConfigs(data)
+      }
+    } catch (error) {
+      console.error("获取支付配置失败:", error)
+    } finally {
+      setPaymentConfigsLoading(false)
+    }
+  }
+
+  // 打开添加/编辑支付配置弹窗
+  function openPaymentModal(config?: PaymentConfig) {
+    if (config) {
+      setEditingPayment(config)
+      setPaymentForm({
+        name: config.name,
+        type: config.type,
+        api_url: config.api_url || "",
+        merchant_id: config.merchant_id || "",
+        merchant_key: config.merchant_key || "",
+        supported_methods: config.supported_methods || ["wxpay", "alipay"],
+        is_active: config.is_active,
+      })
+    } else {
+      setEditingPayment(null)
+      setPaymentForm({
+        name: "",
+        type: "epay",
+        api_url: "",
+        merchant_id: "",
+        merchant_key: "",
+        supported_methods: ["wxpay", "alipay"],
+        is_active: true,
+      })
+    }
+    setShowPaymentModal(true)
+  }
+
+  // 保存支付配置
+  async function savePaymentConfig() {
+    if (!paymentForm.name.trim()) {
+      alert("请填写配置名称")
+      return
+    }
+    setPaymentSaving(true)
+    try {
+      const url = editingPayment
+        ? `/api/admin/payment-configs/${editingPayment.id}`
+        : "/api/admin/payment-configs"
+      const method = editingPayment ? "PUT" : "POST"
+      
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(paymentForm),
+      })
+      
+      if (!res.ok) throw new Error("保存失败")
+      
+      await fetchPaymentConfigs()
+      setShowPaymentModal(false)
+    } catch (error) {
+      console.error("保存支付配置失败:", error)
+      alert("保存失败")
+    } finally {
+      setPaymentSaving(false)
+    }
+  }
+
+  // 切换支付配置启用状态
+  async function togglePaymentActive(config: PaymentConfig) {
+    try {
+      await fetch(`/api/admin/payment-configs/${config.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_active: !config.is_active }),
+      })
+      setPaymentConfigs(prev =>
+        prev.map(c => c.id === config.id ? { ...c, is_active: !c.is_active } : c)
+      )
+    } catch (error) {
+      console.error("切换状态失败:", error)
+    }
+  }
+
+  // 删除支付配置
+  async function deletePaymentConfig(id: string) {
+    if (!confirm("确定要删除此支付配置吗？")) return
+    try {
+      await fetch(`/api/admin/payment-configs/${id}`, { method: "DELETE" })
+      setPaymentConfigs(prev => prev.filter(c => c.id !== id))
+    } catch (error) {
+      console.error("删除失败:", error)
+    }
+  }
+
+  // 切换支付方式
+  function togglePaymentMethod(method: string) {
+    setPaymentForm(prev => ({
+      ...prev,
+      supported_methods: prev.supported_methods.includes(method)
+        ? prev.supported_methods.filter(m => m !== method)
+        : [...prev.supported_methods, method],
+    }))
   }
 
   async function saveMultipleSettings(settings: { key: string; value: any }[]) {
@@ -207,7 +351,7 @@ export default function SettingsPage() {
               </div>
               <div>
                 <h2 className="text-[15px] font-semibold text-[#e3e3e3]">首页Banner标题</h2>
-                <p className="text-[12px] text-[#6e6e73]">设置首页顶部的主标题和副标题</p>
+                <p className="text-[12px] text-[#6e6e73]">设置首页顶部��主标题和副标题</p>
               </div>
             </div>
             
@@ -560,74 +704,291 @@ export default function SettingsPage() {
 
       {/* 支付设置 */}
       {activeTab === "payment" && (
-        <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] p-6 space-y-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-[#7CFF00]/10 flex items-center justify-center">
-              <CreditCard className="w-5 h-5 text-[#7CFF00]" />
+        <div className="space-y-6">
+          {/* 头部 */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#7CFF00]/10 flex items-center justify-center">
+                <CreditCard className="w-5 h-5 text-[#7CFF00]" />
+              </div>
+              <div>
+                <h2 className="text-[15px] font-semibold text-[#e3e3e3]">支付系统管理</h2>
+                <p className="text-[12px] text-[#6e6e73]">配置多个支付渠道，支持易支付等接口</p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-[15px] font-semibold text-[#e3e3e3]">易支付配置</h2>
-              <p className="text-[12px] text-[#6e6e73]">配置易支付接口参数，支持微信、支付宝等支付方式</p>
+            <button
+              onClick={() => openPaymentModal()}
+              className="px-4 py-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[13px] flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              添加支付配置
+            </button>
+          </div>
+
+          {/* 支付配置仪表盘 */}
+          {paymentConfigsLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-6 h-6 animate-spin text-[#7CFF00]" />
             </div>
-          </div>
+          ) : paymentConfigs.length === 0 ? (
+            <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] p-12 text-center">
+              <CreditCard className="w-12 h-12 text-[#3c3c3f] mx-auto mb-4" />
+              <p className="text-[14px] text-[#6e6e73] mb-4">暂无支付配置</p>
+              <button
+                onClick={() => openPaymentModal()}
+                className="px-4 py-2 bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#e3e3e3] rounded-lg text-[13px] inline-flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                添加第一个支付配置
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {paymentConfigs.map(config => (
+                <div
+                  key={config.id}
+                  className={`bg-[#1e1f20] rounded-2xl border p-5 transition-all cursor-pointer hover:border-[#7CFF00]/50 ${
+                    config.is_active ? "border-[#3c3c3f]" : "border-[#3c3c3f]/50 opacity-60"
+                  }`}
+                  onClick={() => openPaymentModal(config)}
+                >
+                  {/* 卡片头部 */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                        config.type === "epay" ? "bg-[#7CFF00]/10" : "bg-[#1677ff]/10"
+                      }`}>
+                        <CreditCard className={`w-5 h-5 ${
+                          config.type === "epay" ? "text-[#7CFF00]" : "text-[#1677ff]"
+                        }`} />
+                      </div>
+                      <div>
+                        <h3 className="text-[14px] font-semibold text-[#e3e3e3]">{config.name}</h3>
+                        <p className="text-[11px] text-[#6e6e73]">{config.type === "epay" ? "易支付" : config.type}</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); togglePaymentActive(config) }}
+                      className="p-1"
+                    >
+                      {config.is_active ? (
+                        <ToggleRight className="w-6 h-6 text-[#7CFF00]" />
+                      ) : (
+                        <ToggleLeft className="w-6 h-6 text-[#6e6e73]" />
+                      )}
+                    </button>
+                  </div>
 
-          <div>
-            <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">API 接口地址</label>
-            <input
-              type="text"
-              value={epayApiUrl}
-              onChange={(e) => setEpayApiUrl(e.target.value)}
-              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00]"
-              placeholder="如：https://pay.example.com"
-            />
-            <p className="text-[11px] text-[#6e6e73] mt-1">易支付平台提供的API接口地址，不要以斜杠结尾</p>
-          </div>
+                  {/* 支持的支付方式 */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {config.supported_methods?.map(method => (
+                      <span
+                        key={method}
+                        className={`px-2 py-1 rounded-lg text-[11px] font-medium ${
+                          method === "wxpay"
+                            ? "bg-[#07c160]/10 text-[#07c160]"
+                            : "bg-[#1677ff]/10 text-[#1677ff]"
+                        }`}
+                      >
+                        {method === "wxpay" ? "微信支付" : method === "alipay" ? "支付宝" : method}
+                      </span>
+                    ))}
+                  </div>
 
-          <div>
-            <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">商户ID (PID)</label>
-            <input
-              type="text"
-              value={epayPid}
-              onChange={(e) => setEpayPid(e.target.value)}
-              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00]"
-              placeholder="如：1001"
-            />
-          </div>
+                  {/* 配置信息 */}
+                  <div className="space-y-1.5 text-[12px]">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[#6e6e73]">商户ID</span>
+                      <span className="text-[#9aa0a6] font-mono">{config.merchant_id || "-"}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[#6e6e73]">API地址</span>
+                      <span className="text-[#9aa0a6] truncate max-w-[150px]" title={config.api_url}>
+                        {config.api_url ? new URL(config.api_url).hostname : "-"}
+                      </span>
+                    </div>
+                  </div>
 
-          <div>
-            <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">商户密钥 (Key)</label>
-            <input
-              type="password"
-              value={epayKey}
-              onChange={(e) => setEpayKey(e.target.value)}
-              className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00]"
-              placeholder="易支付商户密钥"
-            />
-            <p className="text-[11px] text-[#6e6e73] mt-1">请妥善保管您的商户密钥，不要泄露给他人</p>
-          </div>
+                  {/* 操作按钮 */}
+                  <div className="flex items-center gap-2 mt-4 pt-4 border-t border-[#3c3c3f]/50">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); openPaymentModal(config) }}
+                      className="flex-1 py-2 bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#e3e3e3] rounded-lg text-[12px] font-medium flex items-center justify-center gap-1.5"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                      编辑
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); deletePaymentConfig(config.id) }}
+                      className="py-2 px-3 bg-[#ee675c]/10 hover:bg-[#ee675c]/20 text-[#ee675c] rounded-lg text-[12px] font-medium"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
-          <div className="pt-4 border-t border-[#3c3c3f]">
+          {/* 回调地址提示 */}
+          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] p-5">
             <h3 className="text-[14px] font-medium text-[#e3e3e3] mb-3">支付回调地址</h3>
             <div className="bg-[#2d2e30] rounded-xl p-4">
-              <p className="text-[12px] text-[#6e6e73] mb-2">请在易支付后台设置以下异步通知地址：</p>
+              <p className="text-[12px] text-[#6e6e73] mb-2">请在各支付平台后台设置以下异步通知地址：</p>
               <code className="text-[13px] text-[#7CFF00] break-all">
                 {typeof window !== "undefined" ? `${window.location.origin}/api/webhooks/epay` : "/api/webhooks/epay"}
               </code>
             </div>
           </div>
+        </div>
+      )}
 
-          <button
-            onClick={() => saveMultipleSettings([
-              { key: "epay_api_url", value: epayApiUrl },
-              { key: "epay_pid", value: epayPid },
-              { key: "epay_key", value: epayKey },
-            ])}
-            disabled={saving}
-            className="px-4 py-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[13px] disabled:opacity-50 flex items-center gap-2"
-          >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            保存支付配置
-          </button>
+      {/* 支付配置弹窗 */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setShowPaymentModal(false)} />
+          <div className="relative w-full max-w-lg bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] shadow-2xl">
+            {/* 弹窗头部 */}
+            <div className="flex items-center justify-between p-5 border-b border-[#3c3c3f]">
+              <h3 className="text-[16px] font-semibold text-[#e3e3e3]">
+                {editingPayment ? "编辑支付配置" : "添加支付配置"}
+              </h3>
+              <button
+                onClick={() => setShowPaymentModal(false)}
+                className="p-2 text-[#6e6e73] hover:text-[#e3e3e3] hover:bg-[#2d2e30] rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* 弹窗内容 */}
+            <div className="p-5 space-y-4 max-h-[60vh] overflow-y-auto">
+              <div>
+                <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">配置名称 *</label>
+                <input
+                  type="text"
+                  value={paymentForm.name}
+                  onChange={(e) => setPaymentForm(prev => ({ ...prev, name: e.target.value }))}
+                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00]"
+                  placeholder="如：易支付-主站、支付宝直连"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">支付类型</label>
+                <select
+                  value={paymentForm.type}
+                  onChange={(e) => setPaymentForm(prev => ({ ...prev, type: e.target.value }))}
+                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00]"
+                >
+                  <option value="epay">易支付</option>
+                  <option value="alipay_direct">支付宝直连</option>
+                  <option value="wxpay_native">微信原生支付</option>
+                  <option value="usdt">USDT</option>
+                  <option value="other">其他</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">API 接口地址</label>
+                <input
+                  type="text"
+                  value={paymentForm.api_url}
+                  onChange={(e) => setPaymentForm(prev => ({ ...prev, api_url: e.target.value }))}
+                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00]"
+                  placeholder="如：https://pay.example.com"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">商户ID (PID)</label>
+                  <input
+                    type="text"
+                    value={paymentForm.merchant_id}
+                    onChange={(e) => setPaymentForm(prev => ({ ...prev, merchant_id: e.target.value }))}
+                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00]"
+                    placeholder="1001"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">商户密钥 (Key)</label>
+                  <input
+                    type="password"
+                    value={paymentForm.merchant_key}
+                    onChange={(e) => setPaymentForm(prev => ({ ...prev, merchant_key: e.target.value }))}
+                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00]"
+                    placeholder="商户密钥"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">支持的支付方式</label>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { id: "wxpay", name: "微信支付", color: "#07c160" },
+                    { id: "alipay", name: "支付宝", color: "#1677ff" },
+                    { id: "qqpay", name: "QQ钱包", color: "#12b7f5" },
+                    { id: "bank", name: "银行卡", color: "#fdd663" },
+                  ].map(method => (
+                    <button
+                      key={method.id}
+                      type="button"
+                      onClick={() => togglePaymentMethod(method.id)}
+                      className={`px-3 py-2 rounded-lg text-[12px] font-medium border-2 transition-all ${
+                        paymentForm.supported_methods.includes(method.id)
+                          ? "border-current bg-current/10"
+                          : "border-[#3c3c3f] bg-[#2d2e30] text-[#6e6e73]"
+                      }`}
+                      style={{
+                        color: paymentForm.supported_methods.includes(method.id) ? method.color : undefined,
+                        borderColor: paymentForm.supported_methods.includes(method.id) ? method.color : undefined,
+                      }}
+                    >
+                      {paymentForm.supported_methods.includes(method.id) && (
+                        <Check className="w-3.5 h-3.5 inline mr-1" />
+                      )}
+                      {method.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-2">
+                <span className="text-[13px] font-medium text-[#9aa0a6]">启用此配置</span>
+                <button
+                  type="button"
+                  onClick={() => setPaymentForm(prev => ({ ...prev, is_active: !prev.is_active }))}
+                  className="p-1"
+                >
+                  {paymentForm.is_active ? (
+                    <ToggleRight className="w-8 h-8 text-[#7CFF00]" />
+                  ) : (
+                    <ToggleLeft className="w-8 h-8 text-[#6e6e73]" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* 弹窗底部 */}
+            <div className="flex items-center justify-end gap-3 p-5 border-t border-[#3c3c3f]">
+              <button
+                onClick={() => setShowPaymentModal(false)}
+                className="px-4 py-2 bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#e3e3e3] rounded-lg text-[13px] font-medium"
+              >
+                取消
+              </button>
+              <button
+                onClick={savePaymentConfig}
+                disabled={paymentSaving}
+                className="px-4 py-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[13px] flex items-center gap-2 disabled:opacity-50"
+              >
+                {paymentSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                保存配置
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

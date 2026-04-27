@@ -7,17 +7,46 @@ let epayConfigCache: { pid: string; key: string; apiUrl: string } | null = null
 let configLastFetch = 0
 const CONFIG_CACHE_TTL = 60000 // 1分钟缓存
 
-// 从数据库获取易支付配置
-export async function getEpayConfig() {
+// 从数据库获取易支付配置（优先从 payment_configs 表，回退到 site_settings）
+export async function getEpayConfig(configId?: string) {
   const now = Date.now()
   
-  // 使用缓存
-  if (epayConfigCache && (now - configLastFetch) < CONFIG_CACHE_TTL) {
+  // 如果没有指定 configId 且有缓存，使用缓存
+  if (!configId && epayConfigCache && (now - configLastFetch) < CONFIG_CACHE_TTL) {
     return epayConfigCache
   }
   
   try {
     const supabase = await createClient()
+    
+    // 优先从 payment_configs 表获取
+    let query = supabase
+      .from("payment_configs")
+      .select("*")
+      .eq("is_active", true)
+    
+    if (configId) {
+      query = query.eq("id", configId)
+    } else {
+      query = query.order("sort_order", { ascending: true }).limit(1)
+    }
+    
+    const { data: configs } = await query
+    
+    if (configs && configs.length > 0) {
+      const config = configs[0]
+      epayConfigCache = {
+        pid: config.merchant_id || "",
+        key: config.merchant_key || "",
+        apiUrl: config.api_url || "",
+        configId: config.id,
+        configName: config.name,
+      }
+      configLastFetch = now
+      return epayConfigCache
+    }
+    
+    // 回退到 site_settings 表（兼容旧版）
     const { data } = await supabase
       .from("site_settings")
       .select("key, value")

@@ -34,6 +34,13 @@ function generateCaptcha(): string {
   return result
 }
 
+interface PaymentMethod {
+  id: string
+  name: string
+  configId: string | null
+  configName: string
+}
+
 export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) {
   const [quantity, setQuantity] = useState(1)
   const [contact, setContact] = useState("")
@@ -45,10 +52,14 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [formError, setFormError] = useState("")
-  const [paymentType, setPaymentType] = useState<"wxpay" | "alipay">("wxpay")
+  const [paymentType, setPaymentType] = useState<string>("wxpay")
   const [deliveryText, setDeliveryText] = useState("自动发货")
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([
+    { id: "wxpay", name: "微信支付", configId: null, configName: "默认" },
+    { id: "alipay", name: "支付宝", configId: null, configName: "默认" },
+  ])
 
-  // 获取站点设置
+  // 获取站点设置和支付方式
   useEffect(() => {
     fetch("/api/site-settings")
       .then(res => res.json())
@@ -56,6 +67,18 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
         if (data.delivery_text) setDeliveryText(data.delivery_text)
       })
       .catch(err => console.error("获取设置失败:", err))
+    
+    // 获取可用支付方式
+    fetch("/api/payment-methods")
+      .then(res => res.json())
+      .then(data => {
+        if (data.methods && data.methods.length > 0) {
+          setPaymentMethods(data.methods)
+          // 默认选择第一个支付方式
+          setPaymentType(data.methods[0].id)
+        }
+      })
+      .catch(err => console.error("获取支付方式失败:", err))
   }, [])
 
   // 重置状态
@@ -337,36 +360,45 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
           <div className="mb-6">
             <p className="text-[13px] font-semibold text-[#e3e3e3] mb-3">选择支付方式:</p>
             <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => setPaymentType("wxpay")}
-                className={`p-3 rounded-xl border-2 transition-all ${
-                  paymentType === "wxpay"
-                    ? "border-[#07c160] bg-[#07c160]/10"
-                    : "border-[#3c3c3f] bg-[#2d2e30] hover:border-[#07c160]/50"
-                }`}
-              >
-                <div className="flex items-center gap-2 justify-center">
-                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#07c160">
-                    <path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 01.213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 00.167-.054l1.903-1.114a.864.864 0 01.717-.098 10.16 10.16 0 002.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 01-1.162 1.178A1.17 1.17 0 014.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 01-1.162 1.178 1.17 1.17 0 01-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 01.598.082l1.584.926a.272.272 0 00.14.045c.134 0 .24-.111.24-.245 0-.06-.023-.118-.038-.177l-.327-1.233a.582.582 0 01-.023-.156.49.49 0 01.201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89a9.49 9.49 0 00-.406-.032zm-2.53 2.703c.535 0 .969.44.969.982a.976.976 0 01-.969.983.976.976 0 01-.969-.983c0-.542.434-.982.97-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 01-.969.983.976.976 0 01-.969-.983c0-.542.434-.982.969-.982z"/>
-                  </svg>
-                  <span className="text-[13px] font-semibold text-[#e3e3e3]">微信支付</span>
-                </div>
-              </button>
-              <button
-                onClick={() => setPaymentType("alipay")}
-                className={`p-3 rounded-xl border-2 transition-all ${
-                  paymentType === "alipay"
-                    ? "border-[#1677ff] bg-[#1677ff]/10"
-                    : "border-[#3c3c3f] bg-[#2d2e30] hover:border-[#1677ff]/50"
-                }`}
-              >
-                <div className="flex items-center gap-2 justify-center">
-                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#1677ff">
-                    <path d="M20.422 16.464c-2.04-.696-3.792-1.368-3.792-1.368s.6-1.464.984-3.144h-3.384v-1.272h3.936v-.816h-3.936v-2.04h3.096c-.12-.312-.312-.768-.552-1.248l1.776-.552c.336.672.648 1.32.84 1.8h2.856v2.04h-3.816v.816h3.696v1.272h-4.944c-.24 1.008-.576 1.896-.576 1.896 2.64 1.056 7.344 2.976 7.344 2.976.168-1.056.336-2.208.336-3.456C24.258 6.336 18.834.912 12.114.912S0 6.336 0 13.128s5.406 12.216 12.114 12.216c4.512 0 8.472-2.472 10.584-6.144-1.008-.384-1.752-.648-2.28-.864l.004.128zM8.97 19.68c-2.976 0-5.4-1.752-5.4-5.112 0-2.904 1.944-4.944 4.824-4.944 2.376 0 4.488 1.488 4.488 4.272 0 2.208-1.176 3.792-2.808 3.792-.792 0-1.368-.504-1.368-1.344 0-.168.024-.336.072-.528l1.056-4.248h-1.512l-.264 1.056c-.384-1.008-1.272-1.296-2.064-1.296-2.112 0-3.528 1.92-3.528 4.296 0 1.752.936 2.976 2.52 2.976 1.104 0 2.016-.624 2.568-1.68.072.984.696 1.68 1.776 1.68 2.352 0 4.056-2.16 4.056-5.016 0-3.456-2.592-5.448-5.664-5.448-3.6 0-6.12 2.688-6.12 6.168 0 4.08 2.976 6.336 6.6 6.336 1.104 0 2.208-.192 3.024-.504l-.312-1.176c-.696.216-1.488.336-2.304.336l-.65.004zm-.042-4.128c0 1.32-.816 2.16-1.704 2.16-.744 0-1.224-.504-1.224-1.392 0-1.416.936-2.568 2.16-2.568.408 0 .744.12.936.312l-.168.816v.672z"/>
-                  </svg>
-                  <span className="text-[13px] font-semibold text-[#e3e3e3]">支付宝</span>
-                </div>
-              </button>
+              {paymentMethods.map(method => {
+                const isWxpay = method.id === "wxpay"
+                const isAlipay = method.id === "alipay"
+                const color = isWxpay ? "#07c160" : isAlipay ? "#1677ff" : "#fdd663"
+                const isSelected = paymentType === method.id
+                
+                return (
+                  <button
+                    key={method.id}
+                    onClick={() => setPaymentType(method.id)}
+                    className={`p-3 rounded-xl border-2 transition-all ${
+                      isSelected
+                        ? `border-[${color}] bg-[${color}]/10`
+                        : `border-[#3c3c3f] bg-[#2d2e30] hover:border-[${color}]/50`
+                    }`}
+                    style={{
+                      borderColor: isSelected ? color : undefined,
+                      backgroundColor: isSelected ? `${color}10` : undefined,
+                    }}
+                  >
+                    <div className="flex items-center gap-2 justify-center">
+                      {isWxpay && (
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill={color}>
+                          <path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 01.213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 00.167-.054l1.903-1.114a.864.864 0 01.717-.098 10.16 10.16 0 002.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 01-1.162 1.178A1.17 1.17 0 014.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 01-1.162 1.178 1.17 1.17 0 01-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 01.598.082l1.584.926a.272.272 0 00.14.045c.134 0 .24-.111.24-.245 0-.06-.023-.118-.038-.177l-.327-1.233a.582.582 0 01-.023-.156.49.49 0 01.201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89a9.49 9.49 0 00-.406-.032zm-2.53 2.703c.535 0 .969.44.969.982a.976.976 0 01-.969.983.976.976 0 01-.969-.983c0-.542.434-.982.97-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 01-.969.983.976.976 0 01-.969-.983c0-.542.434-.982.969-.982z"/>
+                        </svg>
+                      )}
+                      {isAlipay && (
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill={color}>
+                          <path d="M20.422 16.464c-2.04-.696-3.792-1.368-3.792-1.368s.6-1.464.984-3.144h-3.384v-1.272h3.936v-.816h-3.936v-2.04h3.096c-.12-.312-.312-.768-.552-1.248l1.776-.552c.336.672.648 1.32.84 1.8h2.856v2.04h-3.816v.816h3.696v1.272h-4.944c-.24 1.008-.576 1.896-.576 1.896 2.64 1.056 7.344 2.976 7.344 2.976.168-1.056.336-2.208.336-3.456C24.258 6.336 18.834.912 12.114.912S0 6.336 0 13.128s5.406 12.216 12.114 12.216c4.512 0 8.472-2.472 10.584-6.144-1.008-.384-1.752-.648-2.28-.864l.004.128zM8.97 19.68c-2.976 0-5.4-1.752-5.4-5.112 0-2.904 1.944-4.944 4.824-4.944 2.376 0 4.488 1.488 4.488 4.272 0 2.208-1.176 3.792-2.808 3.792-.792 0-1.368-.504-1.368-1.344 0-.168.024-.336.072-.528l1.056-4.248h-1.512l-.264 1.056c-.384-1.008-1.272-1.296-2.064-1.296-2.112 0-3.528 1.92-3.528 4.296 0 1.752.936 2.976 2.52 2.976 1.104 0 2.016-.624 2.568-1.68.072.984.696 1.68 1.776 1.68 2.352 0 4.056-2.16 4.056-5.016 0-3.456-2.592-5.448-5.664-5.448-3.6 0-6.12 2.688-6.12 6.168 0 4.08 2.976 6.336 6.6 6.336 1.104 0 2.208-.192 3.024-.504l-.312-1.176c-.696.216-1.488.336-2.304.336l-.65.004zm-.042-4.128c0 1.32-.816 2.16-1.704 2.16-.744 0-1.224-.504-1.224-1.392 0-1.416.936-2.568 2.16-2.568.408 0 .744.12.936.312l-.168.816v.672z"/>
+                        </svg>
+                      )}
+                      {!isWxpay && !isAlipay && (
+                        <Smartphone className="w-5 h-5" style={{ color }} />
+                      )}
+                      <span className="text-[13px] font-semibold text-[#e3e3e3]">{method.name}</span>
+                    </div>
+                  </button>
+                )
+              })}
             </div>
           </div>
 
@@ -404,11 +436,12 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
             <button
               onClick={handlePurchase}
               disabled={isLoading || product.stock < 1}
-              className={`w-full py-3 font-semibold rounded-xl transition-all duration-200 text-[15px] flex items-center justify-center gap-2 ${
-                paymentType === "wxpay"
-                  ? "bg-[#07c160] hover:bg-[#06ad56] text-white disabled:bg-[#3c3c3f]"
-                  : "bg-[#1677ff] hover:bg-[#0958d9] text-white disabled:bg-[#3c3c3f]"
-              } disabled:cursor-not-allowed disabled:text-[#6e6e73]`}
+              className="w-full py-3 font-semibold rounded-xl transition-all duration-200 text-[15px] flex items-center justify-center gap-2 text-white disabled:bg-[#3c3c3f] disabled:cursor-not-allowed disabled:text-[#6e6e73]"
+              style={{
+                backgroundColor: isLoading || product.stock < 1 
+                  ? undefined 
+                  : paymentType === "wxpay" ? "#07c160" : paymentType === "alipay" ? "#1677ff" : "#7CFF00",
+              }}
             >
               {isLoading ? (
                 <>
@@ -417,7 +450,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
                 </>
               ) : (
                 <>
-                  {paymentType === "wxpay" ? "微信支付" : "支付宝支付"} · ¥{totalPrice}
+                  {paymentMethods.find(m => m.id === paymentType)?.name || "支付"} · ¥{totalPrice}
                 </>
               )}
             </button>
