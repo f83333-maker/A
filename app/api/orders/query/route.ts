@@ -13,44 +13,74 @@ export async function GET(request: NextRequest) {
 
   try {
     const supabase = await createClient()
-    
-    let query = supabase
-      .from("orders")
-      .select("id, order_no, product_name, quantity, unit_price, total_amount, status, created_at, buyer_email, buyer_name, query_password")
-      .order("created_at", { ascending: false })
+    const fields = "id, order_no, product_name, quantity, unit_price, total_amount, status, created_at, buyer_email, buyer_name, query_password"
 
-    // 优先使用订单号精确查询
     if (orderNo && orderNo.trim()) {
-      query = query.eq("order_no", orderNo.trim())
-    } else if (contact && contact.trim()) {
-      // 使用联系方式模糊匹配（邮箱或姓名）
-      query = query.or(`buyer_email.ilike.%${contact.trim()}%,buyer_name.ilike.%${contact.trim()}%`)
+      // 订单号精确查询（同时兼容商户单号和易支付单号）
+      const no = orderNo.trim()
+      let { data: order, error } = await supabase
+        .from("orders")
+        .select(fields)
+        .eq("order_no", no)
+        .single()
+
+      if (error || !order) {
+        // 尝试通过易支付单号查询
+        const { data: orderByTrade } = await supabase
+          .from("orders")
+          .select(fields)
+          .or(`stripe_payment_intent_id.eq.${no},epay_trade_no.eq.${no}`)
+          .single()
+        order = orderByTrade
+      }
+
+      if (!order) {
+        return NextResponse.json({ success: false, error: "未找到该订单，请检查订单号是否正确" })
+      }
+
+      return NextResponse.json({
+        success: true,
+        order: {
+          ...order,
+          query_password: order.query_password ? "***" : null,
+          buyer_email: order.buyer_email ? maskContact(order.buyer_email) : null,
+        }
+      })
     }
 
-    const { data: orders, error } = await query
+    if (contact && contact.trim()) {
+      // 联系方式模糊匹配（邮箱、手机、QQ）
+      const c = contact.trim()
+      const { data: orders, error } = await supabase
+        .from("orders")
+        .select(fields)
+        .or(`buyer_email.ilike.%${c}%,buyer_name.ilike.%${c}%`)
+        .order("created_at", { ascending: false })
 
-    if (error) {
-      console.error("订单查询错误:", error)
-      return NextResponse.json({ success: false, error: "查询失败，请稍后重试" })
+      if (error) {
+        console.error("订单查询错误:", error)
+        return NextResponse.json({ success: false, error: "查询失败，请稍后重试" })
+      }
+
+      if (!orders || orders.length === 0) {
+        return NextResponse.json({ success: false, error: "未找到相关订单，请确认联系方式是否与下单时一致" })
+      }
+
+      const safeOrders = orders.map(o => ({
+        ...o,
+        query_password: o.query_password ? "***" : null,
+        buyer_email: o.buyer_email ? maskContact(o.buyer_email) : null,
+      }))
+
+      // 只有一个结果直接返回单条
+      if (safeOrders.length === 1) {
+        return NextResponse.json({ success: true, order: safeOrders[0] })
+      }
+
+      return NextResponse.json({ success: true, orders: safeOrders })
     }
 
-    if (!orders || orders.length === 0) {
-      return NextResponse.json({ success: false, error: "未找到相关订单" })
-    }
-
-    // 隐藏敏感信息
-    const safeOrders = orders.map(order => ({
-      ...order,
-      query_password: order.query_password ? "***" : null,
-      buyer_email: order.buyer_email ? maskContact(order.buyer_email) : null,
-    }))
-
-    // 如果是订单号查询，返回单个订单；如果是联系方式查询，返回订单列表
-    if (orderNo && orderNo.trim()) {
-      return NextResponse.json({ success: true, order: safeOrders[0] })
-    }
-    
-    return NextResponse.json({ success: true, orders: safeOrders })
+    return NextResponse.json({ success: false, error: "查询失败，请稍后重试" })
   } catch {
     return NextResponse.json({ success: false, error: "查询失败，请稍后重试" })
   }
