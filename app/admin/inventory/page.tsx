@@ -310,7 +310,7 @@ export default function InventoryPage() {
                 <button
                   key={item.key}
                   onClick={() => setFilterStock(item.key as any)}
-                  className={`flex-1 px-2 py-1.5 rounded-lg text-[11px] font-medium transition-colors ${
+                  className={`flex-1 h-8 flex items-center justify-center px-2 rounded-lg text-[11px] font-medium transition-colors ${
                     filterStock === item.key
                       ? "bg-[#7CFF00]/15 text-[#7CFF00]"
                       : "bg-[#2d2e30] text-[#6e6e73] hover:text-[#9aa0a6]"
@@ -440,7 +440,7 @@ export default function InventoryPage() {
                   <button
                     key={item.key}
                     onClick={() => setInventoryFilter(item.key as any)}
-                    className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all ${
+                    className={`h-8 flex items-center justify-center px-3 rounded-lg text-[12px] font-medium transition-all ${
                       inventoryFilter === item.key
                         ? "bg-[#7CFF00]/15 text-[#7CFF00]"
                         : "text-[#6e6e73] hover:text-[#9aa0a6]"

@@ -215,7 +215,7 @@ export default function AnalyticsPage() {
                     <td className="px-4 py-3 text-center">
                       <button
                         onClick={() => openVisitorDetail(visitor)}
-                        className="px-3 py-1.5 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] rounded-lg text-[12px] font-medium transition-colors"
+                        className="h-8 flex items-center justify-center px-3 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] rounded-lg text-[12px] font-medium transition-colors"
                       >
                         详情
                       </button>

@@ -177,7 +177,7 @@ export default function OrdersPage() {
           <button
             key={tab.key}
             onClick={() => setStatusTab(tab.key as typeof statusTab)}
-            className={`px-4 py-2.5 text-[14px] font-medium border-b-2 -mb-px transition-colors ${
+            className={`h-11 inline-flex items-center px-4 text-[14px] font-medium border-b-2 -mb-px transition-colors ${
               statusTab === tab.key
                 ? "border-[#7CFF00] text-[#7CFF00]"
                 : "border-transparent text-[#9aa0a6] hover:text-[#e3e3e3]"
