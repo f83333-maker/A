@@ -33,6 +33,7 @@ interface Product {
   logo_data: string | null
   logo_bg_color: string | null
   icon_url: string | null
+  tag_label: string | null
   delivery_type: string | null
   categories: {
     name: string
