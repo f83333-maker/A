@@ -410,7 +410,8 @@ export default function ProductsPage() {
 
   const handleMoveUp = async (index: number) => {
     if (index === 0) return
-    const sortedProducts = [...products].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+    const sortedProducts = Array.isArray(products) ? [...products].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)) : []
+    if (sortedProducts.length === 0) return
     const current = sortedProducts[index]
     const prev = sortedProducts[index - 1]
     
@@ -434,8 +435,8 @@ export default function ProductsPage() {
   }
 
   const handleMoveDown = async (index: number) => {
-    const sortedProducts = [...products].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
-    if (index === sortedProducts.length - 1) return
+    const sortedProducts = Array.isArray(products) ? [...products].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)) : []
+    if (sortedProducts.length === 0 || index >= sortedProducts.length - 1) return
     const current = sortedProducts[index]
     const next = sortedProducts[index + 1]
     
@@ -460,14 +461,17 @@ export default function ProductsPage() {
 
   // 内联切换上下架状态（乐观更新）
   const handleToggleActive = (product: Product) => {
+    if (!Array.isArray(products)) return
     const newValue = !product.is_active
-    setProducts(prev => prev.map(p => p.id === product.id ? { ...p, is_active: newValue } : p))
+    setProducts(prev => Array.isArray(prev) ? prev.map(p => p.id === product.id ? { ...p, is_active: newValue } : p) : [])
     fetch(`/api/admin/products/${product.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ is_active: newValue }),
     }).catch(() => {
-      setProducts(prev => prev.map(p => p.id === product.id ? { ...p, is_active: !newValue } : p))
+      if (Array.isArray(products)) {
+        setProducts(prev => Array.isArray(prev) ? prev.map(p => p.id === product.id ? { ...p, is_active: !newValue } : p) : [])
+      }
     })
   }
 
