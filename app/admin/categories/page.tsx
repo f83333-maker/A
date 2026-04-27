@@ -464,39 +464,6 @@ export default function CategoriesPage() {
           </div>
         </div>
       )}
-              </div>
-
-              <div>
-                <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">排序</label>
-                <input
-                  type="number"
-                  value={formData.sort_order}
-                  onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) })}
-                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="flex-1 h-11 bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#e3e3e3] font-semibold rounded-xl transition-all duration-200 text-[14px]"
-                >
-                  取消
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="flex-1 h-11 bg-[#7CFF00] hover:bg-[#9FFF40] disabled:opacity-50 text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px] flex items-center justify-center gap-2"
-                >
-                  {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {editingCategory ? "保存" : "添加"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
