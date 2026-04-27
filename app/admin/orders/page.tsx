@@ -314,12 +314,12 @@ export default function OrdersPage() {
                       className="w-3.5 h-3.5 rounded accent-[#7CFF00] cursor-pointer"
                     />
                   </th>
-                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6]">订单号</th>
-                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6]">商品</th>
-                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] w-20">订单金额</th>
-                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] w-28">状态</th>
-                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6]">创建时间</th>
-                  <th className="px-4 py-3 text-right text-[12px] font-semibold text-[#9aa0a6] w-28">操作</th>
+                  <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6]">订单号</th>
+                  <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6]">商品</th>
+                  <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] w-20">订单金额</th>
+                  <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] w-28">状态</th>
+                  <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6]">创建时间</th>
+                  <th className="px-4 py-3 text-right text-[13px] font-semibold text-[#9aa0a6] w-28">操作</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#3c3c3f]">

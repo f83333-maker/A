@@ -173,12 +173,12 @@ export default function AnalyticsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-[#3c3c3f]">
-                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">序号</th>
-                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">IP地址</th>
-                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">地区</th>
-                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">设备</th>
-                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">访问时间</th>
-                  <th className="px-4 py-3 text-center text-[12px] font-semibold text-[#9aa0a6] uppercase">操作</th>
+                  <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] uppercase">序号</th>
+                  <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] uppercase">IP地址</th>
+                  <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] uppercase">地区</th>
+                  <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] uppercase">设备</th>
+                  <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] uppercase">访问时间</th>
+                  <th className="px-4 py-3 text-center text-[13px] font-semibold text-[#9aa0a6] uppercase">操作</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#3c3c3f]">

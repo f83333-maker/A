@@ -150,11 +150,11 @@ export default function AnnouncementsPage() {
                 <td className="px-5 py-4">
                   <div className="flex flex-wrap gap-1">
                     {item.is_new && (
-                      <span className="px-2 py-0.5 text-[11px] font-semibold rounded-full bg-[#ee675c]/10 text-[#ee675c]">
+                      <span className="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-[#ee675c]/10 text-[#ee675c]">
                         New
                       </span>
                     )}
-                    <span className={`px-2 py-0.5 text-[11px] font-semibold rounded-full ${
+                    <span className={`px-2 py-0.5 text-[12px] font-semibold rounded-full ${
                       item.is_active 
                         ? "bg-[#81c995]/10 text-[#81c995]" 
                         : "bg-[#6e6e73]/10 text-[#6e6e73]"
