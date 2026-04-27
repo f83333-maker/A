@@ -49,6 +49,7 @@ const initialFormData = {
   logo_data: "",
   logo_bg_color: "#2d2e30",
   delivery_type: "自动发货",
+  icon_url: "",
 }
 
 function loadTemplates(): ProductTemplate[] {
@@ -241,7 +242,7 @@ export default function ProductsPage() {
         cost_price: product.cost_price || 0,
         stock: product.stock,
         sales: product.sales,
-        tag_label: product.tags?.[0] || "",
+        tag_label: product.tag_label || product.tags?.[0] || "",
         is_active: product.is_active,
         category_id: product.category_id,
         product_info: product.product_info || "",
@@ -249,6 +250,7 @@ export default function ProductsPage() {
         logo_data: product.logo_data || "",
         logo_bg_color: product.logo_bg_color || "#2d2e30",
         delivery_type: product.delivery_type || "自动发货",
+        icon_url: product.icon_url || "",
       })
       setLogoPreview(product.logo_data || null)
     } else {
@@ -285,12 +287,12 @@ export default function ProductsPage() {
         : "/api/admin/products"
       const method = editingProduct ? "PUT" : "POST"
 
-      // 构建提交数据，排除 tag_label（它不是数据库字段）
-      const { tag_label, ...restFormData } = formData
+      // 构建提交数据
       const submitData = {
-        ...restFormData,
-        tags: tag_label ? [tag_label.trim()] : [],
-        is_hot: !!tag_label, // 有标签就算热门
+        ...formData,
+        tag_label: formData.tag_label?.trim() || null,
+        tags: formData.tag_label ? [formData.tag_label.trim()] : [],
+        is_hot: !!formData.tag_label, // 有标签就算热门
       }
 
       const res = await fetch(url, {
@@ -902,7 +904,7 @@ export default function ProductsPage() {
                         key={result.code}
                         type="button"
                         onClick={() => {
-                          setFormData({ ...formData, logo_data: result.flagUrl })
+                          setFormData({ ...formData, logo_data: result.flagUrl, icon_url: result.flagUrl })
                           setLogoPreview(result.flagUrl)
                           setFlagResults([])
                         }}
