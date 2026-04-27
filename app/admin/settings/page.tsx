@@ -148,16 +148,33 @@ export default function SettingsPage() {
     }
   }
 
+  // 解析配置字段值（清除转义字符）
+  function parseConfigValue(value: string | null): string {
+    if (!value) return ""
+    let str = String(value)
+    // 清除双重转义
+    try {
+      // 如果值本身是 JSON 字符串，先解析一次
+      if (str.startsWith('"') && str.endsWith('"')) {
+        str = JSON.parse(str)
+      }
+    } catch {
+      // 忽略解析错误，继续使用原始值
+    }
+    // 清除转义字符
+    return str.replace(/\\n/g, "\n").replace(/\\"/g, '"').replace(/\\\//g, "/").trim()
+  }
+
   // 打开添加/编辑支付配置弹窗
   function openPaymentModal(config?: PaymentConfig) {
     if (config) {
       setEditingPayment(config)
       setPaymentForm({
-        name: config.name,
-        type: config.type,
-        api_url: config.api_url || "",
-        merchant_id: config.merchant_id || "",
-        merchant_key: config.merchant_key || "",
+        name: config.name || "",
+        type: config.type || "epay",
+        api_url: parseConfigValue(config.api_url),
+        merchant_id: parseConfigValue(config.merchant_id),
+        merchant_key: parseConfigValue(config.merchant_key),
         supported_methods: config.supported_methods || ["wxpay", "alipay"],
         is_active: config.is_active,
       })
@@ -175,6 +192,8 @@ export default function SettingsPage() {
     }
     setShowPaymentModal(true)
   }
+    setShowPaymentModal(true)
+  }
 
   // 保存支付配置
   async function savePaymentConfig() {
@@ -189,10 +208,18 @@ export default function SettingsPage() {
         : "/api/admin/payment-configs"
       const method = editingPayment ? "PUT" : "POST"
       
+      // 清理值中的转义字符后再保存
+      const cleanedForm = {
+        ...paymentForm,
+        api_url: parseConfigValue(paymentForm.api_url),
+        merchant_id: parseConfigValue(paymentForm.merchant_id),
+        merchant_key: parseConfigValue(paymentForm.merchant_key),
+      }
+      
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(paymentForm),
+        body: JSON.stringify(cleanedForm),
       })
       
       if (!res.ok) throw new Error("保存失败")
