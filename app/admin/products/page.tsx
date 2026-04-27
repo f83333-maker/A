@@ -554,112 +554,101 @@ export default function ProductsPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-[#3c3c3f] bg-[#2d2e30]/40">
-                <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6]">商品信息</th>
-                <th className="px-3 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] w-20">售价(元)</th>
-                <th className="px-3 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] w-28">状态</th>
-                <th className="px-3 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] w-16">销量</th>
-                <th className="px-3 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] w-24">库存</th>
-                <th className="px-4 py-3 text-right text-[12px] font-semibold text-[#9aa0a6] w-28">操作</th>
+                <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#9aa0a6]">商品信息</th>
+                <th className="px-2 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] w-16">售价</th>
+                <th className="px-2 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] w-24">状态</th>
+                <th className="px-2 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] w-12">销量</th>
+                <th className="px-2 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] w-20">库存</th>
+                <th className="px-3 py-2 text-right text-[11px] font-semibold text-[#9aa0a6] w-24">操作</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#3c3c3f]">
+            <tbody className="divide-y divide-[#3c3c3f]/50">
               {filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-12 text-[#6e6e73] text-[13px]">暂无产品</td>
+                  <td colSpan={6} className="text-center py-8 text-[#6e6e73] text-[12px]">暂无产品</td>
                 </tr>
               ) : filteredProducts.map((product, index) => (
-                <tr key={product.id} className="hover:bg-[#2d2e30]/50 transition-colors">
+                <tr key={product.id} className="hover:bg-[#2d2e30]/30 transition-colors h-10">
                   {/* 商品信息 */}
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      {/* 排序 */}
-                      <div className="flex flex-col gap-0.5 shrink-0">
+                  <td className="px-3 py-1.5">
+                    <div className="flex items-center gap-1.5">
+                      <div className="flex gap-0.5 shrink-0">
                         <button
                           onClick={() => handleMoveUp(index)}
                           disabled={index === 0}
-                          className="p-0.5 text-[#6e6e73] hover:text-[#7CFF00] rounded disabled:opacity-20 disabled:cursor-not-allowed transition-all"
+                          className="p-0.5 text-[#5f6368] hover:text-[#7CFF00] rounded disabled:opacity-20 transition-all"
                         >
-                          <ArrowUp className="w-3 h-3" />
+                          <ArrowUp className="w-2.5 h-2.5" />
                         </button>
                         <button
                           onClick={() => handleMoveDown(index)}
                           disabled={index === filteredProducts.length - 1}
-                          className="p-0.5 text-[#6e6e73] hover:text-[#7CFF00] rounded disabled:opacity-20 disabled:cursor-not-allowed transition-all"
+                          className="p-0.5 text-[#5f6368] hover:text-[#7CFF00] rounded disabled:opacity-20 transition-all"
                         >
-                          <ArrowDown className="w-3 h-3" />
+                          <ArrowDown className="w-2.5 h-2.5" />
                         </button>
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-[13px] font-medium text-[#e3e3e3] truncate max-w-xs">{product.name}</p>
-                        {product.categories?.name && (
-                          <p className="text-[11px] text-[#6e6e73] mt-0.5">{product.categories.name}</p>
-                        )}
-                      </div>
+                      <span className="text-[12px] font-medium text-[#e3e3e3] truncate max-w-[280px]" title={product.name}>
+                        {product.categories?.name && <span className="text-[#6e6e73] mr-1">[{product.categories.name}]</span>}
+                        {product.name}
+                      </span>
                     </div>
                   </td>
                   {/* 售价 */}
-                  <td className="px-3 py-3">
-                    <span className="text-[13px] font-semibold text-[#e3e3e3]">{product.price}</span>
+                  <td className="px-2 py-1.5">
+                    <span className="text-[12px] font-semibold text-[#e3e3e3]">{product.price}</span>
                   </td>
-                  {/* 状态 + 内联切换按钮 */}
-                  <td className="px-3 py-3">
-                    <div className="flex items-center gap-1.5">
-                      <span className={`inline-flex items-center gap-1 text-[12px] font-medium ${
-                        product.is_active ? "text-[#81c995]" : "text-[#6e6e73]"
-                      }`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${product.is_active ? "bg-[#81c995]" : "bg-[#6e6e73]"}`} />
+                  {/* 状态 */}
+                  <td className="px-2 py-1.5">
+                    <div className="flex items-center gap-1">
+                      <span className={`inline-flex items-center gap-1 text-[11px] font-medium ${product.is_active ? "text-[#81c995]" : "text-[#6e6e73]"}`}>
+                        <span className={`w-1 h-1 rounded-full ${product.is_active ? "bg-[#81c995]" : "bg-[#6e6e73]"}`} />
                         {product.is_active ? "销售中" : "已下架"}
                       </span>
                       <button
                         onClick={() => handleToggleActive(product)}
-                        className={`px-1.5 py-0.5 text-[10px] font-medium rounded transition-colors ${
-                          product.is_active
-                            ? "bg-[#3c3c3f] text-[#9aa0a6] hover:bg-[#ee675c]/20 hover:text-[#ee675c]"
-                            : "bg-[#3c3c3f] text-[#9aa0a6] hover:bg-[#81c995]/20 hover:text-[#81c995]"
-                        }`}
+                        className="px-1 py-0.5 text-[9px] font-medium bg-[#3c3c3f]/60 text-[#9aa0a6] hover:text-[#7CFF00] rounded transition-colors"
                       >
                         {product.is_active ? "下架" : "上架"}
                       </button>
                     </div>
                   </td>
                   {/* 销量 */}
-                  <td className="px-3 py-3">
-                    <span className="text-[13px] text-[#9aa0a6]">{product.sales || 0}</span>
+                  <td className="px-2 py-1.5">
+                    <span className="text-[12px] text-[#9aa0a6]">{product.sales || 0}</span>
                   </td>
-                  {/* 库存 + 库存按钮 */}
-                  <td className="px-3 py-3">
-                    <div className="flex items-center gap-1.5">
-                      <span className={`text-[13px] font-semibold px-1.5 py-0.5 rounded ${
-                        product.stock > 0 ? "bg-[#81c995]/15 text-[#81c995]" : "bg-[#ee675c]/15 text-[#ee675c]"
-                      }`}>
-                        {product.stock}张
+                  {/* 库存 */}
+                  <td className="px-2 py-1.5">
+                    <div className="flex items-center gap-1">
+                      <span className={`text-[11px] font-semibold px-1 rounded ${product.stock > 0 ? "bg-[#81c995]/10 text-[#81c995]" : "bg-[#ee675c]/10 text-[#ee675c]"}`}>
+                        {product.stock}
                       </span>
                       <button
                         onClick={() => openInventoryModal(product)}
-                        className="px-1.5 py-0.5 text-[10px] font-medium bg-[#3c3c3f] text-[#9aa0a6] hover:bg-[#81c995]/20 hover:text-[#81c995] rounded transition-colors"
+                        className="px-1 py-0.5 text-[9px] font-medium text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
                       >
                         库存
                       </button>
                     </div>
                   </td>
                   {/* 操作 */}
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-2">
+                  <td className="px-3 py-1.5">
+                    <div className="flex items-center justify-end gap-1.5">
                       <button
                         onClick={() => openModal(product)}
-                        className="text-[12px] text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
+                        className="text-[11px] text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
                       >
                         编辑
                       </button>
                       <button
                         onClick={() => handleDuplicate(product)}
-                        className="text-[12px] text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
+                        className="text-[11px] text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
                       >
                         复制
                       </button>
                       <button
                         onClick={() => handleDelete(product.id)}
-                        className="text-[12px] text-[#9aa0a6] hover:text-[#ee675c] transition-colors"
+                        className="text-[11px] text-[#9aa0a6] hover:text-[#ee675c] transition-colors"
                       >
                         删除
                       </button>
@@ -1109,79 +1098,92 @@ export default function ProductsPage() {
         </div>
       )}
 
-      {/* 库存管理弹窗 */}
+      {/* 库存管理弹窗 - 高级设计 */}
       {inventoryModalOpen && inventoryProduct && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
-            {/* 头部 */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#3c3c3f] shrink-0">
-              <div>
-                <h2 className="text-[18px] font-semibold text-[#e3e3e3]">库存管理</h2>
-                <p className="text-[13px] text-[#9aa0a6] mt-0.5">{inventoryProduct.name}</p>
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-b from-[#1e1f20] to-[#151617] rounded-2xl border border-[#3c3c3f]/60 w-full max-w-3xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl shadow-black/40">
+            {/* 头部 - 带渐变底色 */}
+            <div className="relative px-6 py-5 border-b border-[#3c3c3f]/50 shrink-0 bg-gradient-to-r from-[#7CFF00]/5 to-transparent">
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-8 h-8 rounded-lg bg-[#7CFF00]/15 flex items-center justify-center">
+                      <Package className="w-4 h-4 text-[#7CFF00]" />
+                    </div>
+                    <h2 className="text-[17px] font-semibold text-[#e3e3e3]">库存管理</h2>
+                  </div>
+                  <p className="text-[12px] text-[#9aa0a6] pl-10 truncate max-w-md">{inventoryProduct.name}</p>
+                </div>
+                <button
+                  onClick={() => setInventoryModalOpen(false)}
+                  className="p-1.5 text-[#6e6e73] hover:text-[#e3e3e3] hover:bg-white/5 rounded-lg transition-all"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-              <button
-                onClick={() => setInventoryModalOpen(false)}
-                className="p-1 text-[#9aa0a6] hover:text-[#e3e3e3] transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              {/* 统计数据 - 嵌入头部 */}
+              <div className="flex items-center gap-6 mt-4 pl-10">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] text-[#6e6e73] uppercase tracking-wide">总计</span>
+                  <span className="text-[18px] font-bold text-[#e3e3e3]">{inventoryStats.total}</span>
+                </div>
+                <div className="w-px h-5 bg-[#3c3c3f]" />
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#7CFF00]" />
+                  <span className="text-[18px] font-bold text-[#7CFF00]">{inventoryStats.available}</span>
+                  <span className="text-[11px] text-[#6e6e73]">可用</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#6e6e73]" />
+                  <span className="text-[18px] font-bold text-[#6e6e73]">{inventoryStats.sold}</span>
+                  <span className="text-[11px] text-[#6e6e73]">已售</span>
+                </div>
+              </div>
             </div>
 
-            {/* 统计卡片 */}
-            <div className="grid grid-cols-3 gap-3 px-6 py-4 border-b border-[#3c3c3f] shrink-0">
-              <div className="bg-[#2d2e30] rounded-xl p-3 text-center">
-                <div className="text-[#9aa0a6] text-[11px] mb-0.5">总库存</div>
-                <div className="text-xl font-bold text-[#e3e3e3]">{inventoryStats.total}</div>
-              </div>
-              <div className="bg-[#2d2e30] rounded-xl p-3 text-center">
-                <div className="text-[#81c995] text-[11px] mb-0.5">可用</div>
-                <div className="text-xl font-bold text-[#81c995]">{inventoryStats.available}</div>
-              </div>
-              <div className="bg-[#2d2e30] rounded-xl p-3 text-center">
-                <div className="text-[#f28b82] text-[11px] mb-0.5">已售出</div>
-                <div className="text-xl font-bold text-[#f28b82]">{inventoryStats.sold}</div>
-              </div>
-            </div>
-
-            {/* 添加库存 */}
-            <div className="px-6 py-4 border-b border-[#3c3c3f] shrink-0">
-              <p className="text-[12px] text-[#9aa0a6] mb-2">每行一个账号，自动按行分割</p>
-              <div className="flex gap-2">
-                <textarea
-                  value={newInventoryContent}
-                  onChange={(e) => setNewInventoryContent(e.target.value)}
-                  placeholder="账号1&#10;账号2&#10;账号3"
-                  rows={3}
-                  className="flex-1 px-3 py-2 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] font-mono focus:outline-none focus:border-[#7CFF00] resize-none"
-                />
+            {/* 添加库存区域 */}
+            <div className="px-6 py-4 border-b border-[#3c3c3f]/50 shrink-0">
+              <div className="flex items-start gap-3">
+                <div className="flex-1">
+                  <textarea
+                    value={newInventoryContent}
+                    onChange={(e) => setNewInventoryContent(e.target.value)}
+                    placeholder="粘贴库存内容，每行一条..."
+                    rows={2}
+                    className="w-full px-3 py-2.5 bg-[#0d0e0f] border border-[#3c3c3f]/60 rounded-xl text-[#e3e3e3] placeholder-[#4a4a4d] text-[13px] font-mono focus:outline-none focus:border-[#7CFF00]/50 focus:ring-1 focus:ring-[#7CFF00]/20 resize-none transition-all"
+                  />
+                </div>
                 <button
                   onClick={handleAddInventory}
                   disabled={inventoryAdding || !newInventoryContent.trim()}
-                  className="px-4 bg-[#7CFF00] text-[#131314] rounded-xl font-semibold text-[13px] hover:bg-[#9FFF40] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5 shrink-0"
+                  className="h-[60px] px-5 bg-[#7CFF00] text-[#0d0e0f] rounded-xl font-semibold text-[13px] hover:bg-[#9FFF40] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2 shrink-0"
                 >
                   {inventoryAdding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                  添加
+                  添加库存
                 </button>
               </div>
             </div>
 
-            {/* 筛选 */}
-            <div className="flex gap-2 px-6 py-3 border-b border-[#3c3c3f] shrink-0">
+            {/* Tab 筛选 */}
+            <div className="flex items-center gap-1 px-6 py-2 border-b border-[#3c3c3f]/50 shrink-0 bg-[#151617]">
               {[
-                { key: "all", label: "全部" },
-                { key: "available", label: "可用" },
-                { key: "sold", label: "已售出" }
+                { key: "all", label: "全部", count: inventoryStats.total },
+                { key: "available", label: "可用", count: inventoryStats.available },
+                { key: "sold", label: "已售出", count: inventoryStats.sold }
               ].map(item => (
                 <button
                   key={item.key}
                   onClick={() => setInventoryFilter(item.key as typeof inventoryFilter)}
-                  className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-colors ${
+                  className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all ${
                     inventoryFilter === item.key
-                      ? "bg-[#7CFF00] text-[#131314]"
-                      : "bg-[#2d2e30] text-[#9aa0a6] hover:bg-[#3c3c3f]"
+                      ? "bg-[#7CFF00]/15 text-[#7CFF00]"
+                      : "text-[#6e6e73] hover:text-[#9aa0a6] hover:bg-white/5"
                   }`}
                 >
                   {item.label}
+                  <span className={`ml-1.5 text-[10px] ${inventoryFilter === item.key ? "text-[#7CFF00]/60" : "text-[#4a4a4d]"}`}>
+                    {item.count}
+                  </span>
                 </button>
               ))}
             </div>
@@ -1189,62 +1191,46 @@ export default function ProductsPage() {
             {/* 库存列表 */}
             <div className="flex-1 overflow-y-auto">
               {inventoryLoading ? (
-                <div className="flex items-center justify-center py-12">
+                <div className="flex flex-col items-center justify-center py-16 gap-3">
                   <Loader2 className="w-6 h-6 animate-spin text-[#7CFF00]" />
+                  <span className="text-[12px] text-[#6e6e73]">加载中...</span>
                 </div>
               ) : filteredInventory.length === 0 ? (
-                <div className="text-center py-12">
-                  <Package className="w-10 h-10 mx-auto text-[#5f6368] mb-2" />
-                  <p className="text-[#9aa0a6] text-[13px]">暂无库存</p>
+                <div className="flex flex-col items-center justify-center py-16 gap-2">
+                  <div className="w-12 h-12 rounded-full bg-[#2d2e30] flex items-center justify-center">
+                    <Package className="w-5 h-5 text-[#4a4a4d]" />
+                  </div>
+                  <p className="text-[#6e6e73] text-[13px]">暂无库存数据</p>
                 </div>
               ) : (
-                <table className="w-full">
-                  <thead className="sticky top-0 bg-[#1e1f20]">
-                    <tr className="border-b border-[#3c3c3f]">
-                      <th className="text-left px-6 py-2.5 text-[#9aa0a6] text-[11px] font-medium">内容</th>
-                      <th className="text-left px-3 py-2.5 text-[#9aa0a6] text-[11px] font-medium w-16">状态</th>
-                      <th className="text-left px-3 py-2.5 text-[#9aa0a6] text-[11px] font-medium w-32 hidden sm:table-cell">创建时间</th>
-                      <th className="text-right px-6 py-2.5 text-[#9aa0a6] text-[11px] font-medium w-12">操作</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredInventory.map((item) => (
-                      <tr key={item.id} className="border-b border-[#3c3c3f]/50 hover:bg-[#2d2e30]/50">
-                        <td className="px-6 py-2.5">
-                          <code className="text-[12px] text-[#e3e3e3] bg-[#2d2e30] px-2 py-0.5 rounded font-mono">
-                            {item.content}
-                          </code>
-                        </td>
-                        <td className="px-3 py-2.5">
-                          {item.status === "available" ? (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-[#81c995]/20 text-[#81c995] text-[10px] rounded-full">
-                              <Clock className="w-2.5 h-2.5" />
-                              可用
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-[#f28b82]/20 text-[#f28b82] text-[10px] rounded-full">
-                              <CheckCircle className="w-2.5 h-2.5" />
-                              已售
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-3 py-2.5 text-[#9aa0a6] text-[11px] hidden sm:table-cell">
-                          {new Date(item.created_at).toLocaleString("zh-CN")}
-                        </td>
-                        <td className="px-6 py-2.5 text-right">
-                          {item.status === "available" && (
-                            <button
-                              onClick={() => handleDeleteInventory(item.id)}
-                              className="p-1 text-[#f28b82] hover:bg-[#f28b82]/20 rounded transition-colors"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <div className="divide-y divide-[#3c3c3f]/30">
+                  {filteredInventory.map((item, idx) => (
+                    <div key={item.id} className="flex items-center gap-4 px-6 py-2.5 hover:bg-white/[0.02] transition-colors group">
+                      <span className="text-[10px] text-[#4a4a4d] w-6 text-right font-mono">{idx + 1}</span>
+                      <div className="flex-1 min-w-0">
+                        <code className="text-[12px] text-[#e3e3e3] font-mono truncate block">{item.content}</code>
+                      </div>
+                      <span className={`shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium ${
+                        item.status === "available" 
+                          ? "bg-[#7CFF00]/10 text-[#7CFF00]" 
+                          : "bg-[#3c3c3f]/50 text-[#6e6e73]"
+                      }`}>
+                        {item.status === "available" ? "可用" : "已售"}
+                      </span>
+                      <span className="text-[10px] text-[#4a4a4d] shrink-0 hidden sm:block">
+                        {new Date(item.created_at).toLocaleDateString("zh-CN")}
+                      </span>
+                      {item.status === "available" && (
+                        <button
+                          onClick={() => handleDeleteInventory(item.id)}
+                          className="p-1 text-[#4a4a4d] hover:text-[#ee675c] opacity-0 group-hover:opacity-100 transition-all"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           </div>

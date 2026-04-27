@@ -88,6 +88,12 @@ export default function OrdersPage() {
       return true
     })
 
+  const openModal = (order: Order) => {
+    setSelectedOrder(order)
+    setDeliverContent(order.delivered_content || "")
+    setIsModalOpen(true)
+  }
+
   const handleDelete = async (orderId: string) => {
     if (!confirm("确定要删除这个订单吗？此操作不可恢复。")) return
 
