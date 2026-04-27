@@ -62,7 +62,7 @@ export default function OrdersPage() {
   // 过滤订单
   const filteredOrders = orders
     .filter(order => {
-      if (statusTab === "paid" && order.status !== "paid") return false
+      if (statusTab === "paid" && order.status !== "paid" && order.status !== "delivered") return false
       if (statusTab === "pending" && order.status !== "pending") return false
       return true
     })
@@ -155,8 +155,8 @@ export default function OrdersPage() {
 
   const statusCounts = {
     all: orders.length,
-    pending: orders.filter((o) => o.status === "pending").length,
-    paid: orders.filter((o) => o.status === "paid").length,
+      pending: orders.filter((o) => o.status === "pending").length,
+      paid: orders.filter((o) => o.status === "paid" || o.status === "delivered").length,
   }
 
   return (
