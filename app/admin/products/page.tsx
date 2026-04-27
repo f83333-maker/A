@@ -559,7 +559,7 @@ export default function ProductsPage() {
                 <th className="px-2 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] w-24">状态</th>
                 <th className="px-2 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] w-12">销量</th>
                 <th className="px-2 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] w-20">库存</th>
-                <th className="px-3 py-2 text-right text-[11px] font-semibold text-[#9aa0a6] w-24">操作</th>
+                <th className="px-3 py-2 text-right text-[11px] font-semibold text-[#9aa0a6] w-28">操作</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#3c3c3f]/50">
@@ -588,8 +588,7 @@ export default function ProductsPage() {
                           <ArrowDown className="w-2.5 h-2.5" />
                         </button>
                       </div>
-                      <span className="text-[12px] font-medium text-[#e3e3e3] truncate max-w-[280px]" title={product.name}>
-                        {product.categories?.name && <span className="text-[#6e6e73] mr-1">[{product.categories.name}]</span>}
+                      <span className="text-[13px] font-medium text-[#e3e3e3] truncate max-w-[360px]" title={product.name}>
                         {product.name}
                       </span>
                     </div>
@@ -632,7 +631,7 @@ export default function ProductsPage() {
                     </div>
                   </td>
                   {/* 操作 */}
-                  <td className="px-3 py-1.5">
+                  <td className="px-3 py-1.5 whitespace-nowrap">
                     <div className="flex items-center justify-end gap-1.5">
                       <button
                         onClick={() => openModal(product)}
@@ -925,7 +924,7 @@ export default function ProductsPage() {
                     value={formData.logo_bg_color}
                     onChange={(e) => setFormData({ ...formData, logo_bg_color: e.target.value })}
                     className="w-8 h-8 rounded cursor-pointer border-0"
-                    title="背景色"
+                    title="背��色"
                   />
                 </div>
               </div>
