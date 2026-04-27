@@ -28,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="zh-CN" className={`${figtree.variable} bg-background`}>
+    <html lang="zh-CN" className={`${figtree.variable}`}>
       <body className="font-oak-sans antialiased min-h-screen bg-[var(--theme-bg)] text-[var(--theme-text-primary)] transition-colors duration-200">
         <ThemeProvider>
           {children}

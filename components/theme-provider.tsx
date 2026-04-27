@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useEffect, useState } from "react"
+import { createContext, useContext, useEffect, useState, ReactNode } from "react"
 
 type Theme = "dark" | "light"
 
@@ -11,32 +11,35 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
+export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>("dark")
-  const [mounted, setMounted] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
+    // 获取保存的主题或系统偏好
     const savedTheme = localStorage.getItem("theme") as Theme | null
-    if (savedTheme) {
-      setTheme(savedTheme)
-      document.documentElement.setAttribute("data-theme", savedTheme)
-    }
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
+    
+    const initialTheme = savedTheme || (prefersDark ? "dark" : "light")
+    setTheme(initialTheme)
+    document.documentElement.setAttribute("data-theme", initialTheme)
+    localStorage.setItem("theme", initialTheme)
+    setIsMounted(true)
   }, [])
 
   useEffect(() => {
-    if (mounted) {
+    if (isMounted) {
       document.documentElement.setAttribute("data-theme", theme)
       localStorage.setItem("theme", theme)
     }
-  }, [theme, mounted])
+  }, [theme, isMounted])
 
   const toggleTheme = () => {
     setTheme(prev => prev === "dark" ? "light" : "dark")
   }
 
-  // 防止 SSR 闪烁
-  if (!mounted) {
+  // SSR 兼容：防止客户端与服务器渲染不匹配
+  if (!isMounted) {
     return <>{children}</>
   }
 
@@ -50,7 +53,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 export function useTheme() {
   const context = useContext(ThemeContext)
   if (!context) {
-    throw new Error("useTheme must be used within a ThemeProvider")
+    // 如果在 Provider 外使用，返回默认值而不是抛错
+    return {
+      theme: "dark" as Theme,
+      toggleTheme: () => {}
+    }
   }
   return context
 }
