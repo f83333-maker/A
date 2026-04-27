@@ -123,6 +123,25 @@ export default function InventoryPage() {
     }
   }
 
+  // 删除库存
+  const handleDelete = async (id: string) => {
+    if (!confirm("确定要删除这条库存吗？") || !selectedProduct) return
+    try {
+      const res = await fetch(`/api/admin/inventory?id=${id}&productId=${selectedProduct.id}`, {
+        method: "DELETE"
+      })
+      const data = await res.json()
+      if (data.success) {
+        fetchInventory(selectedProduct.id)
+        fetchProducts()
+      } else {
+        alert(data.error || "删除失败")
+      }
+    } catch (error) {
+      alert("删除失败")
+    }
+  }
+
   // 同步库存：根据inventory表重新计算所有产品的库存
   const handleSyncInventory = async () => {
     if (!confirm("确定要同步所有产品的库存吗？这会根据库存记录重新计算每个产品的库存数量。")) return
@@ -213,7 +232,7 @@ export default function InventoryPage() {
                 <TrendingUp className="w-5 h-5 text-[#f9ab00]" />
               </div>
               <div>
-                <p className="text-[11px] text-[#6e6e73] uppercase tracking-wide">库存偏低</p>
+                <p className="text-[11px] text-[#6e6e73] uppercase tracking-wide">库存���低</p>
                 <p className="text-[22px] font-bold text-[#f9ab00]">{lowStockCount}</p>
               </div>
             </div>
