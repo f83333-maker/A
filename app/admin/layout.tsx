@@ -15,7 +15,6 @@ import {
   ChevronRight,
   Loader2,
   ShoppingCart,
-  Boxes,
   BarChart3
 } from "lucide-react"
 
@@ -24,7 +23,6 @@ const navItems = [
   { name: "数据统计", href: "/admin/analytics", icon: BarChart3 },
   { name: "分类管理", href: "/admin/categories", icon: FolderTree },
   { name: "产品管理", href: "/admin/products", icon: Package },
-  { name: "库存管理", href: "/admin/inventory", icon: Boxes },
   { name: "订单管理", href: "/admin/orders", icon: ShoppingCart },
   { name: "公告管理", href: "/admin/announcements", icon: Megaphone },
   { name: "网站设置", href: "/admin/settings", icon: Settings },

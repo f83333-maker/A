@@ -1,8 +1,24 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, Pencil, Trash2, Loader2, X, Package, ArrowUp, ArrowDown, Flag, Search, BookmarkPlus, BookOpen, ChevronDown } from "lucide-react"
+import { Plus, Pencil, Trash2, Loader2, X, Package, ArrowUp, ArrowDown, Flag, Search, BookmarkPlus, BookOpen, ChevronDown, Clock, CheckCircle } from "lucide-react"
 import Link from "next/link"
+
+interface InventoryItem {
+  id: string
+  product_id: string
+  content: string
+  status: string
+  order_id: string | null
+  sold_at: string | null
+  created_at: string
+}
+
+interface InventoryStats {
+  available: number
+  sold: number
+  total: number
+}
 
 interface Category {
   id: string
@@ -93,6 +109,16 @@ export default function ProductsPage() {
   const [flagResults, setFlagResults] = useState<{ code: string; flagUrl: string; name: string }[]>([])
   const [isSearchingFlag, setIsSearchingFlag] = useState(false)
 
+  // 库存弹窗状态
+  const [inventoryModalOpen, setInventoryModalOpen] = useState(false)
+  const [inventoryProduct, setInventoryProduct] = useState<Product | null>(null)
+  const [inventory, setInventory] = useState<InventoryItem[]>([])
+  const [inventoryStats, setInventoryStats] = useState<InventoryStats>({ available: 0, sold: 0, total: 0 })
+  const [inventoryLoading, setInventoryLoading] = useState(false)
+  const [inventoryAdding, setInventoryAdding] = useState(false)
+  const [newInventoryContent, setNewInventoryContent] = useState("")
+  const [inventoryFilter, setInventoryFilter] = useState<"all" | "available" | "sold">("all")
+
   useEffect(() => {
     fetchData()
     // 检查URL参数中的分类ID
@@ -119,6 +145,79 @@ export default function ProductsPage() {
       setIsLoading(false)
     }
   }
+
+  // 库存管理函数
+  const openInventoryModal = async (product: Product) => {
+    setInventoryProduct(product)
+    setInventoryModalOpen(true)
+    setInventoryFilter("all")
+    setNewInventoryContent("")
+    await fetchInventory(product.id)
+  }
+
+  const fetchInventory = async (productId: string) => {
+    setInventoryLoading(true)
+    try {
+      const res = await fetch(`/api/admin/inventory?productId=${productId}`)
+      const data = await res.json()
+      if (data.inventory) {
+        setInventory(data.inventory)
+        setInventoryStats(data.stats)
+      }
+    } catch (error) {
+      console.error("获取库存失败:", error)
+    } finally {
+      setInventoryLoading(false)
+    }
+  }
+
+  const handleAddInventory = async () => {
+    if (!newInventoryContent.trim() || !inventoryProduct) return
+    setInventoryAdding(true)
+    try {
+      const res = await fetch("/api/admin/inventory", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId: inventoryProduct.id, content: newInventoryContent })
+      })
+      const data = await res.json()
+      if (data.success) {
+        setNewInventoryContent("")
+        await fetchInventory(inventoryProduct.id)
+        // 刷新产品列表更新库存数量
+        fetchData()
+      } else {
+        alert(data.error || "添加失败")
+      }
+    } catch (error) {
+      alert("添加失败")
+    } finally {
+      setInventoryAdding(false)
+    }
+  }
+
+  const handleDeleteInventory = async (id: string) => {
+    if (!confirm("确定要删除这条库存吗？") || !inventoryProduct) return
+    try {
+      const res = await fetch(`/api/admin/inventory?id=${id}&productId=${inventoryProduct.id}`, {
+        method: "DELETE"
+      })
+      const data = await res.json()
+      if (data.success) {
+        await fetchInventory(inventoryProduct.id)
+        fetchData()
+      } else {
+        alert(data.error || "删除失败")
+      }
+    } catch (error) {
+      alert("删除失败")
+    }
+  }
+
+  const filteredInventory = inventory.filter(item => {
+    if (inventoryFilter === "all") return true
+    return item.status === inventoryFilter
+  })
 
   const openModal = (product?: Product) => {
     setError("")
@@ -410,13 +509,13 @@ export default function ProductsPage() {
                   </td>
                   <td className="px-3 py-2">
                     <div className="flex items-center justify-end gap-1">
-                      <Link
-                        href={`/admin/inventory?productId=${product.id}&name=${encodeURIComponent(product.name)}`}
+                      <button
+                        onClick={() => openInventoryModal(product)}
                         className="p-1.5 text-[#9aa0a6] hover:text-[#81c995] hover:bg-[#81c995]/10 rounded-lg transition-all"
                         title="管理库存"
                       >
                         <Package className="w-3.5 h-3.5" />
-                      </Link>
+                      </button>
                       <button
                         onClick={() => openModal(product)}
                         className="p-1.5 text-[#9aa0a6] hover:text-[#7CFF00] hover:bg-[#7CFF00]/10 rounded-lg transition-all"
@@ -873,6 +972,148 @@ export default function ProductsPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* 库存管理弹窗 */}
+      {inventoryModalOpen && inventoryProduct && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
+            {/* 头部 */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#3c3c3f] shrink-0">
+              <div>
+                <h2 className="text-[18px] font-semibold text-[#e3e3e3]">库存管理</h2>
+                <p className="text-[13px] text-[#9aa0a6] mt-0.5">{inventoryProduct.name}</p>
+              </div>
+              <button
+                onClick={() => setInventoryModalOpen(false)}
+                className="p-1 text-[#9aa0a6] hover:text-[#e3e3e3] transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* 统计卡片 */}
+            <div className="grid grid-cols-3 gap-3 px-6 py-4 border-b border-[#3c3c3f] shrink-0">
+              <div className="bg-[#2d2e30] rounded-xl p-3 text-center">
+                <div className="text-[#9aa0a6] text-[11px] mb-0.5">总库存</div>
+                <div className="text-xl font-bold text-[#e3e3e3]">{inventoryStats.total}</div>
+              </div>
+              <div className="bg-[#2d2e30] rounded-xl p-3 text-center">
+                <div className="text-[#81c995] text-[11px] mb-0.5">可用</div>
+                <div className="text-xl font-bold text-[#81c995]">{inventoryStats.available}</div>
+              </div>
+              <div className="bg-[#2d2e30] rounded-xl p-3 text-center">
+                <div className="text-[#f28b82] text-[11px] mb-0.5">已售出</div>
+                <div className="text-xl font-bold text-[#f28b82]">{inventoryStats.sold}</div>
+              </div>
+            </div>
+
+            {/* 添加库存 */}
+            <div className="px-6 py-4 border-b border-[#3c3c3f] shrink-0">
+              <p className="text-[12px] text-[#9aa0a6] mb-2">每行一个账号，自动按行分割</p>
+              <div className="flex gap-2">
+                <textarea
+                  value={newInventoryContent}
+                  onChange={(e) => setNewInventoryContent(e.target.value)}
+                  placeholder="账号1&#10;账号2&#10;账号3"
+                  rows={3}
+                  className="flex-1 px-3 py-2 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] font-mono focus:outline-none focus:border-[#7CFF00] resize-none"
+                />
+                <button
+                  onClick={handleAddInventory}
+                  disabled={inventoryAdding || !newInventoryContent.trim()}
+                  className="px-4 bg-[#7CFF00] text-[#131314] rounded-xl font-semibold text-[13px] hover:bg-[#9FFF40] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5 shrink-0"
+                >
+                  {inventoryAdding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                  添加
+                </button>
+              </div>
+            </div>
+
+            {/* 筛选 */}
+            <div className="flex gap-2 px-6 py-3 border-b border-[#3c3c3f] shrink-0">
+              {[
+                { key: "all", label: "全部" },
+                { key: "available", label: "可用" },
+                { key: "sold", label: "已售出" }
+              ].map(item => (
+                <button
+                  key={item.key}
+                  onClick={() => setInventoryFilter(item.key as typeof inventoryFilter)}
+                  className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-colors ${
+                    inventoryFilter === item.key
+                      ? "bg-[#7CFF00] text-[#131314]"
+                      : "bg-[#2d2e30] text-[#9aa0a6] hover:bg-[#3c3c3f]"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
+            {/* 库存列表 */}
+            <div className="flex-1 overflow-y-auto">
+              {inventoryLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-6 h-6 animate-spin text-[#7CFF00]" />
+                </div>
+              ) : filteredInventory.length === 0 ? (
+                <div className="text-center py-12">
+                  <Package className="w-10 h-10 mx-auto text-[#5f6368] mb-2" />
+                  <p className="text-[#9aa0a6] text-[13px]">暂无库存</p>
+                </div>
+              ) : (
+                <table className="w-full">
+                  <thead className="sticky top-0 bg-[#1e1f20]">
+                    <tr className="border-b border-[#3c3c3f]">
+                      <th className="text-left px-6 py-2.5 text-[#9aa0a6] text-[11px] font-medium">内容</th>
+                      <th className="text-left px-3 py-2.5 text-[#9aa0a6] text-[11px] font-medium w-16">状态</th>
+                      <th className="text-left px-3 py-2.5 text-[#9aa0a6] text-[11px] font-medium w-32 hidden sm:table-cell">创建时间</th>
+                      <th className="text-right px-6 py-2.5 text-[#9aa0a6] text-[11px] font-medium w-12">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredInventory.map((item) => (
+                      <tr key={item.id} className="border-b border-[#3c3c3f]/50 hover:bg-[#2d2e30]/50">
+                        <td className="px-6 py-2.5">
+                          <code className="text-[12px] text-[#e3e3e3] bg-[#2d2e30] px-2 py-0.5 rounded font-mono">
+                            {item.content}
+                          </code>
+                        </td>
+                        <td className="px-3 py-2.5">
+                          {item.status === "available" ? (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-[#81c995]/20 text-[#81c995] text-[10px] rounded-full">
+                              <Clock className="w-2.5 h-2.5" />
+                              可用
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-[#f28b82]/20 text-[#f28b82] text-[10px] rounded-full">
+                              <CheckCircle className="w-2.5 h-2.5" />
+                              已售
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-3 py-2.5 text-[#9aa0a6] text-[11px] hidden sm:table-cell">
+                          {new Date(item.created_at).toLocaleString("zh-CN")}
+                        </td>
+                        <td className="px-6 py-2.5 text-right">
+                          {item.status === "available" && (
+                            <button
+                              onClick={() => handleDeleteInventory(item.id)}
+                              className="p-1 text-[#f28b82] hover:bg-[#f28b82]/20 rounded transition-colors"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
           </div>
         </div>
       )}
