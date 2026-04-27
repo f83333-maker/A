@@ -342,7 +342,7 @@ export default function OrdersPage() {
                       </td>
                       <td className="px-4 py-3">
                         <div>
-                          <p className="text-[13px] font-medium text-[#e3e3e3]">{order.product_name}</p>
+                          <p className="text-[13px] font-medium text-[#e3e3e3] truncate max-w-sm" title={order.product_name}>{order.product_name}</p>
                           <p className="text-[12px] text-[#6e6e73]">x{order.quantity}</p>
                         </div>
                       </td>
@@ -425,7 +425,7 @@ export default function OrdersPage() {
                   </div>
                   <div>
                     <span className="text-[12px] font-semibold text-[#6e6e73]">产品</span>
-                    <p className="text-[13px] text-[#e3e3e3] mt-0.5">{selectedOrder.product_name}</p>
+                    <p className="text-[13px] text-[#e3e3e3] mt-0.5 truncate max-w-sm" title={selectedOrder.product_name}>{selectedOrder.product_name}</p>
                   </div>
                   <div>
                     <span className="text-[12px] font-semibold text-[#6e6e73]">数量</span>
