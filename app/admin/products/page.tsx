@@ -29,10 +29,8 @@ interface ProductTemplate {
   id: string
   name: string
   data: typeof initialFormData
-  createdAt: string
+  created_at: string
 }
-
-const TEMPLATES_KEY = "product_templates_v1"
 
 const initialFormData = {
   name: "",
@@ -50,18 +48,6 @@ const initialFormData = {
   logo_bg_color: "#2d2e30",
   delivery_type: "自动发货",
   icon_url: "",
-}
-
-function loadTemplates(): ProductTemplate[] {
-  try {
-    return JSON.parse(localStorage.getItem(TEMPLATES_KEY) || "[]")
-  } catch {
-    return []
-  }
-}
-
-function saveTemplates(templates: ProductTemplate[]) {
-  localStorage.setItem(TEMPLATES_KEY, JSON.stringify(templates))
 }
 
 interface Product {
@@ -129,8 +115,53 @@ export default function ProductsPage() {
   const [newInventoryContent, setNewInventoryContent] = useState("")
   const [inventoryFilter, setInventoryFilter] = useState<"all" | "available" | "sold">("all")
 
+  // 从数据库加载模板
+  const fetchTemplates = async () => {
+    try {
+      const res = await fetch("/api/admin/templates")
+      const data = await res.json()
+      if (Array.isArray(data)) {
+        setTemplates(data)
+      }
+    } catch (error) {
+      console.error("加载模板失败:", error)
+    }
+  }
+
+  // 保存模板到数据库
+  const saveTemplate = async (name: string, data: typeof initialFormData) => {
+    try {
+      const res = await fetch("/api/admin/templates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, data }),
+      })
+      if (res.ok) {
+        await fetchTemplates()
+        return true
+      }
+      return false
+    } catch (error) {
+      console.error("保存模板失败:", error)
+      return false
+    }
+  }
+
+  // 删除模板
+  const deleteTemplate = async (id: string) => {
+    try {
+      const res = await fetch(`/api/admin/templates/${id}`, { method: "DELETE" })
+      if (res.ok) {
+        setTemplates(prev => prev.filter(t => t.id !== id))
+      }
+    } catch (error) {
+      console.error("删除模板失败:", error)
+    }
+  }
+
   useEffect(() => {
     fetchData()
+    fetchTemplates()
     // 检查URL参数中的分类ID
     const params = new URLSearchParams(window.location.search)
     const categoryId = params.get("categoryId")
@@ -280,7 +311,7 @@ export default function ProductsPage() {
     setShowTemplatePanel(false)
     setShowSaveInput(false)
     setSaveTemplateName("")
-    setTemplates(loadTemplates())
+    fetchTemplates()
     if (product) {
       setEditingProduct(product)
       setFormData({
@@ -466,7 +497,7 @@ export default function ProductsPage() {
     setShowTemplatePanel(false)
     setShowSaveInput(false)
     setSaveTemplateName("")
-    setTemplates(loadTemplates())
+    fetchTemplates()
     setIsModalOpen(true)
   }
 
@@ -828,15 +859,11 @@ export default function ProductsPage() {
                               }}
                             >
                               {tpl.name}
-                              <span className="ml-2 text-[11px] text-[#6e6e73]">{new Date(tpl.createdAt).toLocaleDateString("zh-CN")}</span>
+                              <span className="ml-2 text-[11px] text-[#6e6e73]">{new Date(tpl.created_at).toLocaleDateString("zh-CN")}</span>
                             </button>
                             <button
                               type="button"
-                              onClick={() => {
-                                const updated = templates.filter(t => t.id !== tpl.id)
-                                saveTemplates(updated)
-                                setTemplates(updated)
-                              }}
+                              onClick={() => deleteTemplate(tpl.id)}
                               className="opacity-0 group-hover:opacity-100 ml-2 p-1 text-[#6e6e73] hover:text-[#ee675c] transition-all"
                             >
                               <X className="w-3.5 h-3.5" />
@@ -869,22 +896,16 @@ export default function ProductsPage() {
                         autoFocus
                         value={saveTemplateName}
                         onChange={e => setSaveTemplateName(e.target.value)}
-                        onKeyDown={e => {
+                        onKeyDown={async e => {
                           if (e.key === "Escape") setShowSaveInput(false)
                           if (e.key === "Enter") {
                             e.preventDefault()
                             if (!saveTemplateName.trim()) return
-                            const tpl: ProductTemplate = {
-                              id: Date.now().toString(),
-                              name: saveTemplateName.trim(),
-                              data: { ...formData },
-                              createdAt: new Date().toISOString(),
+                            const success = await saveTemplate(saveTemplateName.trim(), { ...formData })
+                            if (success) {
+                              setShowSaveInput(false)
+                              setSaveTemplateName("")
                             }
-                            const updated = [tpl, ...templates]
-                            saveTemplates(updated)
-                            setTemplates(updated)
-                            setShowSaveInput(false)
-                            setSaveTemplateName("")
                           }
                         }}
                         placeholder="模板名称，回车保存"
@@ -892,19 +913,13 @@ export default function ProductsPage() {
                       />
                       <button
                         type="button"
-                        onClick={() => {
+                        onClick={async () => {
                           if (!saveTemplateName.trim()) return
-                          const tpl: ProductTemplate = {
-                            id: Date.now().toString(),
-                            name: saveTemplateName.trim(),
-                            data: { ...formData },
-                            createdAt: new Date().toISOString(),
+                          const success = await saveTemplate(saveTemplateName.trim(), { ...formData })
+                          if (success) {
+                            setShowSaveInput(false)
+                            setSaveTemplateName("")
                           }
-                          const updated = [tpl, ...templates]
-                          saveTemplates(updated)
-                          setTemplates(updated)
-                          setShowSaveInput(false)
-                          setSaveTemplateName("")
                         }}
                         className="h-9 px-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-bold rounded-xl text-[12px] transition-colors"
                       >
