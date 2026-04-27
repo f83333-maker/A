@@ -148,21 +148,27 @@ export default function SettingsPage() {
     }
   }
 
-  // 解析配置字段值（清除转义字符）
+  // 解析配置字段值（清除转义字符和引号）
   function parseConfigValue(value: string | null): string {
     if (!value) return ""
-    let str = String(value)
-    // 清除双重转义
-    try {
-      // 如果值本身是 JSON 字符串，先解析一次
-      if (str.startsWith('"') && str.endsWith('"')) {
-        str = JSON.parse(str)
-      }
-    } catch {
-      // 忽略解析错误，继续使用原始值
+    let str = String(value).trim()
+    
+    // 移除首尾双引号
+    if ((str.startsWith('"') && str.endsWith('"')) || (str.startsWith("'") && str.endsWith("'"))) {
+      str = str.slice(1, -1)
     }
-    // 清除转义字符
-    return str.replace(/\\n/g, "\n").replace(/\\"/g, '"').replace(/\\\//g, "/").trim()
+    
+    // 清除各种转义字符
+    str = str
+      .replace(/\\n/g, "\n")
+      .replace(/\\r/g, "\r")
+      .replace(/\\t/g, "\t")
+      .replace(/\\"/g, '"')
+      .replace(/\\'/g, "'")
+      .replace(/\\\//g, "/")
+      .replace(/\\\\/g, "\\")
+    
+    return str.trim()
   }
 
   // 打开添加/编辑支付配置弹窗
