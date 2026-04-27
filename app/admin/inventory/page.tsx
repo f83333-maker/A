@@ -71,15 +71,16 @@ export default function InventoryPage() {
   const fetchCategories = async () => {
     try {
       const res = await fetch("/api/admin/categories")
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      
       const data = await res.json()
-
-      if (Array.isArray(data)) {
+      
+      // API 直接返回数组
+      if (Array.isArray(data) && data.length > 0) {
         setCategories(data)
-      } else if (data.categories) {
-        setCategories(data.categories)
       }
     } catch (error) {
-      console.error("获取分类失败:", error)
+      console.error("[v0] 获取分类失败:", error)
     }
   }
 
