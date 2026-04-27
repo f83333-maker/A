@@ -115,6 +115,10 @@ export default function ProductsPage() {
   const [flagResults, setFlagResults] = useState<{ code: string; flagUrl: string; name: string }[]>([])
   const [isSearchingFlag, setIsSearchingFlag] = useState(false)
 
+  // 批量选择
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [isBatchDeleting, setIsBatchDeleting] = useState(false)
+
   // 库存弹窗状态
   const [inventoryModalOpen, setInventoryModalOpen] = useState(false)
   const [inventoryProduct, setInventoryProduct] = useState<Product | null>(null)
@@ -134,6 +138,50 @@ export default function ProductsPage() {
       setFilterCategoryId(categoryId)
     }
   }, [])
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])
+  }
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredProducts.length && filteredProducts.length > 0) {
+      setSelectedIds([])
+    } else {
+      setSelectedIds(filteredProducts.map(p => p.id))
+    }
+  }
+
+  const handleBatchDelete = async () => {
+    if (!confirm(`确定要删除选中的 ${selectedIds.length} 个产品吗？此操作不可恢复。`)) return
+    setIsBatchDeleting(true)
+    try {
+      await Promise.all(selectedIds.map(id =>
+        fetch(`/api/admin/products/${id}`, { method: "DELETE" })
+      ))
+      setSelectedIds([])
+      fetchData()
+    } catch (error) {
+      console.error("批量删除失败:", error)
+    } finally {
+      setIsBatchDeleting(false)
+    }
+  }
+
+  const handleBatchToggleActive = async (active: boolean) => {
+    try {
+      await Promise.all(selectedIds.map(id =>
+        fetch(`/api/admin/products/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ is_active: active })
+        })
+      ))
+      setSelectedIds([])
+      fetchData()
+    } catch (error) {
+      console.error("批量更新失败:", error)
+    }
+  }
 
   const fetchData = async () => {
     try {
@@ -552,12 +600,55 @@ export default function ProductsPage() {
         )}
       </div>
 
+      {/* 批量操作条 */}
+      {selectedIds.length > 0 && (
+        <div className="flex items-center gap-3 px-4 py-2.5 bg-[#7CFF00]/8 border border-[#7CFF00]/20 rounded-xl">
+          <span className="text-[12px] text-[#7CFF00] font-medium">已选 {selectedIds.length} 个产品</span>
+          <div className="w-px h-4 bg-[#3c3c3f]" />
+          <button
+            onClick={() => handleBatchToggleActive(true)}
+            className="text-[12px] text-[#81c995] hover:text-[#a8d4b8] transition-colors font-medium"
+          >
+            批量上架
+          </button>
+          <button
+            onClick={() => handleBatchToggleActive(false)}
+            className="text-[12px] text-[#9aa0a6] hover:text-[#e3e3e3] transition-colors font-medium"
+          >
+            批量下架
+          </button>
+          <button
+            onClick={handleBatchDelete}
+            disabled={isBatchDeleting}
+            className="flex items-center gap-1 text-[12px] text-[#ee675c] hover:text-[#f08c83] transition-colors font-medium disabled:opacity-50"
+          >
+            {isBatchDeleting && <Loader2 className="w-3 h-3 animate-spin" />}
+            批量删除
+          </button>
+          <button
+            onClick={() => setSelectedIds([])}
+            className="ml-auto text-[12px] text-[#6e6e73] hover:text-[#e3e3e3] transition-colors"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
       {/* 产品列表 */}
       <div className="bg-[#1e1f20] rounded-xl border border-[#3c3c3f] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-[#3c3c3f] bg-[#2d2e30]/40">
+                <th className="pl-3 pr-1 py-2 w-8">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.length === filteredProducts.length && filteredProducts.length > 0}
+                    ref={el => { if (el) el.indeterminate = selectedIds.length > 0 && selectedIds.length < filteredProducts.length }}
+                    onChange={toggleSelectAll}
+                    className="w-3.5 h-3.5 rounded accent-[#7CFF00] cursor-pointer"
+                  />
+                </th>
                 <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#9aa0a6]">商品信息</th>
                 <th className="px-2 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] w-16">售价</th>
                 <th className="px-2 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] w-24">状态</th>
@@ -569,10 +660,19 @@ export default function ProductsPage() {
             <tbody className="divide-y divide-[#3c3c3f]/50">
               {filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-8 text-[#6e6e73] text-[12px]">暂无产品</td>
+                  <td colSpan={7} className="text-center py-8 text-[#6e6e73] text-[12px]">暂无产品</td>
                 </tr>
               ) : filteredProducts.map((product, index) => (
-                <tr key={product.id} className="hover:bg-[#2d2e30]/30 transition-colors h-10">
+                <tr key={product.id} className={`hover:bg-[#2d2e30]/30 transition-colors h-10 ${selectedIds.includes(product.id) ? "bg-[#7CFF00]/5" : ""}`}>
+                  {/* 复选框 */}
+                  <td className="pl-3 pr-1 py-1.5">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(product.id)}
+                      onChange={() => toggleSelect(product.id)}
+                      className="w-3.5 h-3.5 rounded accent-[#7CFF00] cursor-pointer"
+                    />
+                  </td>
                   {/* 商品信息 */}
                   <td className="px-3 py-1.5">
                     <div className="flex items-center gap-2">
