@@ -21,17 +21,25 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
 
   // 只从后台设置获取主副标题，禁用缓存确保获取最新数据
   useEffect(() => {
-    fetch("/api/site-settings", { cache: "no-store" })
-      .then(res => res.json())
-      .then(data => {
+    // 设置最少显示500ms的加载状态，确保骨架屏显示
+    const minLoadTime = new Promise(resolve => setTimeout(resolve, 500))
+    
+    Promise.all([
+      fetch("/api/site-settings", { cache: "no-store" }).then(res => res.json()),
+      minLoadTime
+    ])
+      .then(([data]) => {
         if (data.search_placeholder) setSearchPlaceholder(data.search_placeholder)
         if (data.hot_search_tags && data.hot_search_tags.length > 0) setHotSearchTags(data.hot_search_tags)
         // 主副标题必须从后台设置获取
         setBannerTitle(data.banner_title || "")
         setBannerSubtitle(data.banner_subtitle || "")
+        setIsLoading(false)
       })
-      .catch(err => console.error("获取设置失败:", err))
-      .finally(() => setIsLoading(false))
+      .catch(err => {
+        console.error("获取设置失败:", err)
+        setIsLoading(false)
+      })
     
     fetch("/api/visitor", { 
       method: "POST", 
@@ -144,34 +152,34 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
         
         {/* 主标题 - 只从后台设置获取 */}
         <h1 className="text-[42px] sm:text-[56px] lg:text-[72px] font-bold text-white mb-6 tracking-[-0.03em] leading-[1.05] animate-fade-in-up delay-100">
-          {isLoading ? (
+          {isLoading || !bannerTitle ? (
             <span className="inline-block w-64 h-16 bg-[#2A2A2A] rounded-lg animate-pulse" />
-          ) : bannerTitle ? (
-            bannerTitle.includes(" ") ? (
-              <>
-                <span className="relative inline-block">
-                  {bannerTitle.split(" ")[0]}
-                  <span className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-[#7CFF00] to-[#7CFF00]/0 rounded-full transform scale-x-0 animate-expand-line" />
-                </span>
-                <span className="relative ml-3">
-                  <span className="bg-gradient-to-r from-[#7CFF00] via-[#9FFF40] to-[#7CFF00] bg-clip-text text-transparent animate-gradient-x bg-[length:200%_auto]">
-                    {bannerTitle.split(" ").slice(1).join(" ")}
-                  </span>
-                </span>
-              </>
-            ) : (
-              <span className="bg-gradient-to-r from-[#7CFF00] to-[#9FFF40] bg-clip-text text-transparent">
-                {bannerTitle}
+          ) : bannerTitle.includes(" ") ? (
+            <>
+              <span className="relative inline-block">
+                {bannerTitle.split(" ")[0]}
+                <span className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-[#7CFF00] to-[#7CFF00]/0 rounded-full transform scale-x-0 animate-expand-line" />
               </span>
-            )
-          ) : null}
+              <span className="relative ml-3">
+                <span className="bg-gradient-to-r from-[#7CFF00] via-[#9FFF40] to-[#7CFF00] bg-clip-text text-transparent animate-gradient-x bg-[length:200%_auto]">
+                  {bannerTitle.split(" ").slice(1).join(" ")}
+                </span>
+              </span>
+            </>
+          ) : (
+            <span className="bg-gradient-to-r from-[#7CFF00] to-[#9FFF40] bg-clip-text text-transparent">
+              {bannerTitle}
+            </span>
+          )}
         </h1>
         
         {/* 副标题 - 只从后台设置获取 */}
         <p className="text-[17px] sm:text-[19px] text-[#737373] mb-8 max-w-2xl mx-auto leading-relaxed font-medium animate-fade-in-up delay-200">
-          {isLoading ? (
+          {isLoading || !bannerSubtitle ? (
             <span className="inline-block w-96 h-6 bg-[#2A2A2A] rounded animate-pulse" />
-          ) : bannerSubtitle}
+          ) : (
+            bannerSubtitle
+          )}
         </p>
 
         {/* 特性标签 */}
