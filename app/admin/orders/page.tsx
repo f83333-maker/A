@@ -11,6 +11,7 @@ import {
   Package, 
   XCircle,
   Loader2,
+  Trash2,
 } from "lucide-react"
 
 interface Order {
@@ -53,6 +54,8 @@ export default function OrdersPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [deliverContent, setDeliverContent] = useState("")
   const [isDelivering, setIsDelivering] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [isBatchDeleting, setIsBatchDeleting] = useState(false)
 
   // 过滤订单
   const filteredOrders = orders
@@ -87,6 +90,44 @@ export default function OrdersPage() {
       }
       return true
     })
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])
+  }
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredOrders.length && filteredOrders.length > 0) {
+      setSelectedIds([])
+    } else {
+      setSelectedIds(filteredOrders.map(o => o.id))
+    }
+  }
+
+  const handleBatchDelete = async () => {
+    if (!confirm(`确定要彻底删除选中的 ${selectedIds.length} 个订单吗？此操作不可恢复！`)) return
+    setIsBatchDeleting(true)
+    try {
+      await Promise.all(selectedIds.map(id =>
+        fetch(`/api/admin/orders/${id}`, { method: "DELETE" })
+      ))
+      setSelectedIds([])
+      mutate("/api/admin/orders")
+    } catch (error) {
+      console.error("批量删除失败:", error)
+    } finally {
+      setIsBatchDeleting(false)
+    }
+  }
+
+  const handleDeleteOrder = async (orderId: string) => {
+    if (!confirm("确定要彻底删除该订单吗？此操作不可恢复！")) return
+    try {
+      await fetch(`/api/admin/orders/${orderId}`, { method: "DELETE" })
+      mutate("/api/admin/orders")
+    } catch (error) {
+      console.error("删除失败:", error)
+    }
+  }
 
   const openModal = (order: Order) => {
     setSelectedOrder(order)
@@ -225,6 +266,28 @@ export default function OrdersPage() {
         )}
       </div>
 
+      {/* 批量操作条 */}
+      {selectedIds.length > 0 && (
+        <div className="flex items-center gap-3 px-4 py-2.5 bg-[#7CFF00]/8 border border-[#7CFF00]/20 rounded-xl">
+          <span className="text-[12px] text-[#7CFF00] font-medium">已选 {selectedIds.length} 个订单</span>
+          <div className="w-px h-4 bg-[#3c3c3f]" />
+          <button
+            onClick={handleBatchDelete}
+            disabled={isBatchDeleting}
+            className="flex items-center gap-1 text-[12px] text-[#ee675c] hover:text-[#f08c83] transition-colors font-medium disabled:opacity-50"
+          >
+            {isBatchDeleting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+            彻底删除
+          </button>
+          <button
+            onClick={() => setSelectedIds([])}
+            className="ml-auto text-[12px] text-[#6e6e73] hover:text-[#e3e3e3] transition-colors"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
       {/* 订单列表 */}
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
@@ -241,12 +304,21 @@ export default function OrdersPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-[#3c3c3f] bg-[#2d2e30]/40">
+                  <th className="pl-4 pr-1 py-3 w-8">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.length === filteredOrders.length && filteredOrders.length > 0}
+                      ref={el => { if (el) el.indeterminate = selectedIds.length > 0 && selectedIds.length < filteredOrders.length }}
+                      onChange={toggleSelectAll}
+                      className="w-3.5 h-3.5 rounded accent-[#7CFF00] cursor-pointer"
+                    />
+                  </th>
                   <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6]">订单号</th>
                   <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6]">商品</th>
                   <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] w-20">订单金额</th>
                   <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] w-28">状态</th>
                   <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6]">创建时间</th>
-                  <th className="px-4 py-3 text-right text-[12px] font-semibold text-[#9aa0a6] w-20">操作</th>
+                  <th className="px-4 py-3 text-right text-[12px] font-semibold text-[#9aa0a6] w-28">操作</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#3c3c3f]">
@@ -255,7 +327,16 @@ export default function OrdersPage() {
                   const StatusIcon = status.icon
 
                   return (
-                    <tr key={order.id} className="hover:bg-[#2d2e30]/50 transition-colors">
+                    <tr key={order.id} className={`hover:bg-[#2d2e30]/50 transition-colors ${selectedIds.includes(order.id) ? "bg-[#7CFF00]/5" : ""}`}>
+                      {/* 复选框 */}
+                      <td className="pl-4 pr-1 py-3">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(order.id)}
+                          onChange={() => toggleSelect(order.id)}
+                          className="w-3.5 h-3.5 rounded accent-[#7CFF00] cursor-pointer"
+                        />
+                      </td>
                       {/* 订单号 */}
                       <td className="px-4 py-3">
                         <span className="text-[13px] font-mono text-[#e3e3e3]">{order.order_no}</span>
@@ -291,12 +372,18 @@ export default function OrdersPage() {
                         </span>
                       </td>
                       {/* 操作 */}
-                      <td className="px-4 py-3 text-right">
+                      <td className="px-4 py-3 text-right whitespace-nowrap">
                         <button
                           onClick={() => openModal(order)}
-                          className="text-[12px] text-[#7CFF00] hover:text-[#9FFF40] transition-colors font-medium"
+                          className="text-[12px] text-[#7CFF00] hover:text-[#9FFF40] transition-colors font-medium mr-2"
                         >
-                          订单详情
+                          详情
+                        </button>
+                        <button
+                          onClick={() => handleDeleteOrder(order.id)}
+                          className="text-[12px] text-[#9aa0a6] hover:text-[#ee675c] transition-colors font-medium"
+                        >
+                          删除
                         </button>
                       </td>
                     </tr>
@@ -371,7 +458,7 @@ export default function OrdersPage() {
                 </div>
               </div>
               
-              {/* 交易��号信息 */}
+              {/* 交易���号信息 */}
               {selectedOrder.stripe_payment_intent_id && (
                 <div className="mt-4 p-3 bg-[#2d2e30] rounded-lg">
                   <h4 className="text-[12px] font-semibold text-[#9aa0a6] mb-2">支付信息</h4>
