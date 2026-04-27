@@ -11,14 +11,7 @@ import {
   Package, 
   XCircle,
   Loader2,
-  RefreshCw,
-  Send,
-  Trash2,
-  Download,
-  Filter,
-  Calendar
 } from "lucide-react"
-import * as XLSX from "xlsx"
 
 interface Order {
   id: string
@@ -50,104 +43,50 @@ const statusConfig: Record<string, { icon: typeof Clock; color: string; text: st
 
 export default function OrdersPage() {
   const { data: orders = [], isLoading } = useSWR<Order[]>("/api/admin/orders", fetcher)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState<string>("all")
-  const [dateFilter, setDateFilter] = useState<string>("all")
-  const [productFilter, setProductFilter] = useState<string>("all")
-  const [amountFilter, setAmountFilter] = useState<string>("all")
+  const [searchOrderNo, setSearchOrderNo] = useState("")
+  const [searchBuyer, setSearchBuyer] = useState("")
+  const [searchContent, setSearchContent] = useState("")
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
+  const [statusTab, setStatusTab] = useState<"all" | "paid" | "pending">("all")
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [deliverContent, setDeliverContent] = useState("")
   const [isDelivering, setIsDelivering] = useState(false)
-  const [selectedOrders, setSelectedOrders] = useState<string[]>([])
-  const [isDeleting, setIsDeleting] = useState(false)
-  
-  // 获取所有产品名称用于筛选
-  const productNames = [...new Set(orders.map(o => o.product_name))].sort()
 
-  // 日期筛选
-  const getDateFilteredOrders = (orderList: Order[]) => {
-    const now = new Date()
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000)
-    const thisWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
-    const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-
-    return orderList.filter((order) => {
-      const orderDate = new Date(order.created_at)
-      switch (dateFilter) {
-        case "today":
-          return orderDate >= today
-        case "yesterday":
-          return orderDate >= yesterday && orderDate < today
-        case "week":
-          return orderDate >= thisWeek
-        case "month":
-          return orderDate >= thisMonth
-        default:
-          return true
-      }
+  // 过滤订单
+  const filteredOrders = orders
+    .filter(order => {
+      // 状态过滤
+      if (statusTab === "paid" && order.status !== "paid") return false
+      if (statusTab === "pending" && order.status !== "pending") return false
+      return true
     })
-  }
-
-  const filteredOrders = getDateFilteredOrders(orders).filter((order) => {
-    const matchesSearch =
-      order.order_no.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (order.buyer_email?.toLowerCase().includes(searchQuery.toLowerCase()) || false)
-
-    const matchesStatus = statusFilter === "all" || order.status === statusFilter
-    
-    const matchesProduct = productFilter === "all" || order.product_name === productFilter
-    
-    // 金额筛选
-    let matchesAmount = true
-    if (amountFilter !== "all") {
-      const amount = order.total_amount
-      switch (amountFilter) {
-        case "0-10":
-          matchesAmount = amount >= 0 && amount < 10
-          break
-        case "10-50":
-          matchesAmount = amount >= 10 && amount < 50
-          break
-        case "50-100":
-          matchesAmount = amount >= 50 && amount < 100
-          break
-        case "100-500":
-          matchesAmount = amount >= 100 && amount < 500
-          break
-        case "500+":
-          matchesAmount = amount >= 500
-          break
+    .filter(order => {
+      // 订单号过滤
+      if (searchOrderNo && !order.order_no.toLowerCase().includes(searchOrderNo.toLowerCase())) return false
+      // 买家联系方式过滤
+      if (searchBuyer && !order.buyer_email?.toLowerCase().includes(searchBuyer.toLowerCase())) return false
+      // 货物反查过滤（通过内容和产品名称）
+      if (searchContent && !order.delivered_content?.toLowerCase().includes(searchContent.toLowerCase()) &&
+          !order.product_name?.toLowerCase().includes(searchContent.toLowerCase())) return false
+      return true
+    })
+    .filter(order => {
+      // 日期范围过滤
+      const orderDate = new Date(order.created_at)
+      if (startDate) {
+        const start = new Date(startDate)
+        start.setHours(0, 0, 0, 0)
+        if (orderDate < start) return false
       }
-    }
-
-    return matchesSearch && matchesStatus && matchesProduct && matchesAmount
-  })
-
-  const openModal = (order: Order) => {
-    setSelectedOrder(order)
-    setDeliverContent(order.delivered_content || "")
-    setIsModalOpen(true)
-  }
-
-  const handleDeliver = async () => {
-    if (!selectedOrder || !deliverContent.trim()) return
-
-    setIsDelivering(true)
-    try {
-      await fetch(`/api/admin/orders/${selectedOrder.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          status: "delivered",
-          delivered_content: deliverContent,
-          delivered_at: new Date().toISOString(),
-        }),
-      })
-
-      mutate("/api/admin/orders")
+      if (endDate) {
+        const end = new Date(endDate)
+        end.setHours(23, 59, 59, 999)
+        if (orderDate > end) return false
+      }
+      return true
+    })
       setIsModalOpen(false)
     } catch (error) {
       console.error("Deliver error:", error)
@@ -167,191 +106,122 @@ export default function OrdersPage() {
     }
   }
 
-  const handleBatchDelete = async () => {
-    if (selectedOrders.length === 0) return
-    if (!confirm(`确定要删除选中的 ${selectedOrders.length} 个订单吗？此操作不可恢复。`)) return
-
-    setIsDeleting(true)
-    try {
-      await Promise.all(
-        selectedOrders.map((id) =>
-          fetch(`/api/admin/orders/${id}`, { method: "DELETE" })
-        )
-      )
-      setSelectedOrders([])
-      mutate("/api/admin/orders")
-    } catch (error) {
-      console.error("Batch delete error:", error)
-    } finally {
-      setIsDeleting(false)
-    }
-  }
-
-  const handleExportExcel = () => {
-    const exportData = filteredOrders.map((order) => ({
-      订单号: order.order_no,
-      产品名称: order.product_name,
-      数量: order.quantity,
-      单价: order.unit_price,
-      总金额: order.total_amount,
-      状态: statusConfig[order.status]?.text || order.status,
-      买家邮箱: order.buyer_email || "-",
-      创建时间: new Date(order.created_at).toLocaleString("zh-CN"),
-      发货内容: order.delivered_content || "-",
-      发货时间: order.delivered_at ? new Date(order.delivered_at).toLocaleString("zh-CN") : "-",
-    }))
-
-    const ws = XLSX.utils.json_to_sheet(exportData)
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, "订单列表")
-    
-    const fileName = `订单导出_${new Date().toLocaleDateString("zh-CN").replace(/\//g, "-")}.xlsx`
-    XLSX.writeFile(wb, fileName)
-  }
-
-  const toggleSelectOrder = (orderId: string) => {
-    setSelectedOrders((prev) =>
-      prev.includes(orderId)
-        ? prev.filter((id) => id !== orderId)
-        : [...prev, orderId]
-    )
-  }
-
-  const toggleSelectAll = () => {
-    if (selectedOrders.length === filteredOrders.length) {
-      setSelectedOrders([])
-    } else {
-      setSelectedOrders(filteredOrders.map((o) => o.id))
-    }
-  }
-
   const statusCounts = {
     all: orders.length,
     pending: orders.filter((o) => o.status === "pending").length,
     paid: orders.filter((o) => o.status === "paid").length,
-    delivered: orders.filter((o) => o.status === "delivered").length,
-    cancelled: orders.filter((o) => o.status === "cancelled").length,
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* 页面标题 */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-[24px] font-semibold text-[#e3e3e3]">订单管理</h1>
-          <p className="text-[14px] text-[#9aa0a6] mt-1 font-medium">
-            管理所有订单，查看支付状态和发放账号
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleExportExcel}
-            className="flex items-center gap-2 px-4 py-2 bg-[#81c995] hover:bg-[#a8d4b8] rounded-xl text-[14px] font-medium text-[#131314] transition-colors"
-          >
-            <Download className="w-4 h-4" />
-            导出Excel
-          </button>
-          <button
-            onClick={() => mutate("/api/admin/orders")}
-            className="flex items-center gap-2 px-4 py-2 bg-[#2d2e30] hover:bg-[#3c3c3f] rounded-xl text-[14px] font-medium text-[#e3e3e3] transition-colors"
-          >
-            <RefreshCw className="w-4 h-4" />
-            刷新
-          </button>
-        </div>
+      <div>
+        <h1 className="text-[22px] font-semibold text-[#e3e3e3]">订单管理</h1>
+        <p className="text-[13px] text-[#9aa0a6] mt-0.5">共 {orders.length} 个订单</p>
       </div>
 
-      {/* 筛选区域 */}
-      <div className="flex flex-wrap gap-4">
-        {/* 状态筛选 */}
-        <div className="flex gap-2 flex-wrap">
-          {[
-            { key: "all", label: "全部" },
-            { key: "pending", label: "待支付" },
-            { key: "paid", label: "已支付" },
-            { key: "delivered", label: "已发放" },
-            { key: "cancelled", label: "已取消" },
-          ].map((item) => (
-            <button
-              key={item.key}
-              onClick={() => setStatusFilter(item.key)}
-              className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-colors ${
-                statusFilter === item.key
-                  ? "bg-[#7CFF00] text-[#131314]"
-                  : "bg-[#2d2e30] text-[#9aa0a6] hover:bg-[#3c3c3f] hover:text-[#e3e3e3]"
-              }`}
-            >
-              {item.label} ({statusCounts[item.key as keyof typeof statusCounts]})
-            </button>
-          ))}
-        </div>
-
-        {/* 日期筛选 */}
-        <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-[#6e6e73]" />
-          <select
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-            className="px-3 py-2 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[13px] text-[#e3e3e3] focus:outline-none focus:border-[#7CFF00]"
+      {/* 状态 Tab */}
+      <div className="flex items-center gap-0 border-b border-[#3c3c3f]">
+        {[
+          { key: "all", label: "全部" },
+          { key: "paid", label: "已完成" },
+          { key: "pending", label: "未付款" },
+        ].map(tab => (
+          <button
+            key={tab.key}
+            onClick={() => setStatusTab(tab.key as typeof statusTab)}
+            className={`px-4 py-2.5 text-[14px] font-medium border-b-2 -mb-px transition-colors ${
+              statusTab === tab.key
+                ? "border-[#7CFF00] text-[#7CFF00]"
+                : "border-transparent text-[#9aa0a6] hover:text-[#e3e3e3]"
+            }`}
           >
-            <option value="all">全部时间</option>
-            <option value="today">今天</option>
-            <option value="yesterday">昨天</option>
-            <option value="week">近7天</option>
-            <option value="month">本月</option>
-          </select>
-        </div>
-        
-        {/* 产品筛选 */}
-        <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-[#6e6e73]" />
-          <select
-            value={productFilter}
-            onChange={(e) => setProductFilter(e.target.value)}
-            className="px-3 py-2 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[13px] text-[#e3e3e3] focus:outline-none focus:border-[#7CFF00] max-w-[150px]"
-          >
-            <option value="all">全部产品</option>
-            {productNames.map((name) => (
-              <option key={name} value={name}>{name}</option>
-            ))}
-          </select>
-        </div>
-        
-        {/* 金额筛选 */}
-        <select
-          value={amountFilter}
-          onChange={(e) => setAmountFilter(e.target.value)}
-          className="px-3 py-2 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[13px] text-[#e3e3e3] focus:outline-none focus:border-[#7CFF00]"
-        >
-          <option value="all">全部金额</option>
-          <option value="0-10">¥0 - ¥10</option>
-          <option value="10-50">¥10 - ¥50</option>
-          <option value="50-100">¥50 - ¥100</option>
-          <option value="100-500">¥100 - ¥500</option>
-          <option value="500+">¥500+</option>
-        </select>
+            {tab.label}
+            <span className={`ml-1.5 text-[11px] ${statusTab === tab.key ? "text-[#7CFF00]/70" : "text-[#6e6e73]"}`}>
+              {statusCounts[tab.key as keyof typeof statusCounts]}
+            </span>
+          </button>
+        ))}
       </div>
 
-      {/* 搜索框和批量操作 */}
-      <div className="flex gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6e6e73]" />
+      {/* 筛选栏 */}
+      <div className="flex flex-wrap items-center gap-2">
+        {/* 订单号 */}
+        <div className="flex items-center gap-1.5">
+          <span className="text-[12px] text-[#9aa0a6] shrink-0">订单号</span>
           <input
             type="text"
-            placeholder="搜索订单号、产品名称或买家邮箱..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-12 pl-12 pr-4 bg-[#1e1f20] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-[14px] focus:outline-none focus:border-[#7CFF00] transition-colors"
+            value={searchOrderNo}
+            onChange={e => setSearchOrderNo(e.target.value)}
+            placeholder="请输入订单号"
+            className="h-8 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[12px] focus:outline-none focus:border-[#7CFF00] transition-colors w-32"
           />
         </div>
-        {selectedOrders.length > 0 && (
+
+        {/* 买家联系方式 */}
+        <div className="flex items-center gap-1.5">
+          <span className="text-[12px] text-[#9aa0a6] shrink-0">买家联系方式</span>
+          <input
+            type="text"
+            value={searchBuyer}
+            onChange={e => setSearchBuyer(e.target.value)}
+            placeholder="请输入买家联系方式"
+            className="h-8 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[12px] focus:outline-none focus:border-[#7CFF00] transition-colors w-36"
+          />
+        </div>
+
+        {/* 货物反查 */}
+        <div className="flex items-center gap-1.5">
+          <span className="text-[12px] text-[#9aa0a6] shrink-0">货物反查</span>
+          <input
+            type="text"
+            value={searchContent}
+            onChange={e => setSearchContent(e.target.value)}
+            placeholder="请输入货物信息"
+            className="h-8 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[12px] focus:outline-none focus:border-[#7CFF00] transition-colors w-36"
+          />
+        </div>
+
+        {/* 下单时间范围 */}
+        <div className="flex items-center gap-1">
+          <span className="text-[12px] text-[#9aa0a6]">下单时间</span>
+          <input
+            type="date"
+            value={startDate}
+            onChange={e => setStartDate(e.target.value)}
+            className="h-8 px-2 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[11px] focus:outline-none focus:border-[#7CFF00]"
+          />
+          <span className="text-[12px] text-[#6e6e73]">-</span>
+          <input
+            type="date"
+            value={endDate}
+            onChange={e => setEndDate(e.target.value)}
+            className="h-8 px-2 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[11px] focus:outline-none focus:border-[#7CFF00]"
+          />
+        </div>
+
+        {/* 搜索按钮 */}
+        <button
+          onClick={() => {}}
+          className="h-8 px-3 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[12px] transition-colors flex items-center gap-1"
+        >
+          <Search className="w-3.5 h-3.5" />
+          搜索
+        </button>
+
+        {/* 清除筛选 */}
+        {(searchOrderNo || searchBuyer || searchContent || startDate || endDate) && (
           <button
-            onClick={handleBatchDelete}
-            disabled={isDeleting}
-            className="flex items-center gap-2 px-4 py-2 bg-[#ee675c] hover:bg-[#f08c83] rounded-xl text-[14px] font-medium text-white transition-colors disabled:opacity-50"
+            onClick={() => {
+              setSearchOrderNo("")
+              setSearchBuyer("")
+              setSearchContent("")
+              setStartDate("")
+              setEndDate("")
+            }}
+            className="h-8 px-2 text-[12px] text-[#6e6e73] hover:text-[#e3e3e3] transition-colors"
           >
-            {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-            删除选中 ({selectedOrders.length})
+            <X className="w-3.5 h-3.5" />
           </button>
         )}
       </div>
@@ -371,36 +241,13 @@ export default function OrdersPage() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-[#3c3c3f]">
-                  <th className="px-4 py-3 text-left">
-                    <input
-                      type="checkbox"
-                      checked={selectedOrders.length === filteredOrders.length && filteredOrders.length > 0}
-                      onChange={toggleSelectAll}
-                      className="w-4 h-4 rounded"
-                    />
-                  </th>
-                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">
-                    订单号
-                  </th>
-                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">
-                    产品
-                  </th>
-                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">
-                    金额
-                  </th>
-                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">
-                    状态
-                  </th>
-                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">
-                    买家
-                  </th>
-                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">
-                    时间
-                  </th>
-                  <th className="px-4 py-3 text-right text-[12px] font-semibold text-[#9aa0a6] uppercase">
-                    操作
-                  </th>
+                <tr className="border-b border-[#3c3c3f] bg-[#2d2e30]/40">
+                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6]">订单号</th>
+                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6]">商品</th>
+                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] w-20">订单金额</th>
+                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] w-28">状态</th>
+                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6]">创建时间</th>
+                  <th className="px-4 py-3 text-right text-[12px] font-semibold text-[#9aa0a6] w-20">操作</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#3c3c3f]">
@@ -410,32 +257,22 @@ export default function OrdersPage() {
 
                   return (
                     <tr key={order.id} className="hover:bg-[#2d2e30]/50 transition-colors">
+                      {/* 订单号 */}
                       <td className="px-4 py-3">
-                        <input
-                          type="checkbox"
-                          checked={selectedOrders.includes(order.id)}
-                          onChange={() => toggleSelectOrder(order.id)}
-                          className="w-4 h-4 rounded"
-                        />
+                        <span className="text-[13px] font-mono text-[#e3e3e3]">{order.order_no}</span>
                       </td>
-                      <td className="px-4 py-3">
-                        <span className="text-[13px] font-mono text-[#e3e3e3]">
-                          {order.order_no}
-                        </span>
-                      </td>
+                      {/* 商品 */}
                       <td className="px-4 py-3">
                         <div>
-                          <p className="text-[13px] font-medium text-[#e3e3e3]">
-                            {order.product_name}
-                          </p>
+                          <p className="text-[13px] font-medium text-[#e3e3e3]">{order.product_name}</p>
                           <p className="text-[12px] text-[#6e6e73]">x{order.quantity}</p>
                         </div>
                       </td>
+                      {/* 订单金额 */}
                       <td className="px-4 py-3">
-                        <span className="text-[14px] font-semibold text-[#7CFF00]">
-                          ¥{order.total_amount}
-                        </span>
+                        <span className="text-[13px] font-semibold text-[#7CFF00]">¥{order.total_amount}</span>
                       </td>
+                      {/* 状态 */}
                       <td className="px-4 py-3">
                         <span
                           className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[12px] font-medium"
@@ -448,33 +285,20 @@ export default function OrdersPage() {
                           {status.text}
                         </span>
                       </td>
-                      <td className="px-4 py-3">
-                        <span className="text-[13px] text-[#9aa0a6]">
-                          {order.buyer_email || "-"}
-                        </span>
-                      </td>
+                      {/* 创建时间 */}
                       <td className="px-4 py-3">
                         <span className="text-[12px] text-[#6e6e73]">
                           {new Date(order.created_at).toLocaleString("zh-CN")}
                         </span>
                       </td>
+                      {/* 操作 */}
                       <td className="px-4 py-3 text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <button
-                            onClick={() => openModal(order)}
-                            className="p-2 hover:bg-[#3c3c3f] rounded-lg transition-colors"
-                            title="查看详情"
-                          >
-                            <Eye className="w-4 h-4 text-[#9aa0a6]" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(order.id)}
-                            className="p-2 hover:bg-[#ee675c]/10 rounded-lg transition-colors"
-                            title="删除订单"
-                          >
-                            <Trash2 className="w-4 h-4 text-[#ee675c]" />
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => openModal(order)}
+                          className="text-[12px] text-[#7CFF00] hover:text-[#9FFF40] transition-colors font-medium"
+                        >
+                          订单详情
+                        </button>
                       </td>
                     </tr>
                   )

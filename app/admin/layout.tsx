@@ -15,17 +15,15 @@ import {
   ChevronRight,
   Loader2,
   ShoppingCart,
-  Boxes,
   BarChart3
 } from "lucide-react"
 
 const navItems = [
   { name: "仪表盘", href: "/admin", icon: LayoutDashboard },
-  { name: "数据统计", href: "/admin/analytics", icon: BarChart3 },
-  { name: "分类管理", href: "/admin/categories", icon: FolderTree },
-  { name: "产品管理", href: "/admin/products", icon: Package },
-  { name: "库存管理", href: "/admin/inventory", icon: Boxes },
   { name: "订单管理", href: "/admin/orders", icon: ShoppingCart },
+  { name: "商品管理", href: "/admin/products", icon: Package },
+  { name: "分类管理", href: "/admin/categories", icon: FolderTree },
+  { name: "数据统计", href: "/admin/analytics", icon: BarChart3 },
   { name: "公告管理", href: "/admin/announcements", icon: Megaphone },
   { name: "网站设置", href: "/admin/settings", icon: Settings },
 ]
@@ -102,31 +100,33 @@ export default function AdminLayout({
       {/* 侧边栏 */}
       <aside className={`
         fixed lg:static inset-y-0 left-0 z-50
-        w-64 bg-[#1e1f20] border-r border-[#3c3c3f]
-        transform transition-transform duration-300 ease-in-out
-        ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+        group/sidebar
+        w-14 hover:w-44 lg:w-14 lg:hover:w-44
+        bg-[#1e1f20] border-r border-[#3c3c3f]
+        transition-[width] duration-200 ease-in-out overflow-hidden
+        ${sidebarOpen ? "w-44 translate-x-0" : "-translate-x-full lg:translate-x-0"}
       `}>
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full w-44">
           {/* Logo */}
-          <div className="h-16 flex items-center justify-between px-4 border-b border-[#3c3c3f]">
-            <Link href="/admin" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-[#7CFF00]/20 flex items-center justify-center">
+          <div className="h-16 flex items-center justify-between px-3 border-b border-[#3c3c3f] shrink-0">
+            <Link href="/admin" className="flex items-center gap-2 min-w-0">
+              <div className="w-8 h-8 rounded-lg bg-[#7CFF00]/20 flex items-center justify-center shrink-0">
                 <LayoutDashboard className="w-4 h-4 text-[#7CFF00]" />
               </div>
-              <span className="text-[15px] font-semibold text-[#e3e3e3]">
+              <span className="text-[14px] font-semibold text-[#e3e3e3] whitespace-nowrap opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-150">
                 管理后台
               </span>
             </Link>
             <button 
               onClick={() => setSidebarOpen(false)}
-              className="lg:hidden p-1 text-[#9aa0a6] hover:text-[#e3e3e3]"
+              className="lg:hidden p-1 text-[#9aa0a6] hover:text-[#e3e3e3] shrink-0"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* 导航菜单 */}
-          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+          <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto overflow-x-hidden">
             {navItems.map((item) => {
               const isActive = pathname === item.href || 
                 (item.href !== "/admin" && pathname.startsWith(item.href))
@@ -135,19 +135,22 @@ export default function AdminLayout({
                   key={item.name}
                   href={item.href}
                   onClick={() => setSidebarOpen(false)}
+                  title={item.name}
                   className={`
-                    flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium
-                    transition-all duration-200
+                    flex items-center gap-3 px-2 py-2.5 rounded-xl text-[13px] font-medium
+                    transition-colors duration-150 whitespace-nowrap
                     ${isActive 
                       ? "bg-[#7CFF00]/10 text-[#7CFF00]" 
                       : "text-[#9aa0a6] hover:bg-[#2d2e30] hover:text-[#e3e3e3]"
                     }
                   `}
                 >
-                  <item.icon className="w-4 h-4" />
-                  {item.name}
+                  <item.icon className="w-4 h-4 shrink-0" />
+                  <span className="opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-150 flex-1">
+                    {item.name}
+                  </span>
                   {isActive && (
-                    <ChevronRight className="w-4 h-4 ml-auto" />
+                    <ChevronRight className="w-3.5 h-3.5 shrink-0 opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-150" />
                   )}
                 </Link>
               )
@@ -155,20 +158,22 @@ export default function AdminLayout({
           </nav>
 
           {/* 底部操作 */}
-          <div className="p-4 border-t border-[#3c3c3f]">
+          <div className="px-2 py-3 border-t border-[#3c3c3f] space-y-0.5 shrink-0">
             <Link
               href="/"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium text-[#9aa0a6] hover:bg-[#2d2e30] hover:text-[#e3e3e3] transition-all duration-200 mb-2"
+              title="返回前台"
+              className="flex items-center gap-3 px-2 py-2.5 rounded-xl text-[13px] font-medium text-[#9aa0a6] hover:bg-[#2d2e30] hover:text-[#e3e3e3] transition-colors duration-150 whitespace-nowrap"
             >
-              <ChevronRight className="w-4 h-4 rotate-180" />
-              返回前台
+              <ChevronRight className="w-4 h-4 rotate-180 shrink-0" />
+              <span className="opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-150">返回前台</span>
             </Link>
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium text-[#ee675c] hover:bg-[#ee675c]/10 transition-all duration-200"
+              title="退出登录"
+              className="w-full flex items-center gap-3 px-2 py-2.5 rounded-xl text-[13px] font-medium text-[#ee675c] hover:bg-[#ee675c]/10 transition-colors duration-150 whitespace-nowrap"
             >
-              <LogOut className="w-4 h-4" />
-              退出登录
+              <LogOut className="w-4 h-4 shrink-0" />
+              <span className="opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-150">退出登录</span>
             </button>
           </div>
         </div>
