@@ -148,25 +148,33 @@ export default function SettingsPage() {
     }
   }
 
-  // 解析配置字段值（清除转义字符和引号）
+  // 解析配置字段值（清除所有转义字符和引号）
   function parseConfigValue(value: string | null): string {
     if (!value) return ""
     let str = String(value).trim()
     
-    // 移除首尾双引号
-    if ((str.startsWith('"') && str.endsWith('"')) || (str.startsWith("'") && str.endsWith("'"))) {
-      str = str.slice(1, -1)
-    }
+    // 循环清理，直到没有变化（处理多层转义）
+    let prevStr = ""
+    let iterations = 0
+    const maxIterations = 10 // 防止无限循环
     
-    // 清除各种转义字符
-    str = str
-      .replace(/\\n/g, "\n")
-      .replace(/\\r/g, "\r")
-      .replace(/\\t/g, "\t")
-      .replace(/\\"/g, '"')
-      .replace(/\\'/g, "'")
-      .replace(/\\\//g, "/")
-      .replace(/\\\\/g, "\\")
+    while (str !== prevStr && iterations < maxIterations) {
+      prevStr = str
+      iterations++
+      
+      // 移除首尾各种引号和反斜杠
+      str = str.replace(/^[\\"'\\\\]+|[\\"'\\\\]+$/g, "").trim()
+      
+      // 清除转义字符
+      str = str
+        .replace(/\\n/g, "\n")
+        .replace(/\\r/g, "\r")
+        .replace(/\\t/g, "\t")
+        .replace(/\\"/g, '"')
+        .replace(/\\'/g, "'")
+        .replace(/\\\//g, "/")
+        .replace(/\\\\/g, "\\")
+    }
     
     return str.trim()
   }
