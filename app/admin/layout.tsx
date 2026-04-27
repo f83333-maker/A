@@ -102,7 +102,7 @@ export default function AdminLayout({
       {/* 侧边栏 */}
       <aside className={`
         fixed lg:static inset-y-0 left-0 z-50
-        w-64 bg-[#1e1f20] border-r border-[#3c3c3f]
+        w-44 bg-[#1e1f20] border-r border-[#3c3c3f]
         transform transition-transform duration-300 ease-in-out
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
       `}>
@@ -126,7 +126,7 @@ export default function AdminLayout({
           </div>
 
           {/* 导航菜单 */}
-          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+          <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
             {navItems.map((item) => {
               const isActive = pathname === item.href || 
                 (item.href !== "/admin" && pathname.startsWith(item.href))
@@ -136,7 +136,7 @@ export default function AdminLayout({
                   href={item.href}
                   onClick={() => setSidebarOpen(false)}
                   className={`
-                    flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium
+                    flex items-center justify-center gap-2 px-2 py-2.5 rounded-xl text-[13px] font-medium
                     transition-all duration-200
                     ${isActive 
                       ? "bg-[#7CFF00]/10 text-[#7CFF00]" 
@@ -144,10 +144,10 @@ export default function AdminLayout({
                     }
                   `}
                 >
-                  <item.icon className="w-4 h-4" />
-                  {item.name}
+                  <item.icon className="w-4 h-4 shrink-0" />
+                  <span className="flex-1">{item.name}</span>
                   {isActive && (
-                    <ChevronRight className="w-4 h-4 ml-auto" />
+                    <ChevronRight className="w-3.5 h-3.5 shrink-0" />
                   )}
                 </Link>
               )
@@ -155,20 +155,20 @@ export default function AdminLayout({
           </nav>
 
           {/* 底部操作 */}
-          <div className="p-4 border-t border-[#3c3c3f]">
+          <div className="px-3 py-4 border-t border-[#3c3c3f] space-y-1">
             <Link
               href="/"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium text-[#9aa0a6] hover:bg-[#2d2e30] hover:text-[#e3e3e3] transition-all duration-200 mb-2"
+              className="flex items-center justify-center gap-2 px-2 py-2.5 rounded-xl text-[13px] font-medium text-[#9aa0a6] hover:bg-[#2d2e30] hover:text-[#e3e3e3] transition-all duration-200"
             >
-              <ChevronRight className="w-4 h-4 rotate-180" />
-              返回前台
+              <ChevronRight className="w-4 h-4 rotate-180 shrink-0" />
+              <span className="flex-1">返回前台</span>
             </Link>
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium text-[#ee675c] hover:bg-[#ee675c]/10 transition-all duration-200"
+              className="w-full flex items-center justify-center gap-2 px-2 py-2.5 rounded-xl text-[13px] font-medium text-[#ee675c] hover:bg-[#ee675c]/10 transition-all duration-200"
             >
-              <LogOut className="w-4 h-4" />
-              退出登录
+              <LogOut className="w-4 h-4 shrink-0" />
+              <span className="flex-1 text-left">退出登录</span>
             </button>
           </div>
         </div>
