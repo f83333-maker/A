@@ -222,10 +222,12 @@ export default function ProductsPage() {
       ])
       const productsData = await productsRes.json()
       const categoriesData = await categoriesRes.json()
-      setProducts(productsData)
-      setCategories(categoriesData)
+      setProducts(Array.isArray(productsData) ? productsData : [])
+      setCategories(Array.isArray(categoriesData) ? categoriesData : [])
     } catch (error) {
       console.error("Failed to fetch data:", error)
+      setProducts([])
+      setCategories([])
     } finally {
       setIsLoading(false)
     }
@@ -533,7 +535,8 @@ export default function ProductsPage() {
   }
 
   // 过滤后的产品列表
-  const filteredProducts = [...(products || [])]
+  const productList = Array.isArray(products) ? products : []
+  const filteredProducts = [...productList]
     .filter(p => {
       if (statusTab === "active") return p.is_active
       if (statusTab === "inactive") return !p.is_active

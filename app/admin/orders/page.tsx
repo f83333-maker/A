@@ -32,7 +32,12 @@ interface Order {
   epay_trade_no: string | null
 }
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json())
+const fetcher = async (url: string) => {
+  const res = await fetch(url)
+  if (!res.ok) return []
+  const data = await res.json()
+  return Array.isArray(data) ? data : []
+}
 
 const statusConfig: Record<string, { icon: typeof Clock; color: string; text: string }> = {
   pending: { icon: Clock, color: "#fdd663", text: "待支付" },
