@@ -87,13 +87,6 @@ export default function OrdersPage() {
       }
       return true
     })
-      setIsModalOpen(false)
-    } catch (error) {
-      console.error("Deliver error:", error)
-    } finally {
-      setIsDelivering(false)
-    }
-  }
 
   const handleDelete = async (orderId: string) => {
     if (!confirm("确定要删除这个订单吗？此操作不可恢复。")) return
@@ -372,7 +365,7 @@ export default function OrdersPage() {
                 </div>
               </div>
               
-              {/* 交易单号信息 */}
+              {/* 交易��号信息 */}
               {selectedOrder.stripe_payment_intent_id && (
                 <div className="mt-4 p-3 bg-[#2d2e30] rounded-lg">
                   <h4 className="text-[12px] font-semibold text-[#9aa0a6] mb-2">支付信息</h4>
