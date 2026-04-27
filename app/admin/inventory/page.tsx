@@ -51,7 +51,10 @@ export default function InventoryPage() {
       setProductsLoading(true)
       const res = await fetch("/api/admin/products")
       const data = await res.json()
-      if (data.products) {
+      // API直接返回数组，不是 { products: [...] }
+      if (Array.isArray(data)) {
+        setProducts(data)
+      } else if (data.products) {
         setProducts(data.products)
       }
     } catch (error) {
