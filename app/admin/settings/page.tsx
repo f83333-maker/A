@@ -885,7 +885,7 @@ export default function SettingsPage() {
             <div className="bg-[#2d2e30] rounded-xl p-4">
               <p className="text-[12px] text-[#6e6e73] mb-2">请在各支付平台后台设置以下异步通知地址：</p>
               <code className="text-[13px] text-[#7CFF00] break-all">
-                {typeof window !== "undefined" ? `${window.location.origin}/api/webhooks/epay` : "/api/webhooks/epay"}
+                https://pcccc.cc/api/webhooks/epay
               </code>
             </div>
           </div>
