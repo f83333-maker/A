@@ -151,7 +151,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 bg-[#7CFF00] hover:bg-[#9FFF40] disabled:opacity-50 disabled:cursor-not-allowed text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px] flex items-center justify-center gap-2"
+              className="w-full h-12 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 disabled:opacity-50 disabled:cursor-not-allowed text-[#7CFF00] font-semibold rounded-xl transition-all duration-200 text-[14px] flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>

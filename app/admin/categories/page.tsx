@@ -221,7 +221,7 @@ export default function CategoriesPage() {
         </div>
         <button
           onClick={() => openModal()}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px]"
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] font-semibold rounded-xl transition-all duration-200 text-[14px]"
         >
           <Plus className="w-4 h-4" />
           添加分类
@@ -233,18 +233,18 @@ export default function CategoriesPage() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-[#3c3c3f]">
-              <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6]">排序</th>
-              <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6]">图标</th>
-              <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6]">名称</th>
-              <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6] hidden md:table-cell">产品数</th>
-              <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6]">启用</th>
-              <th className="px-5 py-4 text-right text-[13px] font-semibold text-[#9aa0a6]">操作</th>
+              <th className="px-5 py-2.5 text-left text-[13px] font-semibold text-[#9aa0a6]">排序</th>
+              <th className="px-5 py-2.5 text-left text-[13px] font-semibold text-[#9aa0a6]">图标</th>
+              <th className="px-5 py-2.5 text-left text-[13px] font-semibold text-[#9aa0a6]">名称</th>
+              <th className="px-5 py-2.5 text-left text-[13px] font-semibold text-[#9aa0a6] hidden md:table-cell">产品数</th>
+              <th className="px-5 py-2.5 text-left text-[13px] font-semibold text-[#9aa0a6]">启用</th>
+              <th className="px-5 py-2.5 text-right text-[13px] font-semibold text-[#9aa0a6]">操作</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#3c3c3f]">
             {sortedCategories.map((category, index) => (
               <tr key={category.id} className="hover:bg-[#2d2e30]/50 transition-colors">
-                <td className="px-5 py-4">
+                <td className="px-5 py-2">
                   <div className="flex flex-col gap-1">
                     <button
                       onClick={() => handleMoveUp(index)}
@@ -262,7 +262,7 @@ export default function CategoriesPage() {
                     </button>
                   </div>
                 </td>
-                <td className="px-5 py-4">
+                <td className="px-5 py-2">
                   <div
                     className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden"
                     style={{ backgroundColor: category.logo_bg_color || "#2d2e30" }}
@@ -274,10 +274,10 @@ export default function CategoriesPage() {
                     )}
                   </div>
                 </td>
-                <td className="px-5 py-4">
+                <td className="px-5 py-2">
                   <p className="text-[14px] font-medium text-[#e3e3e3]">{category.name}</p>
                 </td>
-                <td className="px-5 py-4 hidden md:table-cell">
+                <td className="px-5 py-2 hidden md:table-cell">
                   <button
                     onClick={() => window.location.href = `/admin/products?categoryId=${category.id}`}
                     className="text-[13px] text-[#7CFF00] hover:text-[#9FFF40] font-medium hover:underline transition-colors"
@@ -285,7 +285,7 @@ export default function CategoriesPage() {
                     {(category as Category & { product_count?: number }).product_count || 0} 个产品
                   </button>
                 </td>
-                <td className="px-5 py-4">
+                <td className="px-5 py-2">
                   <button
                     onClick={() => {
                       // 乐观更新：立即更新本地状态，无需等待 API
@@ -316,7 +316,7 @@ export default function CategoriesPage() {
                     />
                   </button>
                 </td>
-                <td className="px-5 py-4">
+                <td className="px-5 py-2">
                   <div className="flex items-center justify-end gap-2">
                     <button
                       onClick={() => openModal(category)}
@@ -341,7 +341,7 @@ export default function CategoriesPage() {
       {/* 编辑弹窗 */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] w-full max-w-lg max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] w-full max-w-3xl overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4 border-b border-[#3c3c3f]">
               <h2 className="text-[18px] font-semibold text-[#e3e3e3]">
                 {editingCategory ? "编辑分类" : "添加分类"}
@@ -353,99 +353,112 @@ export default function CategoriesPage() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {/* 分类名称 */}
-              <div>
-                <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">分类名称</label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
-                  required
-                />
-              </div>
+            <form onSubmit={handleSubmit}>
+              {/* 横向两列布局 */}
+              <div className="flex divide-x divide-[#3c3c3f]">
+                {/* 左列：分类名称 + Logo获取 */}
+                <div className="flex-1 p-6 space-y-4">
+                  {/* 分类名称 */}
+                  <div>
+                    <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">分类名称</label>
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
+                      required
+                    />
+                  </div>
 
-              {/* Logo 获取 */}
-              <div>
-                <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">自动获取 Logo</label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={formData.logo_url}
-                    onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
-                    className="flex-1 h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
-                    placeholder="如：instagram.com 或 t.me"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleFetchLogo}
-                    disabled={isFetchingLogo || !formData.logo_url}
-                    className="px-4 h-11 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[13px] disabled:bg-[#3c3c3f] disabled:text-[#6e6e73] disabled:cursor-not-allowed flex items-center gap-2 shrink-0"
-                  >
-                    {isFetchingLogo ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                    获取Logo
-                  </button>
+                  {/* Logo 获取 */}
+                  <div>
+                    <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">自动获取 Logo</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={formData.logo_url}
+                        onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
+                        className="flex-1 h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
+                        placeholder="如：instagram.com 或 t.me"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleFetchLogo}
+                        disabled={isFetchingLogo || !formData.logo_url}
+                        className="px-4 h-11 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] font-semibold rounded-xl transition-all duration-200 text-[13px] disabled:bg-[#3c3c3f] disabled:text-[#6e6e73] disabled:cursor-not-allowed flex items-center gap-2 shrink-0"
+                      >
+                        {isFetchingLogo ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                        获取Logo
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Logo 预览 */}
-                {logoPreview && (
-                  <div className="mt-3 flex items-center gap-4">
-                    <div
-                      className="w-16 h-16 rounded-xl flex items-center justify-center overflow-hidden border border-[#3c3c3f]"
-                      style={{ backgroundColor: formData.logo_bg_color }}
-                    >
-                      <img src={logoPreview} alt="Logo预览" className="w-10 h-10 object-contain" />
+                {/* 右列：Logo预览 + 排序 + 按钮 */}
+                <div className="w-72 p-6 flex flex-col gap-4">
+                  {/* Logo 预览 */}
+                  {logoPreview ? (
+                    <div className="flex items-center gap-4">
+                      <div
+                        className="w-16 h-16 rounded-xl flex items-center justify-center overflow-hidden border border-[#3c3c3f] shrink-0"
+                        style={{ backgroundColor: formData.logo_bg_color }}
+                      >
+                        <img src={logoPreview} alt="Logo预览" className="w-10 h-10 object-contain" />
+                      </div>
+                      <div className="flex-1">
+                        <label className="block text-[12px] font-medium text-[#9aa0a6] mb-1">背景色</label>
+                        <input
+                          type="color"
+                          value={formData.logo_bg_color}
+                          onChange={(e) => setFormData({ ...formData, logo_bg_color: e.target.value })}
+                          className="w-10 h-8 rounded-lg border border-[#3c3c3f] cursor-pointer"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setLogoPreview(null)
+                          setFormData((prev) => ({ ...prev, logo_data: "", logo_url: "" }))
+                        }}
+                        className="text-[12px] text-[#ee675c] hover:underline shrink-0"
+                      >
+                        删除
+                      </button>
                     </div>
-                    <div className="flex-1">
-                      <label className="block text-[12px] font-medium text-[#9aa0a6] mb-1">背景色</label>
-                      <input
-                        type="color"
-                        value={formData.logo_bg_color}
-                        onChange={(e) => setFormData({ ...formData, logo_bg_color: e.target.value })}
-                        className="w-10 h-8 rounded-lg border border-[#3c3c3f] cursor-pointer"
-                      />
+                  ) : (
+                    <div className="w-16 h-16 rounded-xl flex items-center justify-center border border-dashed border-[#3c3c3f] text-[#6e6e73] text-[11px] text-center">
+                      暂无Logo
                     </div>
+                  )}
+
+                  <div>
+                    <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">排序</label>
+                    <input
+                      type="number"
+                      value={formData.sort_order}
+                      onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) })}
+                      className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
+                    />
+                  </div>
+
+                  <div className="flex gap-3 mt-auto">
                     <button
                       type="button"
-                      onClick={() => {
-                        setLogoPreview(null)
-                        setFormData((prev) => ({ ...prev, logo_data: "", logo_url: "" }))
-                      }}
-                      className="text-[12px] text-[#ee675c] hover:underline"
+                      onClick={() => setIsModalOpen(false)}
+                      className="flex-1 h-11 bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#e3e3e3] font-semibold rounded-xl transition-all duration-200 text-[14px]"
                     >
-                      ���除
+                      取消
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSaving}
+                      className="flex-1 h-11 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 disabled:opacity-50 text-[#7CFF00] font-semibold rounded-xl transition-all duration-200 text-[14px] flex items-center justify-center gap-2"
+                    >
+                      {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+                      {editingCategory ? "保存" : "添加"}
                     </button>
                   </div>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">排序</label>
-                <input
-                  type="number"
-                  value={formData.sort_order}
-                  onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) })}
-                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="flex-1 h-11 bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#e3e3e3] font-semibold rounded-xl transition-all duration-200 text-[14px]"
-                >
-                  取消
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="flex-1 h-11 bg-[#7CFF00] hover:bg-[#9FFF40] disabled:opacity-50 text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px] flex items-center justify-center gap-2"
-                >
-                  {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {editingCategory ? "保存" : "添加"}
-                </button>
+                </div>
               </div>
             </form>
           </div>

@@ -29,10 +29,8 @@ interface ProductTemplate {
   id: string
   name: string
   data: typeof initialFormData
-  createdAt: string
+  created_at: string
 }
-
-const TEMPLATES_KEY = "product_templates_v1"
 
 const initialFormData = {
   name: "",
@@ -50,18 +48,6 @@ const initialFormData = {
   logo_bg_color: "#2d2e30",
   delivery_type: "自动发货",
   icon_url: "",
-}
-
-function loadTemplates(): ProductTemplate[] {
-  try {
-    return JSON.parse(localStorage.getItem(TEMPLATES_KEY) || "[]")
-  } catch {
-    return []
-  }
-}
-
-function saveTemplates(templates: ProductTemplate[]) {
-  localStorage.setItem(TEMPLATES_KEY, JSON.stringify(templates))
 }
 
 interface Product {
@@ -129,8 +115,53 @@ export default function ProductsPage() {
   const [newInventoryContent, setNewInventoryContent] = useState("")
   const [inventoryFilter, setInventoryFilter] = useState<"all" | "available" | "sold">("all")
 
+  // 从数据库加载模板
+  const fetchTemplates = async () => {
+    try {
+      const res = await fetch("/api/admin/templates")
+      const data = await res.json()
+      if (Array.isArray(data)) {
+        setTemplates(data)
+      }
+    } catch (error) {
+      console.error("加载模板失败:", error)
+    }
+  }
+
+  // 保存模板到数据库
+  const saveTemplate = async (name: string, data: typeof initialFormData) => {
+    try {
+      const res = await fetch("/api/admin/templates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, data }),
+      })
+      if (res.ok) {
+        await fetchTemplates()
+        return true
+      }
+      return false
+    } catch (error) {
+      console.error("保存模板失败:", error)
+      return false
+    }
+  }
+
+  // 删除模板
+  const deleteTemplate = async (id: string) => {
+    try {
+      const res = await fetch(`/api/admin/templates/${id}`, { method: "DELETE" })
+      if (res.ok) {
+        setTemplates(prev => prev.filter(t => t.id !== id))
+      }
+    } catch (error) {
+      console.error("删除模板失败:", error)
+    }
+  }
+
   useEffect(() => {
     fetchData()
+    fetchTemplates()
     // 检查URL参数中的分类ID
     const params = new URLSearchParams(window.location.search)
     const categoryId = params.get("categoryId")
@@ -280,7 +311,7 @@ export default function ProductsPage() {
     setShowTemplatePanel(false)
     setShowSaveInput(false)
     setSaveTemplateName("")
-    setTemplates(loadTemplates())
+    fetchTemplates()
     if (product) {
       setEditingProduct(product)
       setFormData({
@@ -466,7 +497,7 @@ export default function ProductsPage() {
     setShowTemplatePanel(false)
     setShowSaveInput(false)
     setSaveTemplateName("")
-    setTemplates(loadTemplates())
+    fetchTemplates()
     setIsModalOpen(true)
   }
 
@@ -526,7 +557,7 @@ export default function ProductsPage() {
           <button
             key={tab.key}
             onClick={() => setStatusTab(tab.key as typeof statusTab)}
-            className={`px-4 py-2.5 text-[14px] font-medium border-b-2 -mb-px transition-colors ${
+            className={`h-11 inline-flex items-center px-4 text-[14px] font-medium border-b-2 -mb-px transition-colors ${
               statusTab === tab.key
                 ? "border-[#7CFF00] text-[#7CFF00]"
                 : "border-transparent text-[#9aa0a6] hover:text-[#e3e3e3]"
@@ -568,28 +599,25 @@ export default function ProductsPage() {
         </div>
         <button
           onClick={() => setSearchName(searchInput)}
-          className="h-8 px-3 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[12px] transition-colors flex items-center gap-1.5"
+          className="h-8 px-3 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] font-semibold rounded-lg text-[12px] transition-colors flex items-center gap-1.5"
         >
           <Search className="w-3.5 h-3.5" />
           搜索
         </button>
         <button
           onClick={() => openModal()}
-          className="h-8 px-3 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[12px] transition-colors flex items-center gap-1.5"
+          className="h-8 px-3 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] font-semibold rounded-lg text-[12px] transition-colors flex items-center gap-1.5"
         >
           <Plus className="w-3.5 h-3.5" />
           商品发布
         </button>
-        <button
-          onClick={() => {
-            // 打开库存管理：选取第一个产品，或让用户从列表里点
-            if (filteredProducts.length > 0) openInventoryModal(filteredProducts[0])
-          }}
+        <Link
+          href="/admin/inventory"
           className="h-8 px-3 bg-[#2d2e30] hover:bg-[#3c3c3f] border border-[#3c3c3f] text-[#e3e3e3] font-medium rounded-lg text-[12px] transition-colors flex items-center gap-1.5"
         >
           <Package className="w-3.5 h-3.5 text-[#81c995]" />
           库存管理
-        </button>
+        </Link>
         {(searchName || filterCategoryId) && (
           <button
             onClick={() => { setSearchName(""); setSearchInput(""); setFilterCategoryId("") }}
@@ -649,12 +677,12 @@ export default function ProductsPage() {
                     className="w-3.5 h-3.5 rounded accent-[#7CFF00] cursor-pointer"
                   />
                 </th>
-                <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#9aa0a6]">商品信息</th>
-                <th className="px-2 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] w-16">售价</th>
-                <th className="px-2 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] w-24">状态</th>
-                <th className="px-2 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] w-12">销量</th>
-                <th className="px-2 py-2 text-left text-[11px] font-semibold text-[#9aa0a6] w-20">库存</th>
-                <th className="px-3 py-2 text-right text-[11px] font-semibold text-[#9aa0a6] w-28">操作</th>
+                <th className="px-3 py-2 text-left text-[13px] font-semibold text-[#9aa0a6]">商品信息</th>
+                <th className="px-3 py-2 text-left text-[13px] font-semibold text-[#9aa0a6] w-28">操作</th>
+                <th className="px-2 py-2 text-left text-[13px] font-semibold text-[#9aa0a6] w-16">售价</th>
+                <th className="px-2 py-2 text-left text-[13px] font-semibold text-[#9aa0a6] w-24">状态</th>
+                <th className="px-2 py-2 text-left text-[13px] font-semibold text-[#9aa0a6] w-12">销量</th>
+                <th className="px-2 py-2 text-left text-[13px] font-semibold text-[#9aa0a6] w-20">库存</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#3c3c3f]/50">
@@ -714,20 +742,43 @@ export default function ProductsPage() {
 
                     </div>
                   </td>
+                  {/* 操作 */}
+                  <td className="px-3 py-1.5 whitespace-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => openModal(product)}
+                        className="text-[12px] text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
+                      >
+                        编辑
+                      </button>
+                      <button
+                        onClick={() => handleDuplicate(product)}
+                        className="text-[12px] text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
+                      >
+                        复制
+                      </button>
+                      <button
+                        onClick={() => handleDelete(product.id)}
+                        className="text-[12px] text-[#9aa0a6] hover:text-[#ee675c] transition-colors"
+                      >
+                        删除
+                      </button>
+                    </div>
+                  </td>
                   {/* 售价 */}
                   <td className="px-2 py-1.5">
-                    <span className="text-[12px] font-semibold text-[#e3e3e3]">{product.price}</span>
+                    <span className="text-[13px] font-semibold text-[#e3e3e3]">{product.price}</span>
                   </td>
                   {/* 状态 */}
                   <td className="px-2 py-1.5">
                     <div className="flex items-center gap-1">
-                      <span className={`inline-flex items-center gap-1 text-[11px] font-medium ${product.is_active ? "text-[#81c995]" : "text-[#6e6e73]"}`}>
+                      <span className={`inline-flex items-center gap-1 text-[12px] font-medium ${product.is_active ? "text-[#81c995]" : "text-[#6e6e73]"}`}>
                         <span className={`w-1 h-1 rounded-full ${product.is_active ? "bg-[#81c995]" : "bg-[#6e6e73]"}`} />
                         {product.is_active ? "销售中" : "已下架"}
                       </span>
                       <button
                         onClick={() => handleToggleActive(product)}
-                        className="px-1 py-0.5 text-[9px] font-medium bg-[#3c3c3f]/60 text-[#9aa0a6] hover:text-[#7CFF00] rounded transition-colors"
+                        className="px-1 py-0.5 text-[10px] font-medium bg-[#3c3c3f]/60 text-[#9aa0a6] hover:text-[#7CFF00] rounded transition-colors"
                       >
                         {product.is_active ? "下架" : "上架"}
                       </button>
@@ -735,42 +786,19 @@ export default function ProductsPage() {
                   </td>
                   {/* 销量 */}
                   <td className="px-2 py-1.5">
-                    <span className="text-[12px] text-[#9aa0a6]">{product.sales || 0}</span>
+                    <span className="text-[13px] text-[#9aa0a6]">{product.sales || 0}</span>
                   </td>
                   {/* 库存 */}
                   <td className="px-2 py-1.5">
                     <div className="flex items-center gap-1">
-                      <span className={`text-[11px] font-semibold px-1 rounded ${product.stock > 0 ? "bg-[#81c995]/10 text-[#81c995]" : "bg-[#ee675c]/10 text-[#ee675c]"}`}>
+                      <span className={`text-[12px] font-semibold px-1 rounded ${product.stock > 0 ? "bg-[#81c995]/10 text-[#81c995]" : "bg-[#ee675c]/10 text-[#ee675c]"}`}>
                         {product.stock}
                       </span>
                       <button
                         onClick={() => openInventoryModal(product)}
-                        className="px-1 py-0.5 text-[9px] font-medium text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
+                        className="px-1 py-0.5 text-[10px] font-medium text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
                       >
                         库存
-                      </button>
-                    </div>
-                  </td>
-                  {/* 操作 */}
-                  <td className="px-3 py-1.5 whitespace-nowrap">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <button
-                        onClick={() => openModal(product)}
-                        className="text-[11px] text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
-                      >
-                        编辑
-                      </button>
-                      <button
-                        onClick={() => handleDuplicate(product)}
-                        className="text-[11px] text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
-                      >
-                        复制
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product.id)}
-                        className="text-[11px] text-[#9aa0a6] hover:text-[#ee675c] transition-colors"
-                      >
-                        删除
                       </button>
                     </div>
                   </td>
@@ -784,8 +812,8 @@ export default function ProductsPage() {
       {/* 编辑弹窗 */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#3c3c3f] sticky top-0 bg-[#1e1f20]">
+          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#3c3c3f] shrink-0">
               <h2 className="text-[18px] font-semibold text-[#e3e3e3]">
                 {editingProduct ? "编辑产品" : "添加产品"}
               </h2>
@@ -796,11 +824,11 @@ export default function ProductsPage() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
 
               {/* 模板工具栏 - 仅添加模式显示 */}
               {!editingProduct && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 px-6 pt-4 shrink-0">
                   {/* 选择模板 */}
                   <div className="relative flex-1">
                     <button
@@ -828,15 +856,11 @@ export default function ProductsPage() {
                               }}
                             >
                               {tpl.name}
-                              <span className="ml-2 text-[11px] text-[#6e6e73]">{new Date(tpl.createdAt).toLocaleDateString("zh-CN")}</span>
+                              <span className="ml-2 text-[11px] text-[#6e6e73]">{new Date(tpl.created_at).toLocaleDateString("zh-CN")}</span>
                             </button>
                             <button
                               type="button"
-                              onClick={() => {
-                                const updated = templates.filter(t => t.id !== tpl.id)
-                                saveTemplates(updated)
-                                setTemplates(updated)
-                              }}
+                              onClick={() => deleteTemplate(tpl.id)}
                               className="opacity-0 group-hover:opacity-100 ml-2 p-1 text-[#6e6e73] hover:text-[#ee675c] transition-all"
                             >
                               <X className="w-3.5 h-3.5" />
@@ -869,22 +893,16 @@ export default function ProductsPage() {
                         autoFocus
                         value={saveTemplateName}
                         onChange={e => setSaveTemplateName(e.target.value)}
-                        onKeyDown={e => {
+                        onKeyDown={async e => {
                           if (e.key === "Escape") setShowSaveInput(false)
                           if (e.key === "Enter") {
                             e.preventDefault()
                             if (!saveTemplateName.trim()) return
-                            const tpl: ProductTemplate = {
-                              id: Date.now().toString(),
-                              name: saveTemplateName.trim(),
-                              data: { ...formData },
-                              createdAt: new Date().toISOString(),
+                            const success = await saveTemplate(saveTemplateName.trim(), { ...formData })
+                            if (success) {
+                              setShowSaveInput(false)
+                              setSaveTemplateName("")
                             }
-                            const updated = [tpl, ...templates]
-                            saveTemplates(updated)
-                            setTemplates(updated)
-                            setShowSaveInput(false)
-                            setSaveTemplateName("")
                           }
                         }}
                         placeholder="模板名称，回车保存"
@@ -892,21 +910,15 @@ export default function ProductsPage() {
                       />
                       <button
                         type="button"
-                        onClick={() => {
+                        onClick={async () => {
                           if (!saveTemplateName.trim()) return
-                          const tpl: ProductTemplate = {
-                            id: Date.now().toString(),
-                            name: saveTemplateName.trim(),
-                            data: { ...formData },
-                            createdAt: new Date().toISOString(),
+                          const success = await saveTemplate(saveTemplateName.trim(), { ...formData })
+                          if (success) {
+                            setShowSaveInput(false)
+                            setSaveTemplateName("")
                           }
-                          const updated = [tpl, ...templates]
-                          saveTemplates(updated)
-                          setTemplates(updated)
-                          setShowSaveInput(false)
-                          setSaveTemplateName("")
                         }}
-                        className="h-9 px-2 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-bold rounded-xl text-[12px] transition-colors"
+                        className="h-9 px-2 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] font-bold rounded-xl text-[12px] transition-colors"
                       >
                         保存
                       </button>
@@ -924,294 +936,288 @@ export default function ProductsPage() {
 
               {/* 错误提示 */}
               {error && (
-                <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-[#ee675c]/10 border border-[#ee675c]/30">
+                <div className="flex items-start gap-3 px-4 py-3 mx-6 mt-4 rounded-xl bg-[#ee675c]/10 border border-[#ee675c]/30">
                   <div className="text-[#ee675c] mt-0.5">⚠</div>
                   <span className="text-[13px] font-medium text-[#ee675c]">{error}</span>
                 </div>
               )}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2 sm:col-span-1">
-                  <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
-                    产品名称
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
-                    required
-                  />
-                </div>
-                <div className="col-span-2 sm:col-span-1">
-                  <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
-                    所属分类
-                  </label>
-                  <select
-                    value={formData.category_id}
-                    onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
-                    required
-                  >
-                    <option value="">选择分类</option>
-                    {categories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>{cat.name}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
-                  产品描述
-                </label>
-                <input
-                  type="text"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
-                />
-              </div>
-              {/* 产品图标/国旗搜索 */}
-              <div className="p-4 bg-[#2d2e30] rounded-xl border border-[#3c3c3f]">
-                <div className="flex items-center gap-2 mb-3">
-                  <Flag className="w-4 h-4 text-[#7CFF00]" />
-                  <label className="text-[13px] font-medium text-[#9aa0a6]">产品图标</label>
-                </div>
-                {/* 国旗搜索 */}
-                <div className="flex gap-2 mb-3">
-                  <input
-                    type="text"
-                    value={flagSearchQuery}
-                    onChange={(e) => setFlagSearchQuery(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), searchCountryFlag())}
-                    placeholder="搜索国旗，如：美国、+95"
-                    className="flex-1 h-9 px-3 bg-[#1e1f20] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[13px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
-                  />
-                  <button
-                    type="button"
-                    onClick={searchCountryFlag}
-                    disabled={isSearchingFlag || !flagSearchQuery.trim()}
-                    className="px-3 h-9 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg transition-all duration-200 text-[12px] disabled:bg-[#3c3c3f] disabled:text-[#6e6e73] disabled:cursor-not-allowed flex items-center gap-1"
-                  >
-                    {isSearchingFlag ? <Loader2 className="w-3 h-3 animate-spin" /> : <Search className="w-3 h-3" />}
-                    搜索
-                  </button>
-                </div>
-                {/* 国旗搜索结果 */}
-                {flagResults.length > 0 && (
-                  <div className="grid grid-cols-3 gap-2 mb-3">
-                    {flagResults.map((result) => (
-                      <button
-                        key={result.code}
-                        type="button"
-                        onClick={() => {
-                          setFormData({ ...formData, logo_data: result.flagUrl, icon_url: result.flagUrl })
-                          setLogoPreview(result.flagUrl)
-                          setFlagResults([])
-                        }}
-                        className="flex items-center gap-2 px-2 py-1.5 bg-[#1e1f20] hover:bg-[#3c3c3f] border border-[#3c3c3f] rounded-lg transition-all"
+
+              {/* 横向两列内容区 */}
+              <div className="flex divide-x divide-[#3c3c3f] overflow-y-auto flex-1">
+                {/* 左列：名称/分类/描述/图标/价格库存 */}
+                <div className="flex-1 p-6 space-y-4 overflow-y-auto">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">产品名称</label>
+                      <input
+                        type="text"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">所属分类</label>
+                      <select
+                        value={formData.category_id}
+                        onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
+                        className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
+                        required
                       >
-                        <img src={result.flagUrl} alt={result.name} className="w-6 h-4 object-cover rounded" />
-                        <span className="text-[11px] text-[#e3e3e3] truncate">{result.name}</span>
-                      </button>
-                    ))}
+                        <option value="">选择分类</option>
+                        {categories.map((cat) => (
+                          <option key={cat.id} value={cat.id}>{cat.name}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
-                )}
-                {/* Logo预览 */}
-                <div className="flex items-center gap-3">
-                  <div 
-                    className="w-12 h-12 rounded-lg flex items-center justify-center overflow-hidden border border-[#3c3c3f]"
-                    style={{ backgroundColor: formData.logo_bg_color }}
-                  >
-                    {logoPreview ? (
-                      <img src={logoPreview} alt="Logo预览" className="w-8 h-8 object-contain" />
-                    ) : (
-                      <Package className="w-5 h-5 text-[#6e6e73]" />
-                    )}
-                  </div>
-                  <div className="flex-1">
+
+                  <div>
+                    <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">产品描述</label>
                     <input
                       type="text"
-                      value={formData.logo_data}
-                      onChange={(e) => {
-                        setFormData({ ...formData, logo_data: e.target.value })
-                        setLogoPreview(e.target.value)
-                      }}
-                      placeholder="或直接粘贴图片URL"
-                      className="w-full h-8 px-2 bg-[#1e1f20] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[12px] focus:outline-none focus:border-[#7CFF00] transition-colors"
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
                     />
                   </div>
-                  <input
-                    type="color"
-                    value={formData.logo_bg_color}
-                    onChange={(e) => setFormData({ ...formData, logo_bg_color: e.target.value })}
-                    className="w-8 h-8 rounded cursor-pointer border-0"
-                    title="背��色"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
-                    售价
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
-                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
-                    成本价
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formData.cost_price}
-                    onChange={(e) => setFormData({ ...formData, cost_price: parseFloat(e.target.value) })}
-                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
-                    库存
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.stock}
-                    onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) })}
-                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
-                    销量
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.sales}
-                    onChange={(e) => setFormData({ ...formData, sales: parseInt(e.target.value) })}
-                    className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
-                  />
-                </div>
-              </div>
-              {/* 产品标签 */}
-              <div>
-                <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
-                  产品标签 <span className="text-[#6e6e73]">（显示在产品右上角，如 HOT、NEW）</span>
-                </label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="text"
-                    value={formData.tag_label}
-                    onChange={(e) => setFormData({ ...formData, tag_label: e.target.value.toUpperCase() })}
-                    className="flex-1 h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors uppercase"
-                    placeholder="如：HOT、NEW、促销"
-                    maxLength={10}
-                  />
-                  {formData.tag_label && (
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-[#ee675c] rounded text-white text-[12px] font-bold">
-                      {formData.tag_label}
+
+                  {/* 产品图标 */}
+                  <div className="p-4 bg-[#2d2e30] rounded-xl border border-[#3c3c3f]">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Flag className="w-4 h-4 text-[#7CFF00]" />
+                      <label className="text-[13px] font-medium text-[#9aa0a6]">产品图标</label>
                     </div>
-                  )}
-                </div>
-                <div className="flex gap-2 mt-2">
-                  {["HOT", "NEW", "促销", "推荐"].map(tag => (
-                    <button
-                      key={tag}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, tag_label: tag })}
-                      className={`px-2 py-1 text-[11px] rounded-md border transition-colors ${
-                        formData.tag_label === tag 
-                          ? "bg-[#7CFF00]/20 border-[#7CFF00] text-[#7CFF00]" 
-                          : "bg-[#2d2e30] border-[#3c3c3f] text-[#9aa0a6] hover:border-[#5f6368]"
-                      }`}
-                    >
-                      {tag}
-                    </button>
-                  ))}
-                  {formData.tag_label && (
-                    <button
-                      type="button"
-                      onClick={() => setFormData({ ...formData, tag_label: "" })}
-                      className="px-2 py-1 text-[11px] rounded-md bg-[#ee675c]/20 border border-[#ee675c] text-[#ee675c]"
-                    >
-                      清除
-                    </button>
-                  )}
-                </div>
-              </div>
+                    <div className="flex gap-2 mb-3">
+                      <input
+                        type="text"
+                        value={flagSearchQuery}
+                        onChange={(e) => setFlagSearchQuery(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), searchCountryFlag())}
+                        placeholder="搜索国旗，如：美国、+95"
+                        className="flex-1 h-9 px-3 bg-[#1e1f20] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[13px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
+                      />
+                      <button
+                        type="button"
+                        onClick={searchCountryFlag}
+                        disabled={isSearchingFlag || !flagSearchQuery.trim()}
+                        className="px-3 h-9 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] font-semibold rounded-lg transition-all duration-200 text-[12px] disabled:bg-[#3c3c3f] disabled:text-[#6e6e73] disabled:cursor-not-allowed flex items-center gap-1"
+                      >
+                        {isSearchingFlag ? <Loader2 className="w-3 h-3 animate-spin" /> : <Search className="w-3 h-3" />}
+                        搜索
+                      </button>
+                    </div>
+                    {flagResults.length > 0 && (
+                      <div className="grid grid-cols-3 gap-2 mb-3">
+                        {flagResults.map((result) => (
+                          <button
+                            key={result.code}
+                            type="button"
+                            onClick={() => {
+                              setFormData({ ...formData, logo_data: result.flagUrl, icon_url: result.flagUrl })
+                              setLogoPreview(result.flagUrl)
+                              setFlagResults([])
+                            }}
+                            className="flex items-center gap-2 px-2 py-1.5 bg-[#1e1f20] hover:bg-[#3c3c3f] border border-[#3c3c3f] rounded-lg transition-all"
+                          >
+                            <img src={result.flagUrl} alt={result.name} className="w-6 h-4 object-cover rounded" />
+                            <span className="text-[11px] text-[#e3e3e3] truncate">{result.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-12 h-12 rounded-lg flex items-center justify-center overflow-hidden border border-[#3c3c3f]"
+                        style={{ backgroundColor: formData.logo_bg_color }}
+                      >
+                        {logoPreview ? (
+                          <img src={logoPreview} alt="Logo预览" className="w-8 h-8 object-contain" />
+                        ) : (
+                          <Package className="w-5 h-5 text-[#6e6e73]" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <input
+                          type="text"
+                          value={formData.logo_data}
+                          onChange={(e) => {
+                            setFormData({ ...formData, logo_data: e.target.value })
+                            setLogoPreview(e.target.value)
+                          }}
+                          placeholder="或直接粘贴图片URL"
+                          className="w-full h-8 px-2 bg-[#1e1f20] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[12px] focus:outline-none focus:border-[#7CFF00] transition-colors"
+                        />
+                      </div>
+                      <input
+                        type="color"
+                        value={formData.logo_bg_color}
+                        onChange={(e) => setFormData({ ...formData, logo_bg_color: e.target.value })}
+                        className="w-8 h-8 rounded cursor-pointer border-0"
+                        title="背景色"
+                      />
+                    </div>
+                  </div>
 
-              <div>
-                <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
-                  使用说明 <span className="text-[#6e6e73]">（支持HTML，可插入图片）</span>
-                </label>
-                <textarea
-                  value={formData.usage_instructions}
-                  onChange={(e) => setFormData({ ...formData, usage_instructions: e.target.value })}
-                  rows={6}
-                  className="w-full px-4 py-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors resize-none font-mono"
-                  placeholder="使用说明，支持HTML格式。例如：&#10;1. 登录账号&#10;2. 进入设置&#10;&#10;插入图片示例：&#10;<img src=&quot;https://example.com/image.png&quot; alt=&quot;说明图片&quot; />"
-                />
-                <p className="mt-2 text-[12px] text-[#6e6e73]">
-                  提示：可以使用 HTML 标签如 &lt;img&gt;、&lt;a&gt;、&lt;br&gt; 等来丰富说明内容
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <button
-                    type="button"
-                    onClick={() => setFormData({ ...formData, is_active: !formData.is_active })}
-                    className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${
-                      formData.is_active ? "bg-[#7CFF00]" : "bg-[#3c3c3f]"
-                    }`}
-                  >
-                    <span
-                      className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 ${
-                        formData.is_active ? "translate-x-5" : "translate-x-0"
-                      }`}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">售价</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={formData.price}
+                        onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
+                        className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">成本价</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={formData.cost_price}
+                        onChange={(e) => setFormData({ ...formData, cost_price: parseFloat(e.target.value) })}
+                        className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">库存</label>
+                      <input
+                        type="number"
+                        value={formData.stock}
+                        onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) })}
+                        className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">销量</label>
+                      <input
+                        type="number"
+                        value={formData.sales}
+                        onChange={(e) => setFormData({ ...formData, sales: parseInt(e.target.value) })}
+                        className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 右列：标签/使用说明/开关/发货/按钮 */}
+                <div className="w-80 p-6 flex flex-col gap-4 overflow-y-auto">
+                  {/* 产品标签 */}
+                  <div>
+                    <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
+                      产品标签 <span className="text-[#6e6e73] font-normal">（右上角）</span>
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={formData.tag_label}
+                        onChange={(e) => setFormData({ ...formData, tag_label: e.target.value.toUpperCase() })}
+                        className="flex-1 h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors uppercase"
+                        placeholder="HOT、NEW..."
+                        maxLength={10}
+                      />
+                      {formData.tag_label && (
+                        <div className="px-2.5 py-1 bg-[#ee675c] rounded text-white text-[11px] font-bold shrink-0">
+                          {formData.tag_label}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex gap-1.5 mt-2 flex-wrap">
+                      {["HOT", "NEW", "促销", "推荐"].map(tag => (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, tag_label: tag })}
+                          className={`px-2 py-1 text-[11px] rounded-md border transition-colors ${
+                            formData.tag_label === tag
+                              ? "bg-[#7CFF00]/20 border-[#7CFF00] text-[#7CFF00]"
+                              : "bg-[#2d2e30] border-[#3c3c3f] text-[#9aa0a6] hover:border-[#5f6368]"
+                          }`}
+                        >
+                          {tag}
+                        </button>
+                      ))}
+                      {formData.tag_label && (
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, tag_label: "" })}
+                          className="px-2 py-1 text-[11px] rounded-md bg-[#ee675c]/20 border border-[#ee675c] text-[#ee675c]"
+                        >
+                          清除
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 使用说明 */}
+                  <div className="flex-1 flex flex-col">
+                    <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
+                      使用说明 <span className="text-[#6e6e73] font-normal">（支持HTML）</span>
+                    </label>
+                    <textarea
+                      value={formData.usage_instructions}
+                      onChange={(e) => setFormData({ ...formData, usage_instructions: e.target.value })}
+                      className="flex-1 w-full px-4 py-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[13px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors resize-none font-mono"
+                      placeholder={"使用说明，支持HTML格式\n1. 登录账号\n2. 进入设置"}
+                      rows={7}
                     />
-                  </button>
-                  <span className="text-[14px] font-medium text-[#e3e3e3]">
-                    {formData.is_active ? "已上架" : "已下架"}
-                  </span>
-                </label>
-              </div>
-              
-              {/* 发货类型 */}
-              <div className="space-y-2">
-                <label className="text-[14px] font-medium text-[#e3e3e3]">发货类型</label>
-                <select
-                  value={formData.delivery_type}
-                  onChange={(e) => setFormData({ ...formData, delivery_type: e.target.value })}
-                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
-                >
-                  <option value="自动发货">自动发货</option>
-                  <option value="人工发货">人工发货</option>
-                </select>
-              </div>
+                  </div>
 
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="flex-1 h-11 bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#e3e3e3] font-semibold rounded-xl transition-all duration-200 text-[14px]"
-                >
-                  取消
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="flex-1 h-11 bg-[#7CFF00] hover:bg-[#9FFF40] disabled:opacity-50 text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px] flex items-center justify-center gap-2"
-                >
-                  {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {editingProduct ? "保存" : "添加"}
-                </button>
+                  {/* 上架开关 + 发货类型 */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 bg-[#2d2e30] rounded-xl">
+                      <span className="text-[13px] font-medium text-[#e3e3e3]">
+                        {formData.is_active ? "已上架" : "已下架"}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, is_active: !formData.is_active })}
+                        className={`relative w-10 h-5 rounded-full transition-colors duration-200 ${
+                          formData.is_active ? "bg-[#7CFF00]" : "bg-[#3c3c3f]"
+                        }`}
+                      >
+                        <span
+                          className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform duration-200 ${
+                            formData.is_active ? "translate-x-5" : "translate-x-0"
+                          }`}
+                        />
+                      </button>
+                    </div>
+                    <div>
+                      <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">发货类型</label>
+                      <select
+                        value={formData.delivery_type}
+                        onChange={(e) => setFormData({ ...formData, delivery_type: e.target.value })}
+                        className="w-full h-10 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[13px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
+                      >
+                        <option value="自动发货">自动发货</option>
+                        <option value="人工发货">人工发货</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* 操作按钮 */}
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsModalOpen(false)}
+                      className="flex-1 h-11 bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#e3e3e3] font-semibold rounded-xl transition-all duration-200 text-[14px]"
+                    >
+                      取消
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSaving}
+                      className="flex-1 h-11 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 disabled:opacity-50 text-[#7CFF00] font-semibold rounded-xl transition-all duration-200 text-[14px] flex items-center justify-center gap-2"
+                    >
+                      {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+                      {editingProduct ? "保存" : "添加"}
+                    </button>
+                  </div>
+                </div>
               </div>
             </form>
           </div>
@@ -1244,7 +1250,11 @@ export default function ProductsPage() {
               {/* 统计数据 - 嵌入头部 */}
               <div className="flex items-center gap-6 mt-4 pl-10">
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] text-[#6e6e73] uppercase tracking-wide">总计</span>
+                  <span className="text-[11px] text-[#6e6e73] uppercase tracking-wide">当前库存</span>
+                  <span className="text-[18px] font-bold text-[#e3e3e3]">{inventoryProduct?.stock || 0}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] text-[#6e6e73] uppercase tracking-wide">记录总计</span>
                   <span className="text-[18px] font-bold text-[#e3e3e3]">{inventoryStats.total}</span>
                 </div>
                 <div className="w-px h-5 bg-[#3c3c3f]" />
@@ -1257,6 +1267,28 @@ export default function ProductsPage() {
                   <span className="w-2 h-2 rounded-full bg-[#6e6e73]" />
                   <span className="text-[18px] font-bold text-[#6e6e73]">{inventoryStats.sold}</span>
                   <span className="text-[11px] text-[#6e6e73]">已售</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 库存统计概览 */}
+            <div className="px-6 py-3 border-b border-[#3c3c3f]/50 shrink-0 bg-[#0d0e0f]/50">
+              <div className="grid grid-cols-4 gap-4">
+                <div className="text-center">
+                  <span className="text-[11px] text-[#6e6e73] block mb-1">当前库存</span>
+                  <span className="text-[16px] font-bold text-[#e3e3e3]">{inventoryProduct?.stock || 0}</span>
+                </div>
+                <div className="text-center">
+                  <span className="text-[11px] text-[#6e6e73] block mb-1">可用库存</span>
+                  <span className="text-[16px] font-bold text-[#81c995]">{inventoryStats.available || 0}</span>
+                </div>
+                <div className="text-center">
+                  <span className="text-[11px] text-[#6e6e73] block mb-1">已售出</span>
+                  <span className="text-[16px] font-bold text-[#ee675c]">{inventoryStats.sold || 0}</span>
+                </div>
+                <div className="text-center">
+                  <span className="text-[11px] text-[#6e6e73] block mb-1">总记录</span>
+                  <span className="text-[16px] font-bold text-[#7CFF00]">{inventoryStats.total || 0}</span>
                 </div>
               </div>
             </div>
@@ -1276,7 +1308,7 @@ export default function ProductsPage() {
                 <button
                   onClick={handleAddInventory}
                   disabled={inventoryAdding || !newInventoryContent.trim()}
-                  className="h-[60px] px-5 bg-[#7CFF00] text-[#0d0e0f] rounded-xl font-semibold text-[13px] hover:bg-[#9FFF40] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2 shrink-0"
+                  className="h-[60px] px-5 bg-[#7CFF00]/10 text-[#7CFF00] rounded-xl font-semibold text-[13px] hover:bg-[#7CFF00]/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2 shrink-0"
                 >
                   {inventoryAdding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                   添加库存
@@ -1294,7 +1326,7 @@ export default function ProductsPage() {
                 <button
                   key={item.key}
                   onClick={() => setInventoryFilter(item.key as typeof inventoryFilter)}
-                  className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all ${
+                  className={`h-8 flex items-center justify-center px-3 rounded-lg text-[12px] font-medium transition-all ${
                     inventoryFilter === item.key
                       ? "bg-[#7CFF00]/15 text-[#7CFF00]"
                       : "text-[#6e6e73] hover:text-[#9aa0a6] hover:bg-white/5"

@@ -173,12 +173,12 @@ export default function AnalyticsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-[#3c3c3f]">
-                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">序号</th>
-                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">IP地址</th>
-                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">地区</th>
-                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">设备</th>
-                  <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] uppercase">访问时间</th>
-                  <th className="px-4 py-3 text-center text-[12px] font-semibold text-[#9aa0a6] uppercase">操作</th>
+                  <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] uppercase">序号</th>
+                  <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] uppercase">IP地址</th>
+                  <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] uppercase">地区</th>
+                  <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] uppercase">设备</th>
+                  <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] uppercase">访问时间</th>
+                  <th className="px-4 py-3 text-center text-[13px] font-semibold text-[#9aa0a6] uppercase">操作</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#3c3c3f]">
@@ -215,7 +215,7 @@ export default function AnalyticsPage() {
                     <td className="px-4 py-3 text-center">
                       <button
                         onClick={() => openVisitorDetail(visitor)}
-                        className="px-3 py-1.5 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] rounded-lg text-[12px] font-medium transition-colors"
+                        className="h-8 flex items-center justify-center px-3 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] rounded-lg text-[12px] font-medium transition-colors"
                       >
                         详情
                       </button>
@@ -231,12 +231,12 @@ export default function AnalyticsPage() {
       {/* 访客详情弹窗 */}
       {isModalOpen && selectedVisitor && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] w-full max-w-lg max-h-[90vh] overflow-hidden">
+          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] w-full max-w-3xl overflow-hidden">
             {/* 弹窗头部 */}
             <div className="px-6 py-4 border-b border-[#3c3c3f] flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#c58af9]/20 flex items-center justify-center">
-                  <Eye className="w-5 h-5 text-[#c58af9]" />
+                <div className="w-9 h-9 rounded-xl bg-[#c58af9]/20 flex items-center justify-center">
+                  <Eye className="w-4 h-4 text-[#c58af9]" />
                 </div>
                 <div>
                   <h3 className="text-[16px] font-semibold text-[#e3e3e3]">访客详情</h3>
@@ -253,74 +253,80 @@ export default function AnalyticsPage() {
               </button>
             </div>
 
-            {/* 弹窗内容 */}
-            <div className="p-6 space-y-4 overflow-y-auto max-h-[calc(90vh-120px)]">
-              {/* IP地址和位置 */}
-              <div className="bg-[#2d2e30] rounded-xl p-4">
-                <label className="text-[12px] text-[#6e6e73] font-semibold">IP地址</label>
-                <p className="text-[15px] font-mono text-[#e3e3e3] mt-1">{selectedVisitor.ip_address}</p>
-                <div className="flex items-center gap-1.5 mt-2">
-                  <MapPin className="w-4 h-4 text-[#7CFF00]" />
-                  <span className="text-[13px] text-[#9aa0a6]">{selectedVisitor.ip_location || "未知"}</span>
+            {/* 弹窗内容 - 横向两列 */}
+            <div className="flex divide-x divide-[#3c3c3f]">
+              {/* 左列：IP + 设备 */}
+              <div className="flex-1 p-5 space-y-3">
+                {/* IP地址和位置 */}
+                <div className="bg-[#2d2e30] rounded-xl p-4">
+                  <label className="text-[12px] text-[#6e6e73] font-semibold">IP地址</label>
+                  <p className="text-[14px] font-mono text-[#e3e3e3] mt-1">{selectedVisitor.ip_address}</p>
+                  <div className="flex items-center gap-1.5 mt-2">
+                    <MapPin className="w-3.5 h-3.5 text-[#7CFF00]" />
+                    <span className="text-[12px] text-[#9aa0a6]">{selectedVisitor.ip_location || "未知"}</span>
+                  </div>
+                </div>
+
+                {/* 设备信息 */}
+                <div className="bg-[#2d2e30] rounded-xl p-4">
+                  <label className="text-[12px] text-[#6e6e73] font-semibold">访客设备</label>
+                  <div className="flex items-center gap-3 mt-2">
+                    <div className="w-9 h-9 rounded-lg bg-[#7CFF00]/10 flex items-center justify-center shrink-0">
+                      {getDeviceIcon(selectedVisitor.device_type)}
+                    </div>
+                    <div>
+                      <p className="text-[13px] text-[#e3e3e3] font-medium">{selectedVisitor.device_type || "未知设备"}</p>
+                      <p className="text-[12px] text-[#6e6e73]">{selectedVisitor.device_info || "未知系统"}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 访问时间 */}
+                <div className="bg-[#2d2e30] rounded-xl p-4">
+                  <label className="text-[12px] text-[#6e6e73] font-semibold">访问时间</label>
+                  <p className="text-[13px] text-[#e3e3e3] mt-1">
+                    {new Date(selectedVisitor.visited_at).toLocaleString("zh-CN")}
+                  </p>
                 </div>
               </div>
 
-              {/* 设备信息 */}
-              <div className="bg-[#2d2e30] rounded-xl p-4">
-                <label className="text-[12px] text-[#6e6e73] font-semibold">访客设备</label>
-                <div className="flex items-center gap-3 mt-2">
-                  <div className="w-10 h-10 rounded-lg bg-[#7CFF00]/10 flex items-center justify-center">
-                    {getDeviceIcon(selectedVisitor.device_type)}
-                  </div>
-                  <div>
-                    <p className="text-[14px] text-[#e3e3e3] font-medium">{selectedVisitor.device_type || "未知设备"}</p>
-                    <p className="text-[12px] text-[#6e6e73]">{selectedVisitor.device_info || "未知系统"}</p>
-                  </div>
+              {/* 右列：浏览商品 + 订单 */}
+              <div className="flex-1 p-5 space-y-3">
+                {/* 浏览的商品 */}
+                <div className="bg-[#2d2e30] rounded-xl p-4">
+                  <label className="text-[12px] text-[#6e6e73] font-semibold">浏览商品</label>
+                  {selectedVisitor.viewed_products && selectedVisitor.viewed_products.length > 0 ? (
+                    <div className="mt-2 space-y-1.5">
+                      {selectedVisitor.viewed_products.map((productId, idx) => (
+                        <div key={idx} className="flex items-center gap-2 p-2 bg-[#1e1f20] rounded-lg">
+                          <Package className="w-3.5 h-3.5 text-[#81c995] shrink-0" />
+                          <span className="text-[12px] text-[#e3e3e3]">{getProductName(productId)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-[12px] text-[#6e6e73] mt-2">暂无浏览记录</p>
+                  )}
                 </div>
-              </div>
 
-              {/* 浏览的商品 */}
-              <div className="bg-[#2d2e30] rounded-xl p-4">
-                <label className="text-[12px] text-[#6e6e73] font-semibold">浏览商品</label>
-                {selectedVisitor.viewed_products && selectedVisitor.viewed_products.length > 0 ? (
-                  <div className="mt-2 space-y-2">
-                    {selectedVisitor.viewed_products.map((productId, idx) => (
-                      <div key={idx} className="flex items-center gap-2 p-2 bg-[#1e1f20] rounded-lg">
-                        <Package className="w-4 h-4 text-[#81c995]" />
-                        <span className="text-[13px] text-[#e3e3e3]">{getProductName(productId)}</span>
-                      </div>
-                    ))}
+                {/* 订单信息 */}
+                {selectedVisitor.order_no && (
+                  <div className="bg-gradient-to-r from-[#81c995]/10 to-transparent rounded-xl p-4 border border-[#81c995]/30">
+                    <label className="text-[12px] text-[#81c995] font-semibold">已下单</label>
+                    <div className="flex items-center justify-between mt-2 gap-2">
+                      <p className="text-[13px] font-mono text-[#e3e3e3] break-all">{selectedVisitor.order_no}</p>
+                      <a
+                        href={`/admin/orders?search=${selectedVisitor.order_no}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 px-2.5 py-1.5 bg-[#81c995]/20 hover:bg-[#81c995]/30 text-[#81c995] rounded-lg text-[12px] font-medium transition-colors shrink-0"
+                      >
+                        查看订单
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
                   </div>
-                ) : (
-                  <p className="text-[13px] text-[#6e6e73] mt-2">暂无浏览记录</p>
                 )}
-              </div>
-
-              {/* 订单信息 */}
-              {selectedVisitor.order_no && (
-                <div className="bg-gradient-to-r from-[#81c995]/10 to-transparent rounded-xl p-4 border border-[#81c995]/30">
-                  <label className="text-[12px] text-[#81c995] font-semibold">已下单</label>
-                  <div className="flex items-center justify-between mt-2">
-                    <p className="text-[15px] font-mono text-[#e3e3e3]">{selectedVisitor.order_no}</p>
-                    <a
-                      href={`/admin/orders?search=${selectedVisitor.order_no}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 px-3 py-1.5 bg-[#81c995]/20 hover:bg-[#81c995]/30 text-[#81c995] rounded-lg text-[12px] font-medium transition-colors"
-                    >
-                      查看订单
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </div>
-                </div>
-              )}
-
-              {/* 访问时间 */}
-              <div className="bg-[#2d2e30] rounded-xl p-4">
-                <label className="text-[12px] text-[#6e6e73] font-semibold">访问时间</label>
-                <p className="text-[14px] text-[#e3e3e3] mt-1">
-                  {new Date(selectedVisitor.visited_at).toLocaleString("zh-CN")}
-                </p>
               </div>
             </div>
           </div>

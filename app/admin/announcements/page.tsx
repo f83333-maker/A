@@ -119,7 +119,7 @@ export default function AnnouncementsPage() {
         </div>
         <button
           onClick={() => openModal()}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px]"
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] font-semibold rounded-xl transition-all duration-200 text-[14px]"
         >
           <Plus className="w-4 h-4" />
           添加公告
@@ -150,11 +150,11 @@ export default function AnnouncementsPage() {
                 <td className="px-5 py-4">
                   <div className="flex flex-wrap gap-1">
                     {item.is_new && (
-                      <span className="px-2 py-0.5 text-[11px] font-semibold rounded-full bg-[#ee675c]/10 text-[#ee675c]">
+                      <span className="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-[#ee675c]/10 text-[#ee675c]">
                         New
                       </span>
                     )}
-                    <span className={`px-2 py-0.5 text-[11px] font-semibold rounded-full ${
+                    <span className={`px-2 py-0.5 text-[12px] font-semibold rounded-full ${
                       item.is_active 
                         ? "bg-[#81c995]/10 text-[#81c995]" 
                         : "bg-[#6e6e73]/10 text-[#6e6e73]"
@@ -187,7 +187,7 @@ export default function AnnouncementsPage() {
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] w-full max-w-lg">
+          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] w-full max-w-3xl overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4 border-b border-[#3c3c3f]">
               <h2 className="text-[18px] font-semibold text-[#e3e3e3]">
                 {editingItem ? "编辑公告" : "添加公告"}
@@ -199,66 +199,77 @@ export default function AnnouncementsPage() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div>
-                <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
-                  公告标题
-                </label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
-                  公告内容
-                </label>
-                <textarea
-                  value={formData.content}
-                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                  rows={4}
-                  className="w-full px-4 py-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors resize-none"
-                />
-              </div>
-              <div className="flex items-center gap-6">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.is_new}
-                    onChange={(e) => setFormData({ ...formData, is_new: e.target.checked })}
-                    className="w-4 h-4 rounded"
-                  />
-                  <span className="text-[14px] font-medium text-[#e3e3e3]">标记为新公告</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.is_active}
-                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                    className="w-4 h-4 rounded"
-                  />
-                  <span className="text-[14px] font-medium text-[#e3e3e3]">显示公告</span>
-                </label>
-              </div>
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="flex-1 h-11 bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#e3e3e3] font-semibold rounded-xl transition-all duration-200 text-[14px]"
-                >
-                  取消
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="flex-1 h-11 bg-[#7CFF00] hover:bg-[#9FFF40] disabled:opacity-50 text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px] flex items-center justify-center gap-2"
-                >
-                  {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {editingItem ? "保存" : "添加"}
-                </button>
+            <form onSubmit={handleSubmit}>
+              <div className="flex divide-x divide-[#3c3c3f]">
+                {/* 左列：标题 + 内容 */}
+                <div className="flex-1 p-6 space-y-4">
+                  <div>
+                    <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
+                      公告标题
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      className="w-full h-11 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
+                      公告内容
+                    </label>
+                    <textarea
+                      value={formData.content}
+                      onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                      rows={5}
+                      className="w-full px-4 py-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] text-[14px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors resize-none"
+                    />
+                  </div>
+                </div>
+
+                {/* 右列：选项 + 按钮 */}
+                <div className="w-64 p-6 flex flex-col gap-4">
+                  <div className="space-y-3">
+                    <label className="block text-[13px] font-medium text-[#9aa0a6]">公告选项</label>
+                    <label className="flex items-center gap-3 cursor-pointer p-3 bg-[#2d2e30] rounded-xl hover:bg-[#3c3c3f] transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={formData.is_new}
+                        onChange={(e) => setFormData({ ...formData, is_new: e.target.checked })}
+                        className="w-4 h-4 rounded"
+                      />
+                      <span className="text-[13px] font-medium text-[#e3e3e3]">标记为新公告</span>
+                    </label>
+                    <label className="flex items-center gap-3 cursor-pointer p-3 bg-[#2d2e30] rounded-xl hover:bg-[#3c3c3f] transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={formData.is_active}
+                        onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                        className="w-4 h-4 rounded"
+                      />
+                      <span className="text-[13px] font-medium text-[#e3e3e3]">显示公告</span>
+                    </label>
+                  </div>
+
+                  <div className="flex flex-col gap-2 mt-auto">
+                    <button
+                      type="submit"
+                      disabled={isSaving}
+                      className="w-full h-11 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 disabled:opacity-50 text-[#7CFF00] font-semibold rounded-xl transition-all duration-200 text-[14px] flex items-center justify-center gap-2"
+                    >
+                      {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+                      {editingItem ? "保存" : "添加"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsModalOpen(false)}
+                      className="w-full h-11 bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#e3e3e3] font-semibold rounded-xl transition-all duration-200 text-[14px]"
+                    >
+                      取消
+                    </button>
+                  </div>
+                </div>
               </div>
             </form>
           </div>
