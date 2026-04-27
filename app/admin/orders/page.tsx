@@ -1,10 +1,10 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import useSWR, { mutate } from "swr"
 import { 
   Search, 
-  Eye, 
   X, 
   Clock, 
   CheckCircle, 
@@ -43,6 +43,7 @@ const statusConfig: Record<string, { icon: typeof Clock; color: string; text: st
 }
 
 export default function OrdersPage() {
+  const router = useRouter()
   const { data: orders = [], isLoading } = useSWR<Order[]>("/api/admin/orders", fetcher)
   const [searchOrderNo, setSearchOrderNo] = useState("")
   const [searchBuyer, setSearchBuyer] = useState("")
@@ -50,10 +51,6 @@ export default function OrdersPage() {
   const [startDate, setStartDate] = useState("")
   const [endDate, setEndDate] = useState("")
   const [statusTab, setStatusTab] = useState<"all" | "paid" | "pending">("all")
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [deliverContent, setDeliverContent] = useState("")
-  const [isDelivering, setIsDelivering] = useState(false)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [isBatchDeleting, setIsBatchDeleting] = useState(false)
 
@@ -127,12 +124,6 @@ export default function OrdersPage() {
     } catch (error) {
       console.error("删除失败:", error)
     }
-  }
-
-  const openModal = (order: Order) => {
-    setSelectedOrder(order)
-    setDeliverContent(order.delivered_content || "")
-    setIsModalOpen(true)
   }
 
   const handleDelete = async (orderId: string) => {
@@ -374,7 +365,7 @@ export default function OrdersPage() {
                       {/* 操作 */}
                       <td className="px-4 py-3 text-right whitespace-nowrap">
                         <button
-                          onClick={() => openModal(order)}
+                          onClick={() => router.push(`/admin/orders/${order.id}`)}
                           className="text-[12px] text-[#7CFF00] hover:text-[#9FFF40] transition-colors font-medium mr-2"
                         >
                           详情
@@ -395,144 +386,6 @@ export default function OrdersPage() {
         </div>
       )}
 
-      {/* 订单详情弹窗 */}
-      {isModalOpen && selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setIsModalOpen(false)}
-          />
-          <div className="relative bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-            {/* 头部 */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#3c3c3f]">
-              <h2 className="text-[18px] font-semibold text-[#e3e3e3]">订单详情</h2>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="p-2 hover:bg-[#3c3c3f] rounded-lg transition-colors"
-              >
-                <X className="w-4 h-4 text-[#9aa0a6]" />
-              </button>
-            </div>
-
-            {/* 内容 */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
-              {/* 订单信息 */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <span className="text-[12px] text-[#6e6e73]">订单号</span>
-                  <p className="text-[14px] font-mono text-[#e3e3e3]">{selectedOrder.order_no}</p>
-                </div>
-                <div>
-                  <span className="text-[12px] text-[#6e6e73]">状态</span>
-                  <p className="text-[14px] text-[#e3e3e3]">
-                    {statusConfig[selectedOrder.status]?.text || selectedOrder.status}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-[12px] text-[#6e6e73]">产品</span>
-                  <p className="text-[14px] text-[#e3e3e3]">{selectedOrder.product_name}</p>
-                </div>
-                <div>
-                  <span className="text-[12px] text-[#6e6e73]">数量</span>
-                  <p className="text-[14px] text-[#e3e3e3]">{selectedOrder.quantity}</p>
-                </div>
-                <div>
-                  <span className="text-[12px] text-[#6e6e73]">单价</span>
-                  <p className="text-[14px] text-[#e3e3e3]">¥{selectedOrder.unit_price}</p>
-                </div>
-                <div>
-                  <span className="text-[12px] text-[#6e6e73]">总金额</span>
-                  <p className="text-[14px] font-semibold text-[#7CFF00]">
-                    ¥{selectedOrder.total_amount}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-[12px] text-[#6e6e73]">买家邮箱</span>
-                  <p className="text-[14px] text-[#e3e3e3]">{selectedOrder.buyer_email || "-"}</p>
-                </div>
-                <div>
-                  <span className="text-[12px] text-[#6e6e73]">创建时间</span>
-                  <p className="text-[14px] text-[#e3e3e3]">
-                    {new Date(selectedOrder.created_at).toLocaleString("zh-CN")}
-                  </p>
-                </div>
-              </div>
-              
-              {/* 交易���号信息 */}
-              {selectedOrder.stripe_payment_intent_id && (
-                <div className="mt-4 p-3 bg-[#2d2e30] rounded-lg">
-                  <h4 className="text-[12px] font-semibold text-[#9aa0a6] mb-2">支付信息</h4>
-                  <div className="space-y-2 text-[13px]">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[#6e6e73]">商户订单号:</span>
-                      <span className="font-mono text-[#e3e3e3]">{selectedOrder.order_no}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-[#6e6e73]">易支付订单号:</span>
-                      <span className="font-mono text-[#81c995]">{selectedOrder.stripe_payment_intent_id}</span>
-                    </div>
-                    {selectedOrder.epay_trade_no && selectedOrder.epay_trade_no !== selectedOrder.stripe_payment_intent_id && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-[#6e6e73]">用户交易单号:</span>
-                        <span className="font-mono text-[#7CFF00]">{selectedOrder.epay_trade_no}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* 发放账号 */}
-              <div>
-                <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
-                  发放内容（账号信息）
-                </label>
-                <textarea
-                  value={deliverContent}
-                  onChange={(e) => setDeliverContent(e.target.value)}
-                  placeholder="输入要发放给买家的账号信息..."
-                  rows={5}
-                  className="w-full px-4 py-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-xl text-[#e3e3e3] placeholder-[#6e6e73] text-[13px] font-mono focus:outline-none focus:border-[#7CFF00] transition-colors resize-none"
-                />
-              </div>
-
-              {selectedOrder.delivered_at && (
-                <p className="text-[12px] text-[#81c995]">
-                  已于 {new Date(selectedOrder.delivered_at).toLocaleString("zh-CN")} 发放
-                </p>
-              )}
-            </div>
-
-            {/* 底部 */}
-            <div className="px-6 py-4 border-t border-[#3c3c3f] flex justify-end gap-3">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 bg-[#2d2e30] hover:bg-[#3c3c3f] rounded-xl text-[14px] font-medium text-[#e3e3e3] transition-colors"
-              >
-                关闭
-              </button>
-              {(selectedOrder.status === "paid" || selectedOrder.status === "delivered") && (
-                <button
-                  onClick={handleDeliver}
-                  disabled={isDelivering || !deliverContent.trim()}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#81c995] hover:bg-[#a8d4b8] disabled:bg-[#3c3c3f] disabled:cursor-not-allowed rounded-xl text-[14px] font-medium text-[#131314] disabled:text-[#6e6e73] transition-colors"
-                >
-                  {isDelivering ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      发放中...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4" />
-                      {selectedOrder.status === "delivered" ? "更新发放" : "发放账号"}
-                    </>
-                  )}
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
