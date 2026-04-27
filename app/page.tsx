@@ -1,10 +1,9 @@
 import { Header } from "@/components/header"
-import { SearchBanner } from "@/components/search-banner"
+import { HomeClient } from "@/components/home-client"
 import { CategoryBrowser } from "@/components/category-browser"
 import { Announcement } from "@/components/announcement"
 import { Footer } from "@/components/footer"
 import { createClient } from "@/lib/supabase/server"
-import { HomeClient } from "@/components/home-client"
 
 async function getSiteSettings() {
   try {
@@ -27,16 +26,12 @@ export default async function Home() {
     <div id="top" className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
-        <HomeClient>
-          <SearchBanner
-            searchQuery=""
-            onSearch={() => {}}
-            initialTitle={settings.banner_title || ""}
-            initialSubtitle={settings.banner_subtitle || ""}
-            initialPlaceholder={settings.search_placeholder || "搜索产品名称、价格、库存、标签..."}
-            initialHotTags={settings.hot_search_tags || ["社交媒体", "海外邮箱", "营销工具", "出海必备"]}
-          />
-        </HomeClient>
+        <HomeClient
+          initialTitle={settings.banner_title || ""}
+          initialSubtitle={settings.banner_subtitle || ""}
+          initialPlaceholder={settings.search_placeholder || "搜索产品名称、价格、库存、标签..."}
+          initialHotTags={settings.hot_search_tags || ["社交媒体", "海外邮箱", "营销工具", "出海必备"]}
+        />
         <div id="categories">
           <CategoryBrowser searchQuery="" />
         </div>

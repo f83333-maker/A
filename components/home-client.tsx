@@ -1,8 +1,21 @@
 "use client"
 
-import { useState, useEffect, cloneElement, isValidElement } from "react"
+import { useState, useEffect } from "react"
+import { SearchBanner } from "@/components/search-banner"
 
-export function HomeClient({ children }: { children: React.ReactNode }) {
+interface HomeClientProps {
+  initialTitle: string
+  initialSubtitle: string
+  initialPlaceholder: string
+  initialHotTags: string[]
+}
+
+export function HomeClient({
+  initialTitle,
+  initialSubtitle,
+  initialPlaceholder,
+  initialHotTags,
+}: HomeClientProps) {
   const [searchQuery, setSearchQuery] = useState("")
 
   useEffect(() => {
@@ -15,13 +28,15 @@ export function HomeClient({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  // 把 searchQuery 和 onSearch 注入到 SearchBanner 子组件
-  const childrenWithProps = isValidElement(children)
-    ? cloneElement(children as React.ReactElement<any>, {
-        searchQuery,
-        onSearch: setSearchQuery,
-      })
-    : children
-
-  return <>{childrenWithProps}</>
+  return (
+    <SearchBanner
+      searchQuery={searchQuery}
+      onSearch={setSearchQuery}
+      initialTitle={initialTitle}
+      initialSubtitle={initialSubtitle}
+      initialPlaceholder={initialPlaceholder}
+      initialHotTags={initialHotTags}
+    />
+  )
 }
+
