@@ -3,40 +3,77 @@
 import { useState } from "react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { Search, Package, Clock, CheckCircle, XCircle, Loader2, Copy, Check, Lock } from "lucide-react"
+import { Search, Package, Clock, CheckCircle, XCircle, Loader2, Copy, Check, Lock, Mail, Hash } from "lucide-react"
+
+type QueryType = "orderNo" | "contact"
 
 export default function OrderQueryPage() {
-  const [orderNo, setOrderNo] = useState("")
+  const [queryType, setQueryType] = useState<QueryType>("orderNo")
+  const [queryValue, setQueryValue] = useState("")
   const [queryPassword, setQueryPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [order, setOrder] = useState<any>(null)
+  const [orders, setOrders] = useState<any[]>([])
   const [error, setError] = useState("")
   const [copied, setCopied] = useState(false)
   const [needPassword, setNeedPassword] = useState(false)
 
   const handleSearch = async () => {
-    if (!orderNo.trim()) {
-      setError("请输入订单号")
+    if (!queryValue.trim()) {
+      setError(queryType === "orderNo" ? "请输入订单号" : "请输入联系方式")
       return
     }
 
     setLoading(true)
     setError("")
     setOrder(null)
+    setOrders([])
     setNeedPassword(false)
 
     try {
-      // 先查询订单基本信息
-      const res = await fetch(`/api/orders/${encodeURIComponent(orderNo.trim())}`)
+      const params = new URLSearchParams()
+      if (queryType === "orderNo") {
+        params.set("orderNo", queryValue.trim())
+      } else {
+        params.set("contact", queryValue.trim())
+      }
+
+      const res = await fetch(`/api/orders/query?${params.toString()}`)
       const data = await res.json()
 
-      if (data.error) {
-        setError(data.error)
+      if (!data.success) {
+        setError(data.error || "查询失败")
         return
       }
 
+      // 单个订单（订单号查询）
       if (data.order) {
-        // 检查是否需要密码
+        if (data.order.query_password === "***") {
+          setNeedPassword(true)
+          setOrder(data.order)
+        } else {
+          setOrder(data.order)
+        }
+      }
+
+      // 多个订单（联系方式查询）
+      if (data.orders) {
+        setOrders(data.orders)
+      }
+    } catch {
+      setError("查询失败，请稍后重试")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSelectOrder = async (selectedOrder: any) => {
+    // 查询选中订单的完整信息
+    try {
+      const res = await fetch(`/api/orders/${encodeURIComponent(selectedOrder.order_no)}`)
+      const data = await res.json()
+      if (data.order) {
+        setOrders([])
         if (data.order.query_password === "***") {
           setNeedPassword(true)
           setOrder(data.order)
@@ -45,9 +82,7 @@ export default function OrderQueryPage() {
         }
       }
     } catch {
-      setError("查询失败，请稍后重试")
-    } finally {
-      setLoading(false)
+      setError("获取订单详情失败")
     }
   }
 
@@ -109,24 +144,51 @@ export default function OrderQueryPage() {
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold text-[#e3e3e3] mb-2">订单查询</h1>
-            <p className="text-[#9aa0a6]">输入订单号和查询密码查询订单状态和账号信息</p>
+            <p className="text-[#9aa0a6]">通过订单号或联系方式查询您的订单</p>
           </div>
 
           <div className="bg-[#1e1f20] rounded-xl border border-[#3c3c3f] p-6 mb-6">
             <div className="space-y-4">
+              {/* 查询类型切换 */}
+              <div className="flex gap-2 p-1 bg-[#2d2e30] rounded-lg">
+                <button
+                  onClick={() => { setQueryType("orderNo"); setQueryValue(""); setError(""); setOrder(null); setOrders([]); }}
+                  className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-md text-[13px] font-medium transition-colors ${
+                    queryType === "orderNo"
+                      ? "bg-[#7CFF00]/10 text-[#7CFF00]"
+                      : "text-[#9aa0a6] hover:text-[#e3e3e3]"
+                  }`}
+                >
+                  <Hash className="w-4 h-4" />
+                  订单号查询
+                </button>
+                <button
+                  onClick={() => { setQueryType("contact"); setQueryValue(""); setError(""); setOrder(null); setOrders([]); }}
+                  className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-md text-[13px] font-medium transition-colors ${
+                    queryType === "contact"
+                      ? "bg-[#7CFF00]/10 text-[#7CFF00]"
+                      : "text-[#9aa0a6] hover:text-[#e3e3e3]"
+                  }`}
+                >
+                  <Mail className="w-4 h-4" />
+                  联系方式查询
+                </button>
+              </div>
+
+              {/* 查询输入框 */}
               <div className="flex gap-3">
                 <input
                   type="text"
-                  value={orderNo}
-                  onChange={(e) => setOrderNo(e.target.value)}
+                  value={queryValue}
+                  onChange={(e) => setQueryValue(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                  placeholder="请输入订单号"
+                  placeholder={queryType === "orderNo" ? "请输入订单号" : "请输入邮箱/手机号/QQ"}
                   className="flex-1 h-12 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] placeholder-[#6e6e73] focus:outline-none focus:border-[#7CFF00]"
                 />
                 <button
                   onClick={handleSearch}
                   disabled={loading}
-                  className="px-6 h-12 bg-[#7CFF00] hover:bg-[#9FFF40] disabled:bg-[#3c3c3f] text-[#131314] font-semibold rounded-lg flex items-center gap-2 transition-colors"
+                  className="px-6 h-12 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 disabled:bg-[#3c3c3f] text-[#7CFF00] font-semibold rounded-lg flex items-center gap-2 transition-colors"
                 >
                   {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
                   查询
@@ -169,6 +231,43 @@ export default function OrderQueryPage() {
               </div>
             )}
           </div>
+
+          {/* 订单列表（联系方式查询结果） */}
+          {orders.length > 0 && (
+            <div className="bg-[#1e1f20] rounded-xl border border-[#3c3c3f] overflow-hidden mb-6">
+              <div className="px-6 py-4 border-b border-[#3c3c3f]">
+                <h2 className="text-[15px] font-semibold text-[#e3e3e3]">找到 {orders.length} 个订单</h2>
+                <p className="text-[12px] text-[#6e6e73] mt-1">点击订单查看详情</p>
+              </div>
+              <div className="divide-y divide-[#3c3c3f]">
+                {orders.map((o) => {
+                  const status = getStatusInfo(o.status)
+                  const Icon = status.icon
+                  return (
+                    <button
+                      key={o.id}
+                      onClick={() => handleSelectOrder(o)}
+                      className="w-full px-6 py-4 flex items-center justify-between hover:bg-[#2d2e30] transition-colors text-left"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[14px] text-[#e3e3e3] font-medium truncate">{o.product_name}</p>
+                        <p className="text-[12px] text-[#6e6e73] mt-1">
+                          订单号: {o.order_no} | {new Date(o.created_at).toLocaleDateString("zh-CN")}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3 ml-4">
+                        <span className="text-[#7CFF00] font-semibold">¥{o.total_amount}</span>
+                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium ${status.bg} ${status.color}`}>
+                          <Icon className="w-3 h-3" />
+                          {status.text}
+                        </span>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
 
           {order && !needPassword && (
             <div className="bg-[#1e1f20] rounded-xl border border-[#3c3c3f] overflow-hidden selectable">
