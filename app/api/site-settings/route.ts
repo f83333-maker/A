@@ -1,6 +1,10 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 
+// 禁用缓存，确保每次都获取最新设置
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+
 export async function GET() {
   const supabase = await createClient()
   
@@ -22,5 +26,12 @@ export async function GET() {
     }
   })
 
-  return NextResponse.json(settings)
+  // 添加禁止缓存的响应头
+  return NextResponse.json(settings, {
+    headers: {
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+      "Pragma": "no-cache",
+      "Expires": "0"
+    }
+  })
 }

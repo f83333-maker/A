@@ -19,9 +19,9 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const bannerRef = useRef<HTMLElement>(null)
 
-  // 只从后台设置获取主副标题
+  // 只从后台设置获取主副标题，禁用缓存确保获取最新数据
   useEffect(() => {
-    fetch("/api/site-settings")
+    fetch("/api/site-settings", { cache: "no-store" })
       .then(res => res.json())
       .then(data => {
         if (data.search_placeholder) setSearchPlaceholder(data.search_placeholder)
