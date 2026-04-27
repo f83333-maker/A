@@ -3,22 +3,24 @@
 import { createEpayOrder } from "@/lib/epay"
 import { createClient } from "@/lib/supabase/server"
 import { encryptData } from "@/lib/encryption"
+import { headers } from "next/headers"
 
-// 生产域名 - 直接硬编码确保回调地址正确
-const PRODUCTION_URL = "https://pcccc.cc"
-
+// 获取当前请求的域名（兼容 www 和不带 www）
 async function getBaseUrl(): Promise<string> {
-  // 生产环境直接返回硬编码域名
-  if (process.env.NODE_ENV === "production") {
-    return PRODUCTION_URL
+  if (process.env.NODE_ENV !== "production") {
+    return process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
   }
-  
-  // 开发环境使用环境变量或本地地址
-  if (process.env.NEXT_PUBLIC_BASE_URL) {
-    return process.env.NEXT_PUBLIC_BASE_URL
+
+  try {
+    const headersList = await headers()
+    const host = headersList.get("host") || headersList.get("x-forwarded-host") || "pcccc.cc"
+    const proto = headersList.get("x-forwarded-proto") || "https"
+    // 只允许本站域名，防止注入
+    const cleanHost = host.replace(/[^a-zA-Z0-9.\-:]/g, "")
+    return `${proto}://${cleanHost}`
+  } catch {
+    return "https://pcccc.cc"
   }
-  
-  return "http://localhost:3000"
 }
 
 export async function createEpayCheckout(options: {

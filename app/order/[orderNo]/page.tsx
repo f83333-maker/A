@@ -123,8 +123,15 @@ function OrderContent() {
         <div className="max-w-2xl mx-auto text-center py-20">
           <XCircle className="w-16 h-16 mx-auto text-[#ee675c] mb-4" />
           <h1 className="text-xl font-semibold text-[#e3e3e3] mb-2">订单不存在</h1>
-          <p className="text-[#9aa0a6] mb-6">请检查订单号是否正确</p>
-          <Link href="/" className="text-[#7CFF00] hover:underline">返回首页</Link>
+          <p className="text-[#9aa0a6] mb-6">请检查订单号是否正确，或尝试通过联系方式查询</p>
+          <div className="flex items-center justify-center gap-4">
+            <Link href="/order-query" className="px-5 py-2.5 bg-[#7CFF00]/10 hover:bg-[#7CFF00]/20 text-[#7CFF00] rounded-lg font-medium transition-colors">
+              订单查询
+            </Link>
+            <Link href="/" className="px-5 py-2.5 bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#e3e3e3] rounded-lg font-medium transition-colors">
+              返回首页
+            </Link>
+          </div>
         </div>
       </div>
     )

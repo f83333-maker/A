@@ -2,8 +2,15 @@ import { verifyEpaySign } from "@/lib/epay"
 import { createClient } from "@/lib/supabase/server"
 import { NextRequest, NextResponse } from "next/server"
 
-// 生产域名
-const PRODUCTION_URL = "https://www.pcccc.cc"
+// 从请求头获取当前访问域名，兼容 www 和不带 www
+function getSiteUrl(request: NextRequest): string {
+  const host = request.headers.get("host") || request.headers.get("x-forwarded-host") || "pcccc.cc"
+  const proto = request.headers.get("x-forwarded-proto") || "https"
+  const cleanHost = host.replace(/[^a-zA-Z0-9.\-:]/g, "")
+  return process.env.NODE_ENV === "production"
+    ? `${proto}://${cleanHost}`
+    : "http://localhost:3000"
+}
 
 async function processPayment(data: Record<string, any>): Promise<boolean> {
   console.log("[v0] 易支付回调数据:", JSON.stringify(data))
@@ -35,15 +42,32 @@ async function processPayment(data: Record<string, any>): Promise<boolean> {
 
   const supabase = await createClient()
 
-  // 检查订单是否存在
-  const { data: order, error: queryError } = await supabase
-    .from("orders")
-    .select("*")
-    .eq("order_no", orderNo)
-    .single()
+  // 检查订单是否存在（增加重试机制，因为可能数据库写入有延迟）
+  let order = null
+  let retryCount = 0
+  const maxRetries = 3
+  
+  while (!order && retryCount < maxRetries) {
+    const { data, error: queryError } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("order_no", orderNo)
+      .single()
+    
+    if (!queryError && data) {
+      order = data
+      break
+    }
+    
+    retryCount++
+    if (retryCount < maxRetries) {
+      console.log(`[v0] 订单 ${orderNo} 未找到，等待重试 (${retryCount}/${maxRetries})`)
+      await new Promise(resolve => setTimeout(resolve, 1000)) // 等待1秒后重试
+    }
+  }
 
-  if (queryError || !order) {
-    console.error("[v0] 订单不存在:", orderNo)
+  if (!order) {
+    console.error("[v0] 订单不存在（重试后仍未找到）:", orderNo)
     return false
   }
 
@@ -165,28 +189,27 @@ export async function POST(request: NextRequest) {
 
 // GET 请求处理（同步跳转 return_url）
 export async function GET(request: NextRequest) {
+  const siteUrl = getSiteUrl(request)
   try {
     const { searchParams } = new URL(request.url)
     const data: Record<string, any> = {}
     searchParams.forEach((value, key) => {
       data[key] = value
     })
-    
-    console.log("[v0] GET 同步回调数据:", JSON.stringify(data))
-    
+
     // 同步回调也处理支付状态
     await processPayment(data)
-    
+
     // 获取订单号并跳转到订单详情页
     const orderNo = data.out_trade_no
     if (orderNo) {
-      return NextResponse.redirect(`${PRODUCTION_URL}/order/${orderNo}?trade_no=${data.trade_no || ""}`)
+      return NextResponse.redirect(`${siteUrl}/order/${orderNo}`)
     }
-    
+
     // 无订单号则跳转首页
-    return NextResponse.redirect(PRODUCTION_URL)
+    return NextResponse.redirect(siteUrl)
   } catch (error) {
     console.error("[v0] GET 易支付回调错误:", error)
-    return NextResponse.redirect(PRODUCTION_URL)
+    return NextResponse.redirect(siteUrl)
   }
 }

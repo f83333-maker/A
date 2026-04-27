@@ -222,10 +222,12 @@ export default function ProductsPage() {
       ])
       const productsData = await productsRes.json()
       const categoriesData = await categoriesRes.json()
-      setProducts(productsData)
-      setCategories(categoriesData)
+      setProducts(Array.isArray(productsData) ? productsData : [])
+      setCategories(Array.isArray(categoriesData) ? categoriesData : [])
     } catch (error) {
       console.error("Failed to fetch data:", error)
+      setProducts([])
+      setCategories([])
     } finally {
       setIsLoading(false)
     }
@@ -410,7 +412,8 @@ export default function ProductsPage() {
 
   const handleMoveUp = async (index: number) => {
     if (index === 0) return
-    const sortedProducts = [...products].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+    const sortedProducts = Array.isArray(products) ? [...products].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)) : []
+    if (sortedProducts.length === 0) return
     const current = sortedProducts[index]
     const prev = sortedProducts[index - 1]
     
@@ -434,8 +437,8 @@ export default function ProductsPage() {
   }
 
   const handleMoveDown = async (index: number) => {
-    const sortedProducts = [...products].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
-    if (index === sortedProducts.length - 1) return
+    const sortedProducts = Array.isArray(products) ? [...products].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)) : []
+    if (sortedProducts.length === 0 || index >= sortedProducts.length - 1) return
     const current = sortedProducts[index]
     const next = sortedProducts[index + 1]
     
@@ -460,14 +463,17 @@ export default function ProductsPage() {
 
   // 内联切换上下架状态（乐观更新）
   const handleToggleActive = (product: Product) => {
+    if (!Array.isArray(products)) return
     const newValue = !product.is_active
-    setProducts(prev => prev.map(p => p.id === product.id ? { ...p, is_active: newValue } : p))
+    setProducts(prev => Array.isArray(prev) ? prev.map(p => p.id === product.id ? { ...p, is_active: newValue } : p) : [])
     fetch(`/api/admin/products/${product.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ is_active: newValue }),
     }).catch(() => {
-      setProducts(prev => prev.map(p => p.id === product.id ? { ...p, is_active: !newValue } : p))
+      if (Array.isArray(products)) {
+        setProducts(prev => Array.isArray(prev) ? prev.map(p => p.id === product.id ? { ...p, is_active: !newValue } : p) : [])
+      }
     })
   }
 
@@ -529,7 +535,8 @@ export default function ProductsPage() {
   }
 
   // 过滤后的产品列表
-  const filteredProducts = [...products]
+  const productList = Array.isArray(products) ? products : []
+  const filteredProducts = [...productList]
     .filter(p => {
       if (statusTab === "active") return p.is_active
       if (statusTab === "inactive") return !p.is_active
@@ -677,12 +684,12 @@ export default function ProductsPage() {
                     className="w-3.5 h-3.5 rounded accent-[#7CFF00] cursor-pointer"
                   />
                 </th>
-                <th className="px-3 py-2 text-left text-[13px] font-semibold text-[#9aa0a6]">商品信息</th>
-                <th className="px-3 py-2 text-left text-[13px] font-semibold text-[#9aa0a6] w-28">操作</th>
-                <th className="px-2 py-2 text-left text-[13px] font-semibold text-[#9aa0a6] w-16">售价</th>
-                <th className="px-2 py-2 text-left text-[13px] font-semibold text-[#9aa0a6] w-24">状态</th>
-                <th className="px-2 py-2 text-left text-[13px] font-semibold text-[#9aa0a6] w-12">销量</th>
-                <th className="px-2 py-2 text-left text-[13px] font-semibold text-[#9aa0a6] w-20">库存</th>
+                <th className="px-3 py-3 text-left text-[13px] font-semibold text-[#9aa0a6]">商品信息</th>
+                <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] w-12">操作</th>
+                <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] w-24">售价</th>
+                <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] w-36">状态</th>
+                <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] w-16">销量</th>
+                <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] w-36">库存</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#3c3c3f]/50">
@@ -693,32 +700,32 @@ export default function ProductsPage() {
               ) : filteredProducts.map((product, index) => (
                 <tr key={product.id} className={`hover:bg-[#2d2e30]/30 transition-colors h-10 ${selectedIds.includes(product.id) ? "bg-[#7CFF00]/5" : ""}`}>
                   {/* 复选框 */}
-                  <td className="pl-3 pr-1 py-1.5">
+                  <td className="pl-3 pr-1 py-2">
                     <input
                       type="checkbox"
                       checked={selectedIds.includes(product.id)}
                       onChange={() => toggleSelect(product.id)}
-                      className="w-3.5 h-3.5 rounded accent-[#7CFF00] cursor-pointer"
+                      className="w-4 h-4 rounded accent-[#7CFF00] cursor-pointer"
                     />
                   </td>
                   {/* 商品信息 */}
-                  <td className="px-3 py-1.5">
+                  <td className="px-3 py-2">
                     <div className="flex items-center gap-2">
                       {/* 排序按钮 */}
                       <div className="flex gap-0.5 shrink-0">
                         <button
                           onClick={() => handleMoveUp(index)}
                           disabled={index === 0}
-                          className="p-0.5 text-[#5f6368] hover:text-[#7CFF00] rounded disabled:opacity-20 transition-all"
+                          className="p-1 text-[#5f6368] hover:text-[#7CFF00] rounded disabled:opacity-20 transition-all"
                         >
-                          <ArrowUp className="w-2.5 h-2.5" />
+                          <ArrowUp className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => handleMoveDown(index)}
                           disabled={index === filteredProducts.length - 1}
-                          className="p-0.5 text-[#5f6368] hover:text-[#7CFF00] rounded disabled:opacity-20 transition-all"
+                          className="p-1 text-[#5f6368] hover:text-[#7CFF00] rounded disabled:opacity-20 transition-all"
                         >
-                          <ArrowDown className="w-2.5 h-2.5" />
+                          <ArrowDown className="w-3.5 h-3.5" />
                         </button>
                       </div>
                       {/* 国旗图标 */}
@@ -726,79 +733,72 @@ export default function ProductsPage() {
                         <img 
                           src={product.icon_url} 
                           alt="" 
-                          className="w-5 h-3.5 object-cover rounded-sm shrink-0"
+                          className="w-6 h-4 object-cover rounded-sm shrink-0"
                         />
                       )}
                       {/* 产品名称 */}
-                      <span className="text-[13px] font-medium text-[#e3e3e3] truncate max-w-[280px]" title={product.name}>
+                      <span className="text-[14px] font-medium text-[#e3e3e3] truncate max-w-[280px]" title={product.name}>
                         {product.name}
                       </span>
                       {/* 标签 */}
                       {product.tag_label && (
-                        <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-[#FF3B3B]/20 text-[#FF3B3B] shrink-0">
+                        <span className="px-1.5 py-0.5 text-[10px] font-bold rounded bg-[#FF3B3B]/20 text-[#FF3B3B] shrink-0">
                           {product.tag_label}
                         </span>
                       )}
-
                     </div>
                   </td>
                   {/* 操作 */}
-                  <td className="px-3 py-1.5 whitespace-nowrap">
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        onClick={() => openModal(product)}
-                        className="text-[12px] text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
-                      >
-                        编辑
-                      </button>
-                      <button
-                        onClick={() => handleDuplicate(product)}
-                        className="text-[12px] text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
-                      >
-                        复制
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product.id)}
-                        className="text-[12px] text-[#9aa0a6] hover:text-[#ee675c] transition-colors"
-                      >
-                        删除
-                      </button>
-                    </div>
+                  <td className="px-4 py-2 whitespace-nowrap">
+                    <button
+                      onClick={() => openModal(product)}
+                      className="p-1 text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
+                      title="编辑"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
                   </td>
                   {/* 售价 */}
-                  <td className="px-2 py-1.5">
-                    <span className="text-[13px] font-semibold text-[#e3e3e3]">{product.price}</span>
+                  <td className="px-4 py-2">
+                    <span className="text-[14px] font-semibold text-[#e3e3e3]">{product.price}</span>
                   </td>
                   {/* 状态 */}
-                  <td className="px-2 py-1.5">
-                    <div className="flex items-center gap-1">
-                      <span className={`inline-flex items-center gap-1 text-[12px] font-medium ${product.is_active ? "text-[#81c995]" : "text-[#6e6e73]"}`}>
-                        <span className={`w-1 h-1 rounded-full ${product.is_active ? "bg-[#81c995]" : "bg-[#6e6e73]"}`} />
+                  <td className="px-4 py-2 whitespace-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <span className={`inline-flex items-center gap-1.5 text-[13px] font-medium ${product.is_active ? "text-[#81c995]" : "text-[#6e6e73]"}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${product.is_active ? "bg-[#81c995]" : "bg-[#6e6e73]"}`} />
                         {product.is_active ? "销售中" : "已下架"}
                       </span>
                       <button
                         onClick={() => handleToggleActive(product)}
-                        className="px-1 py-0.5 text-[10px] font-medium bg-[#3c3c3f]/60 text-[#9aa0a6] hover:text-[#7CFF00] rounded transition-colors"
+                        className="px-2 py-0.5 text-[12px] font-medium bg-[#3c3c3f]/60 text-[#9aa0a6] hover:text-[#7CFF00] rounded-md transition-colors"
                       >
                         {product.is_active ? "下架" : "上架"}
                       </button>
                     </div>
                   </td>
                   {/* 销量 */}
-                  <td className="px-2 py-1.5">
-                    <span className="text-[13px] text-[#9aa0a6]">{product.sales || 0}</span>
+                  <td className="px-4 py-2">
+                    <span className="text-[14px] text-[#9aa0a6]">{product.sales || 0}</span>
                   </td>
                   {/* 库存 */}
-                  <td className="px-2 py-1.5">
-                    <div className="flex items-center gap-1">
-                      <span className={`text-[12px] font-semibold px-1 rounded ${product.stock > 0 ? "bg-[#81c995]/10 text-[#81c995]" : "bg-[#ee675c]/10 text-[#ee675c]"}`}>
+                  <td className="px-4 py-2 whitespace-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <span className={`text-[13px] font-semibold px-2 py-0.5 rounded-md ${product.stock > 0 ? "bg-[#81c995]/10 text-[#81c995]" : "bg-[#ee675c]/10 text-[#ee675c]"}`}>
                         {product.stock}
                       </span>
                       <button
                         onClick={() => openInventoryModal(product)}
-                        className="px-1 py-0.5 text-[10px] font-medium text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
+                        className="px-2 py-0.5 text-[12px] font-medium bg-[#3c3c3f]/60 text-[#9aa0a6] hover:text-[#7CFF00] rounded-md transition-colors"
                       >
                         库存
+                      </button>
+                      <button
+                        onClick={() => handleDelete(product.id)}
+                        className="p-1 text-[#9aa0a6] hover:text-[#ee675c] transition-colors"
+                        title="删除"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </td>
@@ -1108,7 +1108,7 @@ export default function ProductsPage() {
                   {/* 产品标签 */}
                   <div>
                     <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
-                      产品标签 <span className="text-[#6e6e73] font-normal">（右上角）</span>
+                      产品标签 <span className="text-[#6e6e73] font-normal">（右���角）</span>
                     </label>
                     <div className="flex items-center gap-2">
                       <input

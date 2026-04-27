@@ -882,11 +882,16 @@ export default function SettingsPage() {
           {/* 回调地址提示 */}
           <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] p-5">
             <h3 className="text-[14px] font-medium text-[#e3e3e3] mb-3">支付回调地址</h3>
-            <div className="bg-[#2d2e30] rounded-xl p-4">
-              <p className="text-[12px] text-[#6e6e73] mb-2">请在各支付平台后台设置以下异步通知地址：</p>
-              <code className="text-[13px] text-[#7CFF00] break-all">
-                https://pcccc.cc/api/webhooks/epay
-              </code>
+            <div className="bg-[#2d2e30] rounded-xl p-4 space-y-3">
+              <p className="text-[12px] text-[#6e6e73]">请在各支付平台后台设置以下异步通知地址（两个地址均可，系统会自动适配）：</p>
+              <div>
+                <p className="text-[11px] text-[#6e6e73] mb-1">不带 www：</p>
+                <code className="text-[13px] text-[#7CFF00] break-all">https://pcccc.cc/api/webhooks/epay</code>
+              </div>
+              <div>
+                <p className="text-[11px] text-[#6e6e73] mb-1">带 www：</p>
+                <code className="text-[13px] text-[#7CFF00] break-all">https://www.pcccc.cc/api/webhooks/epay</code>
+              </div>
             </div>
           </div>
         </div>
