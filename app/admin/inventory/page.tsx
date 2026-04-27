@@ -72,6 +72,7 @@ export default function InventoryPage() {
     try {
       const res = await fetch("/api/admin/categories")
       const data = await res.json()
+
       if (Array.isArray(data)) {
         setCategories(data)
       } else if (data.categories) {
@@ -290,7 +291,7 @@ export default function InventoryPage() {
               onChange={(e) => setFilterCategory(e.target.value)}
               className="w-full h-9 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[13px] focus:outline-none focus:border-[#7CFF00]/50 appearance-none cursor-pointer"
             >
-              <option value="all">全部分类</option>
+              <option value="all">全部分类 ({categories.length})</option>
               {categories.map(cat => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
