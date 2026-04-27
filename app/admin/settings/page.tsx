@@ -96,26 +96,29 @@ export default function SettingsPage() {
       const data = result.data
       if (data) {
         data.forEach((item: { key: string; value: string }) => {
+          // 兼容：有些值是裸字符串，有些是 JSON 字符串
+          let value: unknown = item.value
           try {
-            const value = JSON.parse(item.value)
-            if (item.key === "banner_title") setBannerTitle(value || "")
-            else if (item.key === "banner_subtitle") setBannerSubtitle(value || "")
-            else if (item.key === "nav_links") setNavLinks(value || [])
-            else if (item.key === "search_placeholder") setSearchPlaceholder(value || "")
-            else if (item.key === "hot_search_tags") setHotSearchTags(value || [])
-            else if (item.key === "footer_links") setFooterLinks(value || [])
-            else if (item.key === "delivery_text") setDeliveryText(value || "自动发货")
-            else if (item.key === "site_name") setSiteName(value || "")
-            else if (item.key === "site_description") setSiteDescription(value || "")
-            else if (item.key === "contact_email") setContactEmail(value || "")
-            else if (item.key === "contact_telegram") setContactTelegram(value || "")
-            else if (item.key === "contact_qq") setContactQQ(value || "")
-            else if (item.key === "epay_api_url") setEpayApiUrl(value || "")
-            else if (item.key === "epay_pid") setEpayPid(value || "")
-            else if (item.key === "epay_key") setEpayKey(value || "")
-          } catch (e) {
-            console.error("解析设置失败:", item.key, e)
+            value = JSON.parse(item.value)
+          } catch {
+            // 解析失败则直接使用原始字符串
+            value = item.value
           }
+          if (item.key === "banner_title") setBannerTitle((value as string) || "")
+          else if (item.key === "banner_subtitle") setBannerSubtitle((value as string) || "")
+          else if (item.key === "nav_links") setNavLinks(Array.isArray(value) ? value : [])
+          else if (item.key === "search_placeholder") setSearchPlaceholder((value as string) || "")
+          else if (item.key === "hot_search_tags") setHotSearchTags(Array.isArray(value) ? value : [])
+          else if (item.key === "footer_links") setFooterLinks(Array.isArray(value) ? value : [])
+          else if (item.key === "delivery_text") setDeliveryText((value as string) || "自动发货")
+          else if (item.key === "site_name") setSiteName((value as string) || "")
+          else if (item.key === "site_description") setSiteDescription((value as string) || "")
+          else if (item.key === "contact_email") setContactEmail((value as string) || "")
+          else if (item.key === "contact_telegram") setContactTelegram((value as string) || "")
+          else if (item.key === "contact_qq") setContactQQ((value as string) || "")
+          else if (item.key === "epay_api_url") setEpayApiUrl((value as string) || "")
+          else if (item.key === "epay_pid") setEpayPid((value as string) || "")
+          else if (item.key === "epay_key") setEpayKey((value as string) || "")
         })
       }
     } catch (error) {
@@ -723,14 +726,7 @@ export default function SettingsPage() {
               <Plus className="w-4 h-4" />
               添加支付配置
             </button>
-            <button
-              onClick={syncEpayConfig}
-              disabled={syncingEpay}
-              className="px-4 py-2 bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#e3e3e3] font-semibold rounded-lg text-[13px] flex items-center gap-2 disabled:opacity-50"
-            >
-              {syncingEpay ? <Loader2 className="w-4 h-4 animate-spin" /> : <CreditCard className="w-4 h-4" />}
-              同步现有配置
-            </button>
+
           </div>
 
           {/* 支付配置仪表盘 */}
