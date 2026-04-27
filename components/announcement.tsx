@@ -55,30 +55,30 @@ export function Announcement() {
 
   if (isLoading) {
     return (
-      <section className="py-16 md:py-20 bg-background">
+      <section className="py-16 md:py-20 bg-[#000000]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 flex items-center justify-center min-h-[200px]">
-          <Loader2 className="w-6 h-6 animate-spin text-primary" />
+          <Loader2 className="w-6 h-6 animate-spin text-[#7CFF00]" />
         </div>
       </section>
     )
   }
 
   return (
-    <section className="py-16 md:py-20 bg-background">
+    <section className="py-16 md:py-20 bg-[#000000]">
       <div className="max-w-7xl mx-auto px-3 sm:px-6">
           {/* 标题 */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Bell className="w-5 h-5 text-primary" />
+              <div className="w-10 h-10 rounded-xl bg-[#7CFF00]/10 flex items-center justify-center">
+                <Bell className="w-5 h-5 text-[#7CFF00]" />
               </div>
-              <h2 className="text-[18px] font-semibold text-foreground">
+              <h2 className="text-[18px] font-semibold text-[#e3e3e3]">
                 平台公告
               </h2>
             </div>
             <Link 
               href="/announcements" 
-              className="text-[14px] text-primary hover:opacity-80 transition-colors flex items-center gap-1"
+              className="text-[14px] text-[#7CFF00] hover:text-[#9FFF40] transition-colors flex items-center gap-1"
             >
               全部
               <ChevronRight className="w-4 h-4" />
@@ -86,12 +86,12 @@ export function Announcement() {
           </div>
 
           {/* 公告列表 */}
-          <div className="rounded-xl border border-border overflow-hidden">
+          <div className="rounded-xl border border-[#222222] overflow-hidden">
           {announcements.map((item, index) => (
             <Link
               key={item.id}
               href={`/announcement/${item.id}`}
-              className="group flex items-center justify-between px-5 py-4 hover:bg-muted transition-colors border-b border-border last:border-b-0 animate-fade-in"
+              className="group flex items-center justify-between px-5 py-4 hover:bg-[#111111] transition-colors border-b border-[#222222] last:border-b-0 animate-fade-in"
               style={{ 
                 animationDelay: `${index * 40}ms`,
                 animationFillMode: "backwards"
@@ -100,24 +100,24 @@ export function Announcement() {
               <div className="flex items-center gap-3 flex-1 min-w-0">
                 {/* 新标签 */}
                 {item.is_new && (
-                  <span className="flex-shrink-0 px-2 py-0.5 text-[10px] font-semibold text-destructive bg-destructive/10 rounded uppercase">
+                  <span className="flex-shrink-0 px-2 py-0.5 text-[10px] font-semibold text-[#ee675c] bg-[#ee675c]/10 rounded uppercase">
                     New
                   </span>
                 )}
                 
                 {/* 标题 */}
-                <span className="text-[14px] text-foreground group-hover:text-primary truncate transition-colors font-medium">
+                <span className="text-[14px] text-[#e3e3e3] group-hover:text-white truncate transition-colors font-medium">
                   {item.title}
                 </span>
               </div>
               
               {/* 日期和箭头 */}
               <div className="flex items-center gap-4 flex-shrink-0 ml-4">
-                <span className="hidden sm:flex items-center gap-1.5 text-[12px] text-muted-foreground font-medium">
+                <span className="hidden sm:flex items-center gap-1.5 text-[12px] text-[#6e6e73] font-medium">
                   <Clock className="w-3.5 h-3.5" />
                   {formatDate(item.created_at)}
                 </span>
-                <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+                <ChevronRight className="w-4 h-4 text-[#6e6e73] group-hover:text-[#7CFF00] group-hover:translate-x-0.5 transition-all" />
               </div>
             </Link>
           ))}
