@@ -120,6 +120,7 @@ export default function ProductsPage() {
     try {
       const res = await fetch("/api/admin/templates")
       const data = await res.json()
+      console.log("[v0] Loaded templates from API:", data)
       if (Array.isArray(data)) {
         setTemplates(data)
       }
