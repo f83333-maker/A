@@ -57,6 +57,10 @@ export default function InventoryPage() {
   const [newContent, setNewContent] = useState("")
   const [adding, setAdding] = useState(false)
 
+  // 库存多选
+  const [selectedInventoryIds, setSelectedInventoryIds] = useState<Set<string>>(new Set())
+  const [batchDeleting, setBatchDeleting] = useState(false)
+
   // 获取产品列表
   const fetchProducts = async () => {
     try {
@@ -168,6 +172,45 @@ export default function InventoryPage() {
       }
     } catch (error) {
       alert("删除失败")
+    }
+  }
+
+  // 切换单条库存选中
+  const toggleInventorySelect = (id: string) => {
+    setSelectedInventoryIds(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
+
+  // 全选/取消全选当前筛选的库存
+  const toggleSelectAll = (items: InventoryItem[]) => {
+    if (items.every(item => selectedInventoryIds.has(item.id))) {
+      setSelectedInventoryIds(new Set())
+    } else {
+      setSelectedInventoryIds(new Set(items.map(item => item.id)))
+    }
+  }
+
+  // 批量删除选中的库存
+  const handleBatchDelete = async () => {
+    if (selectedInventoryIds.size === 0 || !selectedProduct) return
+    if (!confirm(`确定要删除选中的 ${selectedInventoryIds.size} 条库存吗？`)) return
+    setBatchDeleting(true)
+    try {
+      await Promise.all(
+        Array.from(selectedInventoryIds).map(id =>
+          fetch(`/api/admin/inventory?id=${id}&productId=${selectedProduct.id}`, { method: "DELETE" })
+        )
+      )
+      setSelectedInventoryIds(new Set())
+      await fetchInventory(selectedProduct.id)
+      await fetchProducts()
+    } catch (error) {
+      alert("批量删除失败")
+    } finally {
+      setBatchDeleting(false)
     }
   }
 
@@ -577,6 +620,35 @@ export default function InventoryPage() {
                     {item.label} ({item.count})
                   </button>
                 ))}
+                <div className="ml-auto flex items-center gap-2">
+                  {selectedInventoryIds.size > 0 && (
+                    <button
+                      onClick={handleBatchDelete}
+                      disabled={batchDeleting}
+                      className="h-7 flex items-center gap-1 px-2.5 bg-[#ee675c]/15 hover:bg-[#ee675c]/25 text-[#ee675c] rounded-lg text-[11px] font-medium transition-colors disabled:opacity-50"
+                    >
+                      {batchDeleting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                      删除 {selectedInventoryIds.size} 条
+                    </button>
+                  )}
+                  <button
+                    onClick={() => toggleSelectAll(filteredInventory)}
+                    className="h-7 flex items-center gap-1.5 px-2.5 bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#9aa0a6] hover:text-[#e3e3e3] rounded-lg text-[11px] font-medium transition-colors"
+                  >
+                    <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center transition-colors ${
+                      filteredInventory.length > 0 && filteredInventory.every(i => selectedInventoryIds.has(i.id))
+                        ? "bg-[#7CFF00] border-[#7CFF00]"
+                        : "border-[#6e6e73]"
+                    }`}>
+                      {filteredInventory.length > 0 && filteredInventory.every(i => selectedInventoryIds.has(i.id)) && (
+                        <svg className="w-2.5 h-2.5 text-[#131314]" fill="none" viewBox="0 0 10 10">
+                          <path d="M2 5l2.5 2.5L8 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </div>
+                    {filteredInventory.length > 0 && filteredInventory.every(i => selectedInventoryIds.has(i.id)) ? "取消全选" : "全选"}
+                  </button>
+                </div>
               </div>
 
               {/* 库存项目列表 */}
@@ -593,6 +665,20 @@ export default function InventoryPage() {
                   <div className="divide-y divide-[#3c3c3f]/30">
                     {filteredInventory.map(item => (
                       <div key={item.id} className="flex items-center gap-3 px-6 py-2 hover:bg-[#1e1f20]/50 group transition-colors">
+                        <button
+                          onClick={() => toggleInventorySelect(item.id)}
+                          className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${
+                            selectedInventoryIds.has(item.id)
+                              ? "bg-[#7CFF00] border-[#7CFF00]"
+                              : "border-[#4a4a4d] hover:border-[#7CFF00]/60"
+                          }`}
+                        >
+                          {selectedInventoryIds.has(item.id) && (
+                            <svg className="w-2.5 h-2.5 text-[#131314]" fill="none" viewBox="0 0 10 10">
+                              <path d="M2 5l2.5 2.5L8 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          )}
+                        </button>
                         <div className="flex-1 min-w-0 flex items-center gap-2">
                           <p className="text-[12px] font-mono text-[#e3e3e3] truncate">{item.content}</p>
                           <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-[#FF3B3B]/20 text-[#FF3B3B] shrink-0 whitespace-nowrap">
