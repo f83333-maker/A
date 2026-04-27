@@ -123,22 +123,25 @@ export default function InventoryPage() {
     }
   }
 
-  // 删除库存
-  const handleDelete = async (id: string) => {
-    if (!confirm("确定要删除这条库存吗？") || !selectedProduct) return
+  // 同步库存：根据inventory表重新计算所有产品的库存
+  const handleSyncInventory = async () => {
+    if (!confirm("确定要同步所有产品的库存吗？这会根据库存记录重新计算每个产品的库存数量。")) return
+    setProductsLoading(true)
     try {
-      const res = await fetch(`/api/admin/inventory?id=${id}&productId=${selectedProduct.id}`, {
-        method: "DELETE"
+      const res = await fetch("/api/admin/inventory/sync", {
+        method: "POST"
       })
       const data = await res.json()
       if (data.success) {
-        fetchInventory(selectedProduct.id)
+        alert(`已同步 ${data.syncedCount} 个产品的库存`)
         fetchProducts()
       } else {
-        alert(data.error || "删除失败")
+        alert(data.error || "同步失败")
       }
     } catch (error) {
-      alert("删除失败")
+      alert("同步失败")
+    } finally {
+      setProductsLoading(false)
     }
   }
 
@@ -171,6 +174,14 @@ export default function InventoryPage() {
             <h1 className="text-[20px] font-bold text-[#e3e3e3]">库存管理</h1>
             <p className="text-[13px] text-[#6e6e73] mt-0.5">管理所有产品的库存数据</p>
           </div>
+          <button
+            onClick={handleSyncInventory}
+            disabled={productsLoading}
+            className="h-10 px-4 bg-[#7CFF00] hover:bg-[#9FFF40] disabled:opacity-50 text-[#131314] font-semibold rounded-lg text-[13px] transition-colors flex items-center gap-2"
+          >
+            {productsLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Database className="w-4 h-4" />}
+            同步库存
+          </button>
         </div>
 
         <div className="grid grid-cols-4 gap-4">
