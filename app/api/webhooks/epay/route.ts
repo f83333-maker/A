@@ -2,8 +2,15 @@ import { verifyEpaySign } from "@/lib/epay"
 import { createClient } from "@/lib/supabase/server"
 import { NextRequest, NextResponse } from "next/server"
 
-// 生产域名（不带www，与订单创建保持一致）
-const PRODUCTION_URL = "https://pcccc.cc"
+// 从请求头获取当前访问域名，兼容 www 和不带 www
+function getSiteUrl(request: NextRequest): string {
+  const host = request.headers.get("host") || request.headers.get("x-forwarded-host") || "pcccc.cc"
+  const proto = request.headers.get("x-forwarded-proto") || "https"
+  const cleanHost = host.replace(/[^a-zA-Z0-9.\-:]/g, "")
+  return process.env.NODE_ENV === "production"
+    ? `${proto}://${cleanHost}`
+    : "http://localhost:3000"
+}
 
 async function processPayment(data: Record<string, any>): Promise<boolean> {
   console.log("[v0] 易支付回调数据:", JSON.stringify(data))
@@ -182,28 +189,27 @@ export async function POST(request: NextRequest) {
 
 // GET 请求处理（同步跳转 return_url）
 export async function GET(request: NextRequest) {
+  const siteUrl = getSiteUrl(request)
   try {
     const { searchParams } = new URL(request.url)
     const data: Record<string, any> = {}
     searchParams.forEach((value, key) => {
       data[key] = value
     })
-    
-    console.log("[v0] GET 同步回调数据:", JSON.stringify(data))
-    
+
     // 同步回调也处理支付状态
     await processPayment(data)
-    
+
     // 获取订单号并跳转到订单详情页
     const orderNo = data.out_trade_no
     if (orderNo) {
-      return NextResponse.redirect(`${PRODUCTION_URL}/order/${orderNo}?trade_no=${data.trade_no || ""}`)
+      return NextResponse.redirect(`${siteUrl}/order/${orderNo}`)
     }
-    
+
     // 无订单号则跳转首页
-    return NextResponse.redirect(PRODUCTION_URL)
+    return NextResponse.redirect(siteUrl)
   } catch (error) {
     console.error("[v0] GET 易支付回调错误:", error)
-    return NextResponse.redirect(PRODUCTION_URL)
+    return NextResponse.redirect(siteUrl)
   }
 }
