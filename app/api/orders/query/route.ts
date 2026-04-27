@@ -16,15 +16,15 @@ export async function GET(request: NextRequest) {
     
     let query = supabase
       .from("orders")
-      .select("id, order_no, product_name, quantity, unit_price, total_amount, status, created_at, contact_info, query_password")
+      .select("id, order_no, product_name, quantity, unit_price, total_amount, status, created_at, buyer_email, buyer_name, query_password")
       .order("created_at", { ascending: false })
 
     // 优先使用订单号精确查询
     if (orderNo && orderNo.trim()) {
       query = query.eq("order_no", orderNo.trim())
     } else if (contact && contact.trim()) {
-      // 使用联系方式模糊匹配（邮箱、手机、QQ等）
-      query = query.ilike("contact_info", `%${contact.trim()}%`)
+      // 使用联系方式模糊匹配（邮箱或姓名）
+      query = query.or(`buyer_email.ilike.%${contact.trim()}%,buyer_name.ilike.%${contact.trim()}%`)
     }
 
     const { data: orders, error } = await query
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     const safeOrders = orders.map(order => ({
       ...order,
       query_password: order.query_password ? "***" : null,
-      contact_info: order.contact_info ? maskContact(order.contact_info) : null,
+      buyer_email: order.buyer_email ? maskContact(order.buyer_email) : null,
     }))
 
     // 如果是订单号查询，返回单个订单；如果是联系方式查询，返回订单列表
