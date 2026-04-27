@@ -1253,7 +1253,11 @@ export default function ProductsPage() {
               {/* 统计数据 - 嵌入头部 */}
               <div className="flex items-center gap-6 mt-4 pl-10">
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] text-[#6e6e73] uppercase tracking-wide">总计</span>
+                  <span className="text-[11px] text-[#6e6e73] uppercase tracking-wide">当前库存</span>
+                  <span className="text-[18px] font-bold text-[#e3e3e3]">{inventoryProduct?.stock || 0}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] text-[#6e6e73] uppercase tracking-wide">记录总计</span>
                   <span className="text-[18px] font-bold text-[#e3e3e3]">{inventoryStats.total}</span>
                 </div>
                 <div className="w-px h-5 bg-[#3c3c3f]" />
@@ -1266,6 +1270,28 @@ export default function ProductsPage() {
                   <span className="w-2 h-2 rounded-full bg-[#6e6e73]" />
                   <span className="text-[18px] font-bold text-[#6e6e73]">{inventoryStats.sold}</span>
                   <span className="text-[11px] text-[#6e6e73]">已售</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 库存统计概览 */}
+            <div className="px-6 py-3 border-b border-[#3c3c3f]/50 shrink-0 bg-[#0d0e0f]/50">
+              <div className="grid grid-cols-4 gap-4">
+                <div className="text-center">
+                  <span className="text-[11px] text-[#6e6e73] block mb-1">当前库存</span>
+                  <span className="text-[16px] font-bold text-[#e3e3e3]">{inventoryProduct?.stock || 0}</span>
+                </div>
+                <div className="text-center">
+                  <span className="text-[11px] text-[#6e6e73] block mb-1">可用库存</span>
+                  <span className="text-[16px] font-bold text-[#81c995]">{inventoryStats.available || 0}</span>
+                </div>
+                <div className="text-center">
+                  <span className="text-[11px] text-[#6e6e73] block mb-1">已售出</span>
+                  <span className="text-[16px] font-bold text-[#ee675c]">{inventoryStats.sold || 0}</span>
+                </div>
+                <div className="text-center">
+                  <span className="text-[11px] text-[#6e6e73] block mb-1">总记录</span>
+                  <span className="text-[16px] font-bold text-[#7CFF00]">{inventoryStats.total || 0}</span>
                 </div>
               </div>
             </div>
