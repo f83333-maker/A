@@ -529,7 +529,7 @@ export default function ProductsPage() {
   }
 
   // 过滤后的产品列表
-  const filteredProducts = [...products]
+  const filteredProducts = [...(products || [])]
     .filter(p => {
       if (statusTab === "active") return p.is_active
       if (statusTab === "inactive") return !p.is_active
@@ -1109,7 +1109,7 @@ export default function ProductsPage() {
                   {/* 产品标签 */}
                   <div>
                     <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
-                      产品标签 <span className="text-[#6e6e73] font-normal">（右上角）</span>
+                      产品标签 <span className="text-[#6e6e73] font-normal">（右���角）</span>
                     </label>
                     <div className="flex items-center gap-2">
                       <input
