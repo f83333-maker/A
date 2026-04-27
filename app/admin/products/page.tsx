@@ -698,7 +698,7 @@ export default function ProductsPage() {
                   <td colSpan={7} className="text-center py-8 text-[#6e6e73] text-[12px]">暂无产品</td>
                 </tr>
               ) : filteredProducts.map((product, index) => (
-                <tr key={product.id} className={`hover:bg-[#2d2e30]/30 transition-colors h-14 ${selectedIds.includes(product.id) ? "bg-[#7CFF00]/5" : ""}`}>
+                <tr key={product.id} className={`hover:bg-[#2d2e30]/30 transition-colors h-10 ${selectedIds.includes(product.id) ? "bg-[#7CFF00]/5" : ""}`}>
                   {/* 复选框 */}
                   <td className="pl-3 pr-1 py-2">
                     <input
