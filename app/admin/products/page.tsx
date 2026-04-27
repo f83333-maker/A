@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, Pencil, Trash2, Loader2, X, Package, ArrowUp, ArrowDown, Flag, Search, BookmarkPlus, BookOpen, ChevronDown, Clock, CheckCircle } from "lucide-react"
+import { Plus, Pencil, Trash2, Loader2, X, Package, ArrowUp, ArrowDown, Flag, Search, BookmarkPlus, BookOpen, ChevronDown, Clock, CheckCircle, Copy } from "lucide-react"
 import Link from "next/link"
 
 interface InventoryItem {
@@ -103,6 +103,9 @@ export default function ProductsPage() {
   
   // 筛选状态
   const [filterCategoryId, setFilterCategoryId] = useState<string>("")
+  const [statusTab, setStatusTab] = useState<"all" | "active" | "inactive">("all")
+  const [searchName, setSearchName] = useState("")
+  const [searchInput, setSearchInput] = useState("")
   
   // 国旗搜索状态
   const [flagSearchQuery, setFlagSearchQuery] = useState("")
@@ -372,6 +375,49 @@ export default function ProductsPage() {
     }
   }
 
+  // 内联切换上下架状态（乐观更新）
+  const handleToggleActive = (product: Product) => {
+    const newValue = !product.is_active
+    setProducts(prev => prev.map(p => p.id === product.id ? { ...p, is_active: newValue } : p))
+    fetch(`/api/admin/products/${product.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ is_active: newValue }),
+    }).catch(() => {
+      setProducts(prev => prev.map(p => p.id === product.id ? { ...p, is_active: !newValue } : p))
+    })
+  }
+
+  // 复制产品（预填表单打开弹窗）
+  const handleDuplicate = (product: Product) => {
+    setEditingProduct(null)
+    setFormData({
+      name: product.name + " - 副本",
+      description: product.description || "",
+      price: product.price,
+      cost_price: product.cost_price || 0,
+      stock: 0,
+      sales: 0,
+      tag_label: "",
+      is_active: false,
+      category_id: product.category_id || categories[0]?.id || "",
+      product_info: product.product_info || "",
+      usage_instructions: product.usage_instructions || "",
+      logo_data: product.logo_data || "",
+      logo_bg_color: product.logo_bg_color || "#2d2e30",
+      delivery_type: product.delivery_type || "自动发货",
+    })
+    setLogoPreview(product.logo_data || null)
+    setError("")
+    setFlagSearchQuery("")
+    setFlagResults([])
+    setShowTemplatePanel(false)
+    setShowSaveInput(false)
+    setSaveTemplateName("")
+    setTemplates(loadTemplates())
+    setIsModalOpen(true)
+  }
+
   // 搜索国旗图片
   const searchCountryFlag = async () => {
     if (!flagSearchQuery.trim()) return
@@ -399,44 +445,105 @@ export default function ProductsPage() {
     )
   }
 
+  // 过滤后的产品列表
+  const filteredProducts = [...products]
+    .filter(p => {
+      if (statusTab === "active") return p.is_active
+      if (statusTab === "inactive") return !p.is_active
+      return true
+    })
+    .filter(p => !filterCategoryId || p.category_id === filterCategoryId)
+    .filter(p => !searchName || p.name.toLowerCase().includes(searchName.toLowerCase()))
+    .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+
   return (
-    <div className="space-y-6">
-      {/* 页面标题 */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-[24px] font-semibold text-[#e3e3e3]">产品管理</h1>
-          <p className="text-[14px] text-[#9aa0a6] mt-1 font-medium">
-            管理所有产品，共 {products.length} 个产品
-          </p>
-        </div>
-        <button
-          onClick={() => openModal()}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-xl transition-all duration-200 text-[14px]"
-        >
-          <Plus className="w-4 h-4" />
-          添加产品
-        </button>
+    <div className="space-y-4">
+      {/* 标题 */}
+      <div>
+        <h1 className="text-[22px] font-semibold text-[#e3e3e3]">产品管理</h1>
+        <p className="text-[13px] text-[#9aa0a6] mt-0.5">共 {products.length} 个产品</p>
       </div>
 
-      {/* 分类筛选 */}
-      <div className="flex items-center gap-3">
-        <span className="text-[13px] text-[#9aa0a6] font-medium">筛选分类：</span>
-        <select
-          value={filterCategoryId}
-          onChange={(e) => setFilterCategoryId(e.target.value)}
-          className="h-9 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[13px] font-medium focus:outline-none focus:border-[#7CFF00] transition-colors"
-        >
-          <option value="">全部分类</option>
-          {categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>{cat.name}</option>
-          ))}
-        </select>
-        {filterCategoryId && (
+      {/* 状态 Tab */}
+      <div className="flex items-center gap-0 border-b border-[#3c3c3f]">
+        {[
+          { key: "all", label: "全部", count: products.length },
+          { key: "active", label: "售卖中", count: products.filter(p => p.is_active).length },
+          { key: "inactive", label: "已下架", count: products.filter(p => !p.is_active).length },
+        ].map(tab => (
           <button
-            onClick={() => setFilterCategoryId("")}
-            className="text-[12px] text-[#7CFF00] hover:text-[#9FFF40] font-medium"
+            key={tab.key}
+            onClick={() => setStatusTab(tab.key as typeof statusTab)}
+            className={`px-4 py-2.5 text-[14px] font-medium border-b-2 -mb-px transition-colors ${
+              statusTab === tab.key
+                ? "border-[#7CFF00] text-[#7CFF00]"
+                : "border-transparent text-[#9aa0a6] hover:text-[#e3e3e3]"
+            }`}
           >
-            清除筛选
+            {tab.label}
+            <span className={`ml-1.5 text-[11px] ${statusTab === tab.key ? "text-[#7CFF00]/70" : "text-[#6e6e73]"}`}>
+              {tab.count}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      {/* 筛选栏 */}
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-1.5">
+          <span className="text-[12px] text-[#9aa0a6] shrink-0">商品名称</span>
+          <input
+            type="text"
+            value={searchInput}
+            onChange={e => setSearchInput(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter") setSearchName(searchInput) }}
+            placeholder="请输入商品名称"
+            className="h-8 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[12px] focus:outline-none focus:border-[#7CFF00] transition-colors w-36"
+          />
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[12px] text-[#9aa0a6] shrink-0">商品分类</span>
+          <select
+            value={filterCategoryId}
+            onChange={e => setFilterCategoryId(e.target.value)}
+            className="h-8 px-2 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[12px] focus:outline-none focus:border-[#7CFF00] transition-colors"
+          >
+            <option value="">搜索商品分类</option>
+            {categories.map(cat => (
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            ))}
+          </select>
+        </div>
+        <button
+          onClick={() => setSearchName(searchInput)}
+          className="h-8 px-3 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[12px] transition-colors flex items-center gap-1.5"
+        >
+          <Search className="w-3.5 h-3.5" />
+          搜索
+        </button>
+        <button
+          onClick={() => openModal()}
+          className="h-8 px-3 bg-[#7CFF00] hover:bg-[#9FFF40] text-[#131314] font-semibold rounded-lg text-[12px] transition-colors flex items-center gap-1.5"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          商品发布
+        </button>
+        <button
+          onClick={() => {
+            // 打开库存管理：选取第一个产品，或让用户从列表里点
+            if (filteredProducts.length > 0) openInventoryModal(filteredProducts[0])
+          }}
+          className="h-8 px-3 bg-[#2d2e30] hover:bg-[#3c3c3f] border border-[#3c3c3f] text-[#e3e3e3] font-medium rounded-lg text-[12px] transition-colors flex items-center gap-1.5"
+        >
+          <Package className="w-3.5 h-3.5 text-[#81c995]" />
+          库存管理
+        </button>
+        {(searchName || filterCategoryId) && (
+          <button
+            onClick={() => { setSearchName(""); setSearchInput(""); setFilterCategoryId("") }}
+            className="h-8 px-2 text-[12px] text-[#6e6e73] hover:text-[#e3e3e3] transition-colors"
+          >
+            <X className="w-3.5 h-3.5" />
           </button>
         )}
       </div>
@@ -446,89 +553,115 @@ export default function ProductsPage() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-[#3c3c3f]">
-                <th className="px-2 py-2.5 text-left text-[12px] font-semibold text-[#9aa0a6]">排序</th>
-                <th className="px-3 py-2.5 text-left text-[12px] font-semibold text-[#9aa0a6]">产品名称</th>
-                <th className="px-3 py-2.5 text-left text-[12px] font-semibold text-[#9aa0a6] hidden md:table-cell">分类</th>
-                <th className="px-3 py-2.5 text-left text-[12px] font-semibold text-[#9aa0a6]">价格</th>
-                <th className="px-3 py-2.5 text-left text-[12px] font-semibold text-[#9aa0a6] hidden lg:table-cell">库存</th>
-                <th className="px-3 py-2.5 text-left text-[12px] font-semibold text-[#9aa0a6]">状态</th>
-                <th className="px-3 py-2.5 text-right text-[12px] font-semibold text-[#9aa0a6]">操作</th>
+              <tr className="border-b border-[#3c3c3f] bg-[#2d2e30]/40">
+                <th className="px-4 py-3 text-left text-[12px] font-semibold text-[#9aa0a6]">商品信息</th>
+                <th className="px-3 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] w-20">售价(元)</th>
+                <th className="px-3 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] w-28">状态</th>
+                <th className="px-3 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] w-16">销量</th>
+                <th className="px-3 py-3 text-left text-[12px] font-semibold text-[#9aa0a6] w-24">库存</th>
+                <th className="px-4 py-3 text-right text-[12px] font-semibold text-[#9aa0a6] w-28">操作</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#3c3c3f]">
-              {[...products]
-                .filter(p => !filterCategoryId || p.category_id === filterCategoryId)
-                .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
-                .map((product, index) => (
+              {filteredProducts.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-12 text-[#6e6e73] text-[13px]">暂无产品</td>
+                </tr>
+              ) : filteredProducts.map((product, index) => (
                 <tr key={product.id} className="hover:bg-[#2d2e30]/50 transition-colors">
-                  <td className="px-2 py-2">
-                    <div className="flex flex-col gap-0.5">
+                  {/* 商品信息 */}
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      {/* 排序 */}
+                      <div className="flex flex-col gap-0.5 shrink-0">
+                        <button
+                          onClick={() => handleMoveUp(index)}
+                          disabled={index === 0}
+                          className="p-0.5 text-[#6e6e73] hover:text-[#7CFF00] rounded disabled:opacity-20 disabled:cursor-not-allowed transition-all"
+                        >
+                          <ArrowUp className="w-3 h-3" />
+                        </button>
+                        <button
+                          onClick={() => handleMoveDown(index)}
+                          disabled={index === filteredProducts.length - 1}
+                          className="p-0.5 text-[#6e6e73] hover:text-[#7CFF00] rounded disabled:opacity-20 disabled:cursor-not-allowed transition-all"
+                        >
+                          <ArrowDown className="w-3 h-3" />
+                        </button>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[13px] font-medium text-[#e3e3e3] truncate max-w-xs">{product.name}</p>
+                        {product.categories?.name && (
+                          <p className="text-[11px] text-[#6e6e73] mt-0.5">{product.categories.name}</p>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  {/* 售价 */}
+                  <td className="px-3 py-3">
+                    <span className="text-[13px] font-semibold text-[#e3e3e3]">{product.price}</span>
+                  </td>
+                  {/* 状态 + 内联切换按钮 */}
+                  <td className="px-3 py-3">
+                    <div className="flex items-center gap-1.5">
+                      <span className={`inline-flex items-center gap-1 text-[12px] font-medium ${
+                        product.is_active ? "text-[#81c995]" : "text-[#6e6e73]"
+                      }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${product.is_active ? "bg-[#81c995]" : "bg-[#6e6e73]"}`} />
+                        {product.is_active ? "销售中" : "已下架"}
+                      </span>
                       <button
-                        onClick={() => handleMoveUp(index)}
-                        disabled={index === 0}
-                        className="p-0.5 text-[#9aa0a6] hover:text-[#7CFF00] hover:bg-[#7CFF00]/10 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                        onClick={() => handleToggleActive(product)}
+                        className={`px-1.5 py-0.5 text-[10px] font-medium rounded transition-colors ${
+                          product.is_active
+                            ? "bg-[#3c3c3f] text-[#9aa0a6] hover:bg-[#ee675c]/20 hover:text-[#ee675c]"
+                            : "bg-[#3c3c3f] text-[#9aa0a6] hover:bg-[#81c995]/20 hover:text-[#81c995]"
+                        }`}
                       >
-                        <ArrowUp className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => handleMoveDown(index)}
-                        disabled={index === products.length - 1}
-                        className="p-0.5 text-[#9aa0a6] hover:text-[#7CFF00] hover:bg-[#7CFF00]/10 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                      >
-                        <ArrowDown className="w-3.5 h-3.5" />
+                        {product.is_active ? "下架" : "上架"}
                       </button>
                     </div>
                   </td>
-                  <td className="px-3 py-2">
-                    <p className="text-[13px] font-medium text-[#e3e3e3]">{product.name}</p>
+                  {/* 销量 */}
+                  <td className="px-3 py-3">
+                    <span className="text-[13px] text-[#9aa0a6]">{product.sales || 0}</span>
                   </td>
-                  <td className="px-3 py-2 hidden md:table-cell">
-                    <span className="text-[12px] text-[#9aa0a6] font-medium">
-                      {product.categories?.name || "-"}
-                    </span>
-                  </td>
-                  <td className="px-3 py-2">
-                    <p className="text-[13px] font-semibold text-[#7CFF00]">¥{product.price}</p>
-                  </td>
-                  <td className="px-3 py-2 hidden lg:table-cell">
-                    <span className="text-[13px] font-semibold text-[#e3e3e3]">
-                      {product.stock}
-                    </span>
-                  </td>
-                  <td className="px-3 py-2">
-                    <span
-                      className={`px-2 py-0.5 text-[11px] font-semibold rounded-full ${
-                        product.is_active
-                          ? "bg-[#81c995]/10 text-[#81c995]"
-                          : "bg-[#6e6e73]/10 text-[#6e6e73]"
-                      }`}
-                    >
-                      {product.is_active ? "上架" : "下架"}
-                    </span>
-                  </td>
-                  <td className="px-3 py-2">
-                    <div className="flex items-center justify-end gap-1">
+                  {/* 库存 + 库存按钮 */}
+                  <td className="px-3 py-3">
+                    <div className="flex items-center gap-1.5">
+                      <span className={`text-[13px] font-semibold px-1.5 py-0.5 rounded ${
+                        product.stock > 0 ? "bg-[#81c995]/15 text-[#81c995]" : "bg-[#ee675c]/15 text-[#ee675c]"
+                      }`}>
+                        {product.stock}张
+                      </span>
                       <button
                         onClick={() => openInventoryModal(product)}
-                        className="p-1.5 text-[#9aa0a6] hover:text-[#81c995] hover:bg-[#81c995]/10 rounded-lg transition-all"
-                        title="管理库存"
+                        className="px-1.5 py-0.5 text-[10px] font-medium bg-[#3c3c3f] text-[#9aa0a6] hover:bg-[#81c995]/20 hover:text-[#81c995] rounded transition-colors"
                       >
-                        <Package className="w-3.5 h-3.5" />
+                        库存
                       </button>
+                    </div>
+                  </td>
+                  {/* 操作 */}
+                  <td className="px-4 py-3">
+                    <div className="flex items-center justify-end gap-2">
                       <button
                         onClick={() => openModal(product)}
-                        className="p-1.5 text-[#9aa0a6] hover:text-[#7CFF00] hover:bg-[#7CFF00]/10 rounded-lg transition-all"
-                        title="编辑产品"
+                        className="text-[12px] text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
                       >
-                        <Pencil className="w-3.5 h-3.5" />
+                        编辑
+                      </button>
+                      <button
+                        onClick={() => handleDuplicate(product)}
+                        className="text-[12px] text-[#9aa0a6] hover:text-[#7CFF00] transition-colors"
+                      >
+                        复制
                       </button>
                       <button
                         onClick={() => handleDelete(product.id)}
-                        className="p-1.5 text-[#9aa0a6] hover:text-[#ee675c] hover:bg-[#ee675c]/10 rounded-lg transition-all"
-                        title="删除产品"
+                        className="text-[12px] text-[#9aa0a6] hover:text-[#ee675c] transition-colors"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        删除
                       </button>
                     </div>
                   </td>
