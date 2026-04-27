@@ -3,44 +3,35 @@
 import { Search, Sparkles, ArrowRight, X, Shield, Zap, Globe } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 
+
 interface SearchBannerProps {
   searchQuery: string
   onSearch: (query: string) => void
+  initialTitle?: string
+  initialSubtitle?: string
+  initialPlaceholder?: string
+  initialHotTags?: string[]
 }
 
-export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
+export function SearchBanner({
+  searchQuery,
+  onSearch,
+  initialTitle = "",
+  initialSubtitle = "",
+  initialPlaceholder = "搜索产品名称、价格、库存、标签...",
+  initialHotTags = ["社交媒体", "海外邮箱", "营销工具", "出海必备"],
+}: SearchBannerProps) {
   const [isFocused, setIsFocused] = useState(false)
-  const [searchPlaceholder, setSearchPlaceholder] = useState("搜索产品名称、价格、库存、标签...")
-  const [hotSearchTags, setHotSearchTags] = useState<string[]>(["社交媒体", "海外邮箱", "营销工具", "出海必备"])
-  // 主副标题只从后台设置获取，无默认值
-  const [bannerTitle, setBannerTitle] = useState("")
-  const [bannerSubtitle, setBannerSubtitle] = useState("")
-  const [isLoading, setIsLoading] = useState(true)
+  // 直接使用服务端传来的初始值，无需客户端 fetch
+  const searchPlaceholder = initialPlaceholder
+  const hotSearchTags = initialHotTags
+  const bannerTitle = initialTitle
+  const bannerSubtitle = initialSubtitle
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const bannerRef = useRef<HTMLElement>(null)
 
-  // 只从后台设置获取主副标题，禁用缓存确保获取最新数据
+  // 只记录访客，不再 fetch 设置
   useEffect(() => {
-    // 设置最少显示500ms的加载状态，确保骨架屏显示
-    const minLoadTime = new Promise(resolve => setTimeout(resolve, 500))
-    
-    Promise.all([
-      fetch("/api/site-settings", { cache: "no-store" }).then(res => res.json()),
-      minLoadTime
-    ])
-      .then(([data]) => {
-        if (data.search_placeholder) setSearchPlaceholder(data.search_placeholder)
-        if (data.hot_search_tags && data.hot_search_tags.length > 0) setHotSearchTags(data.hot_search_tags)
-        // 主副标题必须从后台设置获取
-        setBannerTitle(data.banner_title || "")
-        setBannerSubtitle(data.banner_subtitle || "")
-        setIsLoading(false)
-      })
-      .catch(err => {
-        console.error("获取设置失败:", err)
-        setIsLoading(false)
-      })
-    
     fetch("/api/visitor", { 
       method: "POST", 
       headers: { "Content-Type": "application/json" },
@@ -150,11 +141,9 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
           <ArrowRight className="w-4 h-4 text-[#525252] group-hover:text-[#7CFF00] group-hover:translate-x-0.5 transition-all duration-300" />
         </div>
         
-        {/* 主标题 - 只从后台设置获取 */}
+        {/* 主标题 - 服务端直接渲染，无闪烁 */}
         <h1 className="text-[42px] sm:text-[56px] lg:text-[72px] font-bold text-white mb-6 tracking-[-0.03em] leading-[1.05] animate-fade-in-up delay-100">
-          {isLoading || !bannerTitle ? (
-            <span className="inline-block w-64 h-16 bg-[#2A2A2A] rounded-lg animate-pulse" />
-          ) : bannerTitle.includes(" ") ? (
+          {bannerTitle.includes(" ") ? (
             <>
               <span className="relative inline-block">
                 {bannerTitle.split(" ")[0]}
@@ -172,14 +161,10 @@ export function SearchBanner({ searchQuery, onSearch }: SearchBannerProps) {
             </span>
           )}
         </h1>
-        
-        {/* 副标题 - 只从后台设置获取 */}
+
+        {/* 副标题 - 服务端直接渲染，无闪烁 */}
         <p className="text-[17px] sm:text-[19px] text-[#737373] mb-8 max-w-2xl mx-auto leading-relaxed font-medium animate-fade-in-up delay-200">
-          {isLoading || !bannerSubtitle ? (
-            <span className="inline-block w-96 h-6 bg-[#2A2A2A] rounded animate-pulse" />
-          ) : (
-            bannerSubtitle
-          )}
+          {bannerSubtitle}
         </p>
 
         {/* 特性标签 */}
