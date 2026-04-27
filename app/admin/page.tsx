@@ -155,7 +155,7 @@ export default async function AdminDashboard() {
               >
                 <stat.icon className="w-4 h-4" style={{ color: stat.color }} />
               </div>
-              <p className="text-[12px] text-[#6e6e73] font-medium">{stat.name}</p>
+              <p className="text-[12px] text-[#6e6e73] font-semibold">{stat.name}</p>
             </div>
             <p className="text-[20px] font-semibold text-[#e3e3e3] group-hover:text-white transition-colors">
               {stat.value}
@@ -168,7 +168,7 @@ export default async function AdminDashboard() {
             <div className="w-8 h-8 rounded-lg bg-[#7CFF00]/15 flex items-center justify-center">
               <DollarSign className="w-4 h-4 text-[#7CFF00]" />
             </div>
-            <p className="text-[12px] text-[#6e6e73] font-medium">总销售额</p>
+            <p className="text-[12px] text-[#6e6e73] font-semibold">总销售额</p>
           </div>
           <p className="text-[18px] font-bold text-[#7CFF00]">¥{stats.totalRevenue.toFixed(0)}</p>
         </Link>
@@ -178,7 +178,7 @@ export default async function AdminDashboard() {
             <div className="w-8 h-8 rounded-lg bg-[#81c995]/15 flex items-center justify-center">
               <Wallet className="w-4 h-4 text-[#81c995]" />
             </div>
-            <p className="text-[12px] text-[#6e6e73] font-medium">总利润</p>
+            <p className="text-[12px] text-[#6e6e73] font-semibold">总利润</p>
           </div>
           <p className="text-[18px] font-bold text-[#81c995]">¥{stats.totalProfit.toFixed(0)}</p>
         </Link>
@@ -286,15 +286,15 @@ export default async function AdminDashboard() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[14px] font-medium text-[#e3e3e3] truncate">{product.name}</p>
-                  <p className="text-[12px] text-[#6e6e73] font-medium">{product.categories?.name || "未分类"}</p>
+                  <p className="text-[12px] text-[#6e6e73] font-semibold">{product.categories?.name || "未分类"}</p>
                 </div>
                 <div className="text-center px-3">
                   <p className="text-[16px] font-bold text-[#81c995]">{product.sales}</p>
-                  <p className="text-[11px] text-[#6e6e73] font-medium">销量</p>
+                  <p className="text-[11px] text-[#6e6e73] font-semibold">销量</p>
                 </div>
                 <div className="text-right min-w-[80px]">
                   <p className="text-[14px] font-semibold text-[#7CFF00]">¥{(product.price * product.sales).toFixed(2)}</p>
-                  <p className="text-[11px] text-[#6e6e73] font-medium">销售额</p>
+                  <p className="text-[11px] text-[#6e6e73] font-semibold">销售额</p>
                 </div>
               </div>
             ))
