@@ -27,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="zh-CN" className={`${figtree.variable}`}>
+    <html lang="zh-CN" className={`${figtree.variable} bg-background`}>
       <body className="font-oak-sans antialiased min-h-screen">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
