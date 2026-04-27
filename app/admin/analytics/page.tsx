@@ -257,7 +257,7 @@ export default function AnalyticsPage() {
             <div className="p-6 space-y-4 overflow-y-auto max-h-[calc(90vh-120px)]">
               {/* IP地址和位置 */}
               <div className="bg-[#2d2e30] rounded-xl p-4">
-                <label className="text-[12px] text-[#6e6e73] font-medium">IP地址</label>
+                <label className="text-[12px] text-[#6e6e73] font-semibold">IP地址</label>
                 <p className="text-[15px] font-mono text-[#e3e3e3] mt-1">{selectedVisitor.ip_address}</p>
                 <div className="flex items-center gap-1.5 mt-2">
                   <MapPin className="w-4 h-4 text-[#7CFF00]" />
@@ -267,7 +267,7 @@ export default function AnalyticsPage() {
 
               {/* 设备信息 */}
               <div className="bg-[#2d2e30] rounded-xl p-4">
-                <label className="text-[12px] text-[#6e6e73] font-medium">访客设备</label>
+                <label className="text-[12px] text-[#6e6e73] font-semibold">访客设备</label>
                 <div className="flex items-center gap-3 mt-2">
                   <div className="w-10 h-10 rounded-lg bg-[#7CFF00]/10 flex items-center justify-center">
                     {getDeviceIcon(selectedVisitor.device_type)}
@@ -281,7 +281,7 @@ export default function AnalyticsPage() {
 
               {/* 浏览的商品 */}
               <div className="bg-[#2d2e30] rounded-xl p-4">
-                <label className="text-[12px] text-[#6e6e73] font-medium">浏览商品</label>
+                <label className="text-[12px] text-[#6e6e73] font-semibold">浏览商品</label>
                 {selectedVisitor.viewed_products && selectedVisitor.viewed_products.length > 0 ? (
                   <div className="mt-2 space-y-2">
                     {selectedVisitor.viewed_products.map((productId, idx) => (
@@ -299,7 +299,7 @@ export default function AnalyticsPage() {
               {/* 订单信息 */}
               {selectedVisitor.order_no && (
                 <div className="bg-gradient-to-r from-[#81c995]/10 to-transparent rounded-xl p-4 border border-[#81c995]/30">
-                  <label className="text-[12px] text-[#81c995] font-medium">已下单</label>
+                  <label className="text-[12px] text-[#81c995] font-semibold">已下单</label>
                   <div className="flex items-center justify-between mt-2">
                     <p className="text-[15px] font-mono text-[#e3e3e3]">{selectedVisitor.order_no}</p>
                     <a
@@ -317,7 +317,7 @@ export default function AnalyticsPage() {
 
               {/* 访问时间 */}
               <div className="bg-[#2d2e30] rounded-xl p-4">
-                <label className="text-[12px] text-[#6e6e73] font-medium">访问时间</label>
+                <label className="text-[12px] text-[#6e6e73] font-semibold">访问时间</label>
                 <p className="text-[14px] text-[#e3e3e3] mt-1">
                   {new Date(selectedVisitor.visited_at).toLocaleString("zh-CN")}
                 </p>

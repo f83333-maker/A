@@ -413,39 +413,39 @@ export default function OrdersPage() {
               {/* 订单信息 */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <span className="text-[12px] text-[#6e6e73]">订单号</span>
+                  <span className="text-[12px] font-semibold text-[#6e6e73]">订单号</span>
                   <p className="text-[14px] font-mono text-[#e3e3e3]">{selectedOrder.order_no}</p>
                 </div>
                 <div>
-                  <span className="text-[12px] text-[#6e6e73]">状态</span>
+                  <span className="text-[12px] font-semibold text-[#6e6e73]">状态</span>
                   <p className="text-[14px] text-[#e3e3e3]">
                     {statusConfig[selectedOrder.status]?.text || selectedOrder.status}
                   </p>
                 </div>
                 <div>
-                  <span className="text-[12px] text-[#6e6e73]">产品</span>
+                  <span className="text-[12px] font-semibold text-[#6e6e73]">产品</span>
                   <p className="text-[14px] text-[#e3e3e3]">{selectedOrder.product_name}</p>
                 </div>
                 <div>
-                  <span className="text-[12px] text-[#6e6e73]">数量</span>
+                  <span className="text-[12px] font-semibold text-[#6e6e73]">数量</span>
                   <p className="text-[14px] text-[#e3e3e3]">{selectedOrder.quantity}</p>
                 </div>
                 <div>
-                  <span className="text-[12px] text-[#6e6e73]">单价</span>
+                  <span className="text-[12px] font-semibold text-[#6e6e73]">单价</span>
                   <p className="text-[14px] text-[#e3e3e3]">¥{selectedOrder.unit_price}</p>
                 </div>
                 <div>
-                  <span className="text-[12px] text-[#6e6e73]">总金额</span>
+                  <span className="text-[12px] font-semibold text-[#6e6e73]">总金额</span>
                   <p className="text-[14px] font-semibold text-[#7CFF00]">
                     ¥{selectedOrder.total_amount}
                   </p>
                 </div>
                 <div>
-                  <span className="text-[12px] text-[#6e6e73]">买家邮箱</span>
+                  <span className="text-[12px] font-semibold text-[#6e6e73]">买家邮箱</span>
                   <p className="text-[14px] text-[#e3e3e3]">{selectedOrder.buyer_email || "-"}</p>
                 </div>
                 <div>
-                  <span className="text-[12px] text-[#6e6e73]">创建时间</span>
+                  <span className="text-[12px] font-semibold text-[#6e6e73]">创建时间</span>
                   <p className="text-[14px] text-[#e3e3e3]">
                     {new Date(selectedOrder.created_at).toLocaleString("zh-CN")}
                   </p>
@@ -458,16 +458,16 @@ export default function OrdersPage() {
                   <h4 className="text-[12px] font-semibold text-[#9aa0a6] mb-2">支付信息</h4>
                   <div className="space-y-2 text-[13px]">
                     <div className="flex items-center justify-between">
-                      <span className="text-[#6e6e73]">商户订单号:</span>
+                      <span className="font-semibold text-[#6e6e73]">商户订单号:</span>
                       <span className="font-mono text-[#e3e3e3]">{selectedOrder.order_no}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-[#6e6e73]">易支付订单号:</span>
+                      <span className="font-semibold text-[#6e6e73]">易支付订单号:</span>
                       <span className="font-mono text-[#81c995]">{selectedOrder.stripe_payment_intent_id}</span>
                     </div>
                     {selectedOrder.epay_trade_no && selectedOrder.epay_trade_no !== selectedOrder.stripe_payment_intent_id && (
                       <div className="flex items-center justify-between">
-                        <span className="text-[#6e6e73]">用户交易单号:</span>
+                        <span className="font-semibold text-[#6e6e73]">用户交易单号:</span>
                         <span className="font-mono text-[#7CFF00]">{selectedOrder.epay_trade_no}</span>
                       </div>
                     )}
