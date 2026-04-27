@@ -233,18 +233,18 @@ export default function CategoriesPage() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-[#3c3c3f]">
-              <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6]">排序</th>
-              <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6]">图标</th>
-              <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6]">名称</th>
-              <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6] hidden md:table-cell">产品数</th>
-              <th className="px-5 py-4 text-left text-[13px] font-semibold text-[#9aa0a6]">启用</th>
-              <th className="px-5 py-4 text-right text-[13px] font-semibold text-[#9aa0a6]">操作</th>
+              <th className="px-5 py-2.5 text-left text-[13px] font-semibold text-[#9aa0a6]">排序</th>
+              <th className="px-5 py-2.5 text-left text-[13px] font-semibold text-[#9aa0a6]">图标</th>
+              <th className="px-5 py-2.5 text-left text-[13px] font-semibold text-[#9aa0a6]">名称</th>
+              <th className="px-5 py-2.5 text-left text-[13px] font-semibold text-[#9aa0a6] hidden md:table-cell">产品数</th>
+              <th className="px-5 py-2.5 text-left text-[13px] font-semibold text-[#9aa0a6]">启用</th>
+              <th className="px-5 py-2.5 text-right text-[13px] font-semibold text-[#9aa0a6]">操作</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#3c3c3f]">
             {sortedCategories.map((category, index) => (
               <tr key={category.id} className="hover:bg-[#2d2e30]/50 transition-colors">
-                <td className="px-5 py-4">
+                <td className="px-5 py-2">
                   <div className="flex flex-col gap-1">
                     <button
                       onClick={() => handleMoveUp(index)}
@@ -262,7 +262,7 @@ export default function CategoriesPage() {
                     </button>
                   </div>
                 </td>
-                <td className="px-5 py-4">
+                <td className="px-5 py-2">
                   <div
                     className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden"
                     style={{ backgroundColor: category.logo_bg_color || "#2d2e30" }}
@@ -274,10 +274,10 @@ export default function CategoriesPage() {
                     )}
                   </div>
                 </td>
-                <td className="px-5 py-4">
+                <td className="px-5 py-2">
                   <p className="text-[14px] font-medium text-[#e3e3e3]">{category.name}</p>
                 </td>
-                <td className="px-5 py-4 hidden md:table-cell">
+                <td className="px-5 py-2 hidden md:table-cell">
                   <button
                     onClick={() => window.location.href = `/admin/products?categoryId=${category.id}`}
                     className="text-[13px] text-[#7CFF00] hover:text-[#9FFF40] font-medium hover:underline transition-colors"
@@ -285,7 +285,7 @@ export default function CategoriesPage() {
                     {(category as Category & { product_count?: number }).product_count || 0} 个产品
                   </button>
                 </td>
-                <td className="px-5 py-4">
+                <td className="px-5 py-2">
                   <button
                     onClick={() => {
                       // 乐观更新：立即更新本地状态，无需等待 API
@@ -316,7 +316,7 @@ export default function CategoriesPage() {
                     />
                   </button>
                 </td>
-                <td className="px-5 py-4">
+                <td className="px-5 py-2">
                   <div className="flex items-center justify-end gap-2">
                     <button
                       onClick={() => openModal(category)}
