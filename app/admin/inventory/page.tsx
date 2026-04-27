@@ -9,6 +9,7 @@ interface Product {
   stock: number
   logo_data?: string
   logo_bg_color?: string
+  category_id?: string
   category?: { name: string }
   price?: number
 }
@@ -32,6 +33,8 @@ export default function InventoryPage() {
   const [productsLoading, setProductsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [filterStock, setFilterStock] = useState<"all" | "low" | "out">("all")
+  const [filterCategory, setFilterCategory] = useState<string>("all")
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>([])
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
 
   // 库存数据
@@ -61,6 +64,21 @@ export default function InventoryPage() {
       console.error("获取产品失败:", error)
     } finally {
       setProductsLoading(false)
+    }
+  }
+
+  // 获取分类列表
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch("/api/admin/categories")
+      const data = await res.json()
+      if (Array.isArray(data)) {
+        setCategories(data)
+      } else if (data.categories) {
+        setCategories(data.categories)
+      }
+    } catch (error) {
+      console.error("获取分类失败:", error)
     }
   }
 
@@ -149,6 +167,7 @@ export default function InventoryPage() {
   // 初始化加载
   useEffect(() => {
     fetchProducts()
+    fetchCategories()
   }, [])
 
   // 选中产品时获取库存
@@ -172,7 +191,8 @@ export default function InventoryPage() {
     const matchStock = filterStock === "all" ? true :
       filterStock === "low" ? (p.stock > 0 && p.stock <= 10) :
       p.stock === 0
-    return matchSearch && matchStock
+    const matchCategory = filterCategory === "all" ? true : p.category_id === filterCategory
+    return matchSearch && matchStock && matchCategory
   })
 
   // 过滤库存
@@ -264,6 +284,19 @@ export default function InventoryPage() {
                 className="w-full h-9 pl-9 pr-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[13px] placeholder-[#6e6e73] focus:outline-none focus:border-[#7CFF00]/50"
               />
             </div>
+            {/* 分类筛选 */}
+            <select
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className="w-full h-9 px-3 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[13px] focus:outline-none focus:border-[#7CFF00]/50 appearance-none cursor-pointer"
+            >
+              <option value="all">全部分类</option>
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
+
+            {/* 库存状态筛选 */}
             <div className="flex gap-1.5">
               {[
                 { key: "all", label: "全部" },
