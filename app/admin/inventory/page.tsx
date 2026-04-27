@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, Trash2, Package, Loader2, X, Search, AlertTriangle, TrendingUp, Database } from "lucide-react"
+import { Plus, Trash2, Package, Loader2, X, Search, AlertTriangle, TrendingUp, Database, CheckSquare, Square, Layers } from "lucide-react"
 
 interface Product {
   id: string
@@ -39,6 +39,13 @@ export default function InventoryPage() {
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([])
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
 
+  // 多选模式
+  const [batchMode, setBatchMode] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [showBatchModal, setShowBatchModal] = useState(false)
+  const [batchContent, setBatchContent] = useState("")
+  const [batchAdding, setBatchAdding] = useState(false)
+
   // 库存数据
   const [inventory, setInventory] = useState<InventoryItem[]>([])
   const [inventoryLoading, setInventoryLoading] = useState(false)
@@ -56,7 +63,6 @@ export default function InventoryPage() {
       setProductsLoading(true)
       const res = await fetch("/api/admin/products")
       const data = await res.json()
-      // API直接返回数组，不是 { products: [...] }
       if (Array.isArray(data)) {
         setProducts(data)
       } else if (data.products) {
@@ -74,10 +80,7 @@ export default function InventoryPage() {
     try {
       const res = await fetch("/api/admin/categories")
       if (!res.ok) throw new Error(`API error: ${res.status}`)
-      
       const data = await res.json()
-      
-      // API 直接返回数组
       if (Array.isArray(data) && data.length > 0) {
         setCategories(data)
       }
@@ -168,6 +171,60 @@ export default function InventoryPage() {
     }
   }
 
+  // 批量同步货源
+  const handleBatchSync = async () => {
+    if (selectedIds.size === 0) { alert("请先选择产品"); return }
+    if (!batchContent.trim()) { alert("请输入货源内容"); return }
+    try {
+      setBatchAdding(true)
+      const res = await fetch("/api/admin/inventory/batch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productIds: Array.from(selectedIds), content: batchContent })
+      })
+      const data = await res.json()
+      if (data.success) {
+        setShowBatchModal(false)
+        setBatchContent("")
+        setBatchMode(false)
+        setSelectedIds(new Set())
+        await fetchProducts()
+        alert(`已向 ${data.productCount} 个产品各添加 ${data.linesPerProduct} 条货源，共添加 ${data.totalAdded} 条`)
+      } else {
+        alert(data.error || "批量同步失败")
+      }
+    } catch (error) {
+      alert("批量同步失败")
+    } finally {
+      setBatchAdding(false)
+    }
+  }
+
+  // 切换单个产品选中
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  // 全选 / 取消全选（当前可见产品）
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filteredProducts.length) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(filteredProducts.map(p => p.id)))
+    }
+  }
+
+  // 退出批量模式时清空选中
+  const exitBatchMode = () => {
+    setBatchMode(false)
+    setSelectedIds(new Set())
+  }
+
   // 初始化加载
   useEffect(() => {
     fetchProducts()
@@ -204,6 +261,8 @@ export default function InventoryPage() {
     if (inventoryFilter === "all") return true
     return item.status === inventoryFilter
   })
+
+  const allSelected = filteredProducts.length > 0 && selectedIds.size === filteredProducts.length
 
   return (
     <div className="h-full flex flex-col bg-[#0d0e0f]">
@@ -320,6 +379,56 @@ export default function InventoryPage() {
                 </button>
               ))}
             </div>
+
+            {/* 批量模式操作栏 */}
+            {!batchMode ? (
+              <button
+                onClick={() => setBatchMode(true)}
+                className="w-full h-8 flex items-center justify-center gap-1.5 bg-[#2d2e30] hover:bg-[#3c3c3f] border border-[#3c3c3f] text-[#9aa0a6] hover:text-[#e3e3e3] rounded-lg text-[12px] font-medium transition-colors"
+              >
+                <Layers className="w-3.5 h-3.5" />
+                批量添加货源
+              </button>
+            ) : (
+              <div className="space-y-2">
+                {/* 全选 + 已选数量 */}
+                <div className="flex items-center justify-between">
+                  <button
+                    onClick={toggleSelectAll}
+                    className="flex items-center gap-1.5 text-[12px] text-[#9aa0a6] hover:text-[#e3e3e3] transition-colors"
+                  >
+                    {allSelected
+                      ? <CheckSquare className="w-4 h-4 text-[#7CFF00]" />
+                      : <Square className="w-4 h-4" />
+                    }
+                    {allSelected ? "取消全选" : "全选"}
+                  </button>
+                  <span className="text-[12px] text-[#6e6e73]">
+                    已选 <span className="text-[#7CFF00] font-semibold">{selectedIds.size}</span> 个
+                  </span>
+                </div>
+                {/* 操作按钮 */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={exitBatchMode}
+                    className="flex-1 h-8 flex items-center justify-center bg-[#2d2e30] hover:bg-[#3c3c3f] border border-[#3c3c3f] text-[#9aa0a6] rounded-lg text-[12px] font-medium transition-colors"
+                  >
+                    取消
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (selectedIds.size === 0) { alert("请先选择产品"); return }
+                      setShowBatchModal(true)
+                    }}
+                    disabled={selectedIds.size === 0}
+                    className="flex-1 h-8 flex items-center justify-center gap-1 bg-[#7CFF00] hover:bg-[#9FFF40] disabled:opacity-40 disabled:cursor-not-allowed text-[#131314] rounded-lg text-[12px] font-semibold transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    添加货源
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* 产品列表 */}
@@ -334,38 +443,59 @@ export default function InventoryPage() {
               </div>
             ) : (
               <div className="divide-y divide-[#3c3c3f]/30">
-                {filteredProducts.map(product => (
-                  <button
-                    key={product.id}
-                    onClick={() => setSelectedProduct(product)}
-                    className={`w-full flex items-center gap-2 px-4 py-2.5 text-left transition-colors ${
-                      selectedProduct?.id === product.id
-                        ? "bg-[#7CFF00]/10 border-l-2 border-l-[#7CFF00]"
-                        : "hover:bg-[#1e1f20] border-l-2 border-l-transparent"
-                    }`}
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        {product.icon_url && (
-                          <img
-                            src={product.icon_url}
-                            alt=""
-                            className="w-5 h-3.5 object-cover rounded-sm shrink-0"
-                          />
-                        )}
-                        <p className="text-[13px] font-medium text-[#e3e3e3] truncate">{product.name}</p>
-                        {product.tag_label && (
-                          <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-[#FF3B3B]/20 text-[#FF3B3B] shrink-0">
-                            {product.tag_label}
-                          </span>
-                        )}
+                {filteredProducts.map(product => {
+                  const isSelected = selectedIds.has(product.id)
+                  const isActive = !batchMode && selectedProduct?.id === product.id
+                  return (
+                    <button
+                      key={product.id}
+                      onClick={() => {
+                        if (batchMode) {
+                          toggleSelect(product.id)
+                        } else {
+                          setSelectedProduct(product)
+                        }
+                      }}
+                      className={`w-full flex items-center gap-2 px-4 py-2.5 text-left transition-colors border-l-2 ${
+                        isActive
+                          ? "bg-[#7CFF00]/10 border-l-[#7CFF00]"
+                          : batchMode && isSelected
+                          ? "bg-[#7CFF00]/8 border-l-[#7CFF00]/60"
+                          : "hover:bg-[#1e1f20] border-l-transparent"
+                      }`}
+                    >
+                      {/* 多选模式下的复选框 */}
+                      {batchMode && (
+                        <div className="shrink-0">
+                          {isSelected
+                            ? <CheckSquare className="w-4 h-4 text-[#7CFF00]" />
+                            : <Square className="w-4 h-4 text-[#4a4a4d]" />
+                          }
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          {product.icon_url && (
+                            <img
+                              src={product.icon_url}
+                              alt=""
+                              className="w-5 h-3.5 object-cover rounded-sm shrink-0"
+                            />
+                          )}
+                          <p className="text-[13px] font-medium text-[#e3e3e3] truncate">{product.name}</p>
+                          {product.tag_label && (
+                            <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-[#FF3B3B]/20 text-[#FF3B3B] shrink-0">
+                              {product.tag_label}
+                            </span>
+                          )}
+                        </div>
+                        <p className={`text-[11px] ${product.stock > 0 ? "text-[#81c995]" : "text-[#ee675c]"}`}>
+                          库存: {product.stock}
+                        </p>
                       </div>
-                      <p className={`text-[11px] ${product.stock > 0 ? "text-[#81c995]" : "text-[#ee675c]"}`}>
-                        库存: {product.stock}
-                      </p>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  )
+                })}
               </div>
             )}
           </div>
@@ -389,7 +519,7 @@ export default function InventoryPage() {
               <div className="shrink-0 px-6 py-4 border-b border-[#3c3c3f]/50">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div 
+                    <div
                       className="w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden"
                       style={{ backgroundColor: selectedProduct.logo_bg_color || '#2d2e30' }}
                     >
@@ -430,7 +560,7 @@ export default function InventoryPage() {
                 </div>
               </div>
 
-              {/* 库存列表 */}
+              {/* 库存筛选 tab */}
               <div className="shrink-0 flex items-center gap-1 px-6 py-2 border-b border-[#3c3c3f]/50 bg-[#151617]">
                 {[
                   { key: "all", label: "全部", count: stats.total },
@@ -487,7 +617,7 @@ export default function InventoryPage() {
         </div>
       </div>
 
-      {/* 添加库存弹窗 */}
+      {/* 单产品添加库存弹窗 */}
       {showAddForm && selectedProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
           <div className="w-full max-w-md bg-gradient-to-b from-[#1e1f20] to-[#151617] rounded-2xl border border-[#3c3c3f]/60 overflow-hidden shadow-2xl">
@@ -508,12 +638,11 @@ export default function InventoryPage() {
                 <textarea
                   value={newContent}
                   onChange={(e) => setNewContent(e.target.value)}
-                  placeholder="例如：ABC123&#10;DEF456&#10;GHI789"
+                  placeholder={"例如：ABC123\nDEF456\nGHI789"}
                   rows={6}
                   className="w-full px-4 py-3 bg-[#0d0e0f] border border-[#3c3c3f]/60 rounded-xl text-[#e3e3e3] placeholder-[#4a4a4d] text-[13px] font-mono focus:outline-none focus:border-[#7CFF00]/50 focus:ring-1 focus:ring-[#7CFF00]/20 resize-none"
                 />
               </div>
-
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowAddForm(false)}
@@ -528,6 +657,84 @@ export default function InventoryPage() {
                 >
                   {adding && <Loader2 className="w-4 h-4 animate-spin" />}
                   添加库存
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 批量添加货源弹窗 */}
+      {showBatchModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="w-full max-w-lg bg-gradient-to-b from-[#1e1f20] to-[#151617] rounded-2xl border border-[#3c3c3f]/60 overflow-hidden shadow-2xl">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#3c3c3f]/50">
+              <div>
+                <h3 className="text-[16px] font-semibold text-[#e3e3e3]">批量添加货源</h3>
+                <p className="text-[12px] text-[#6e6e73] mt-0.5">
+                  将以下货源分别同步给已选中的 <span className="text-[#7CFF00] font-semibold">{selectedIds.size}</span> 个产品
+                </p>
+              </div>
+              <button
+                onClick={() => setShowBatchModal(false)}
+                className="p-1.5 text-[#6e6e73] hover:text-[#e3e3e3] hover:bg-white/5 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* 已选产品预览 */}
+            <div className="px-6 py-3 border-b border-[#3c3c3f]/50 bg-[#0d0e0f]/50">
+              <p className="text-[11px] text-[#6e6e73] mb-2 uppercase tracking-wide">已选产品</p>
+              <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto">
+                {Array.from(selectedIds).map(id => {
+                  const p = products.find(x => x.id === id)
+                  if (!p) return null
+                  return (
+                    <span key={id} className="inline-flex items-center gap-1 px-2 py-1 bg-[#2d2e30] rounded-lg text-[11px] text-[#e3e3e3]">
+                      {p.icon_url && <img src={p.icon_url} alt="" className="w-4 h-3 object-cover rounded-sm" />}
+                      <span className="max-w-[120px] truncate">{p.name}</span>
+                    </span>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div className="p-6">
+              <div className="mb-4">
+                <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
+                  通用货源内容 <span className="text-[#6e6e73] font-normal">（每行一条，将各自复制给每个产品）</span>
+                </label>
+                <textarea
+                  value={batchContent}
+                  onChange={(e) => setBatchContent(e.target.value)}
+                  placeholder={"例如：ABC123\nDEF456\nGHI789"}
+                  rows={8}
+                  autoFocus
+                  className="w-full px-4 py-3 bg-[#0d0e0f] border border-[#3c3c3f]/60 rounded-xl text-[#e3e3e3] placeholder-[#4a4a4d] text-[13px] font-mono focus:outline-none focus:border-[#7CFF00]/50 focus:ring-1 focus:ring-[#7CFF00]/20 resize-none"
+                />
+                {batchContent.trim() && (
+                  <p className="text-[11px] text-[#6e6e73] mt-1.5">
+                    共 <span className="text-[#7CFF00]">{batchContent.split("\n").filter(l => l.trim()).length}</span> 条货源，
+                    将分发给 <span className="text-[#7CFF00]">{selectedIds.size}</span> 个产品，
+                    合计添加 <span className="text-[#7CFF00]">{batchContent.split("\n").filter(l => l.trim()).length * selectedIds.size}</span> 条
+                  </p>
+                )}
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowBatchModal(false)}
+                  className="flex-1 h-10 bg-[#2d2e30] hover:bg-[#3c3c3f] border border-[#3c3c3f] text-[#e3e3e3] rounded-xl font-semibold text-[13px] transition-colors"
+                >
+                  取消
+                </button>
+                <button
+                  onClick={handleBatchSync}
+                  disabled={batchAdding || !batchContent.trim()}
+                  className="flex-1 h-10 bg-[#7CFF00] text-[#131314] rounded-xl font-semibold hover:bg-[#9FFF40] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 text-[13px]"
+                >
+                  {batchAdding && <Loader2 className="w-4 h-4 animate-spin" />}
+                  确认批量同步
                 </button>
               </div>
             </div>
