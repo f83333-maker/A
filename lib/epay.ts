@@ -3,7 +3,7 @@ import crypto from "crypto"
 import { createClient } from "@/lib/supabase/server"
 
 // 易支付 API 配置缓存
-let epayConfigCache: { pid: string; key: string; apiUrl: string } | null = null
+let epayConfigCache: { pid: string; key: string; apiUrl: string; configId?: string; configName?: string } | null = null
 let configLastFetch = 0
 const CONFIG_CACHE_TTL = 60000 // 1分钟缓存
 

@@ -495,6 +495,7 @@ export default function ProductsPage() {
       logo_data: product.logo_data || "",
       logo_bg_color: product.logo_bg_color || "#2d2e30",
       delivery_type: product.delivery_type || "自动发货",
+      icon_url: product.icon_url || "",
     })
     setLogoPreview(product.logo_data || null)
     setError("")
@@ -1108,7 +1109,7 @@ export default function ProductsPage() {
                   {/* 产品标签 */}
                   <div>
                     <label className="block text-[13px] font-medium text-[#9aa0a6] mb-2">
-                      产品标签 <span className="text-[#6e6e73] font-normal">（右���角）</span>
+                      产���标签 <span className="text-[#6e6e73] font-normal">（右���角）</span>
                     </label>
                     <div className="flex items-center gap-2">
                       <input

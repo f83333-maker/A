@@ -10,11 +10,11 @@ export const useTableData = <T extends { id: string }>(options: UseTableDataOpti
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string>("")
 
-  const fetch = useCallback(async () => {
+  const refetch = useCallback(async () => {
     setIsLoading(true)
     setError("")
     try {
-      const res = await fetch(options.fetchUrl)
+      const res = await globalThis.fetch(options.fetchUrl)
       const result = await res.json()
       setData(Array.isArray(result) ? result : [])
     } catch (err) {
@@ -26,7 +26,7 @@ export const useTableData = <T extends { id: string }>(options: UseTableDataOpti
     }
   }, [options])
 
-  return { data, isLoading, error, fetch, setData }
+  return { data, isLoading, error, fetch: refetch, setData }
 }
 
 export const useSelection = () => {

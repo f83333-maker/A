@@ -361,8 +361,10 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                 originalPrice: selectedProduct.original_price,
                 sales: selectedProduct.sales,
                 stock: selectedProduct.stock,
-                tags: selectedProduct.tags || [],
-                category: selectedProduct.categories?.name || "",
+                rating: 0,
+                tag: selectedProduct.tag_label || "",
+                tagColor: "#6366f1",
+                categoryId: selectedProduct.category_id?.toString() || "",
               }
             : null
         }

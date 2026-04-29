@@ -1,7 +1,4 @@
-import { scrypt, randomBytes, createHash } from 'crypto'
-import { promisify } from 'util'
-
-const scryptAsync = promisify(scrypt)
+import { scryptSync, randomBytes, createHash } from 'crypto'
 
 /**
  * 超强加密方案：scrypt(N=131072) + SHA-512 三次哈希
@@ -22,12 +19,12 @@ export async function encryptData(data: string, existingSalt?: string): Promise<
   try {
     // scrypt 派生密钥 (N=131072, r=8, p=1)
     // N=131072 表示计算难度，需要 >500ms
-    const derivedKey = await scryptAsync(data, saltBuffer, 64, {
+    const derivedKey = scryptSync(data, saltBuffer, 64, {
       N: 131072,
       r: 8,
       p: 1,
       maxmem: 256 * 1024 * 1024,
-    }) as Buffer
+    })
 
     // 第一次 SHA-512 哈希
     let hash = createHash('sha512').update(derivedKey).digest()
