@@ -34,6 +34,8 @@ function OrderContent() {
   const [passwordError, setPasswordError] = useState("")
   const [verifying, setVerifying] = useState(false)
   const [polling, setPolling] = useState(false)
+  const [syncing, setSyncing] = useState(false)
+  const [syncMessage, setSyncMessage] = useState("")
 
   const fetchOrder = useCallback(async () => {
     try {
@@ -52,6 +54,30 @@ function OrderContent() {
     }
     return null
   }, [orderNo])
+
+  // 手动同步订单状态
+  const syncOrderStatus = useCallback(async () => {
+    setSyncing(true)
+    setSyncMessage("")
+    try {
+      const res = await fetch(`/api/orders/${orderNo}/sync`, { method: "POST" })
+      const data = await res.json()
+      console.log("[v0] 同步结果:", data)
+      
+      if (data.success) {
+        setSyncMessage(data.message || "同步成功")
+        // 刷新订单数据
+        await fetchOrder()
+      } else {
+        setSyncMessage(data.message || data.error || "同步失败，可能订单未支付")
+      }
+    } catch (error) {
+      console.error("[v0] 同步失败:", error)
+      setSyncMessage("同步请求失败，请稍后重试")
+    } finally {
+      setSyncing(false)
+    }
+  }, [orderNo, fetchOrder])
 
   useEffect(() => {
     async function init() {
@@ -200,18 +226,42 @@ function OrderContent() {
           </div>
         )}
 
-        {/* 待支付但不在轮询状态 */}
-        {order.status === "pending" && !polling && tradeNo && (
+        {/* 待支付状态 - 显示同步按钮 */}
+        {order.status === "pending" && !polling && (
           <div className="bg-[#fdd663]/10 border border-[#fdd663]/30 rounded-xl p-4 mb-6">
-            <p className="text-[14px] text-[#fdd663]">
-              如果已完成支付，请点击下方按钮刷新状态
+            <p className="text-[14px] text-[#fdd663] mb-3">
+              如果已完成支付但状态未更新，请点击下方按钮手动同步
             </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="mt-2 px-4 py-2 bg-[#fdd663] text-[#131314] rounded-lg text-[13px] font-semibold hover:bg-[#fdd663]/80 transition-colors"
-            >
-              刷新订单状态
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={syncOrderStatus}
+                disabled={syncing}
+                className="px-4 py-2 bg-[#7CFF00] text-[#131314] rounded-lg text-[13px] font-semibold hover:bg-[#9FFF40] disabled:opacity-50 transition-colors flex items-center gap-2"
+              >
+                {syncing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    同步中...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-4 h-4" />
+                    同步订单状态
+                  </>
+                )}
+              </button>
+              <button
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 bg-[#2d2e30] text-[#e3e3e3] rounded-lg text-[13px] font-semibold hover:bg-[#3c3c3f] transition-colors"
+              >
+                刷新页面
+              </button>
+            </div>
+            {syncMessage && (
+              <p className={`mt-3 text-[13px] ${syncMessage.includes("成功") || syncMessage.includes("已处理") ? "text-[#81c995]" : "text-[#ee675c]"}`}>
+                {syncMessage}
+              </p>
+            )}
           </div>
         )}
 
