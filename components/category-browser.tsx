@@ -277,7 +277,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                         disabled={product.stock <= 0}
                         className={`px-4 py-1.5 rounded text-[12px] font-semibold transition-all duration-200 ${
                           product.stock > 0
-                            ? "bg-[#7CFF00] hover:bg-[#9FFF40] text-black"
+                            ? "bg-[#7CFF00] hover:bg-[#7CFF00]/10 text-black"
                             : "bg-[#2A2A2A] text-[#525252] cursor-not-allowed"
                         }`}
                       >
@@ -328,7 +328,7 @@ export function CategoryBrowser({ searchQuery }: CategoryBrowserProps) {
                       disabled={product.stock <= 0}
                       className={`shrink-0 px-3 py-1.5 rounded text-[11px] font-semibold transition-all ${
                         product.stock > 0
-                          ? "bg-[#7CFF00] hover:bg-[#9FFF40] text-black"
+                          ? "bg-[#7CFF00] hover:bg-[#7CFF00]/10 text-black"
                           : "bg-[#2A2A2A] text-[#525252] cursor-not-allowed"
                       }`}
                     >

@@ -211,7 +211,7 @@ export function SearchBanner({
             )}
             <button
               type="submit"
-              className="m-2 px-6 h-10 bg-[#7CFF00] hover:bg-[#9FFF40] text-black font-semibold rounded-full transition-all duration-300 text-[14px] flex items-center gap-2 shrink-0 hover:shadow-[0_0_20px_rgba(124,255,0,0.3)] active:scale-95"
+              className="m-2 px-6 h-10 bg-[#7CFF00] hover:bg-[#7CFF00]/10 text-black font-semibold rounded-full transition-all duration-300 text-[14px] flex items-center gap-2 shrink-0 hover:shadow-[0_0_20px_rgba(124,255,0,0.3)] active:scale-95"
             >
               <Sparkles className="w-4 h-4" />
               搜索
