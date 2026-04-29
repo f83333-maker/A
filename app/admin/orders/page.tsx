@@ -48,7 +48,7 @@ const statusConfig: Record<string, { icon: typeof Clock; color: string; text: st
 }
 
 export default function OrdersPage() {
-  const { data: orders = [], isLoading } = useSWR<Order[]>("/api/admin/orders", fetcher)
+  const { data: orders = [], isLoading, mutate: refreshOrders } = useSWR<Order[]>("/api/admin/orders", fetcher)
   const [searchOrderNo, setSearchOrderNo] = useState("")
   const [searchBuyer, setSearchBuyer] = useState("")
   const [searchContent, setSearchContent] = useState("")
@@ -140,7 +140,7 @@ export default function OrdersPage() {
       
       console.log("[v0] 批量删除订单成功")
       setSelectedIds([])
-      mutate("/api/admin/orders")
+      await refreshOrders()
     } catch (error) {
       console.error("[v0] 批量删除出错:", error)
       alert("删除失败，请重试")
@@ -165,9 +165,9 @@ export default function OrdersPage() {
       console.log("[v0] 响应数据:", data)
       
       if (res.ok) {
-        console.log("[v0] 订单删除成功")
-        alert("订单已删除")
-        await mutate("/api/admin/orders")
+      console.log("[v0] 订单删除成功")
+      alert("订单已删除")
+      await refreshOrders()
         return
       }
       
@@ -191,7 +191,7 @@ export default function OrdersPage() {
           delivered_content: deliverContent,
         }),
       })
-      mutate("/api/admin/orders")
+      await refreshOrders()
       setIsModalOpen(false)
     } catch (error) {
       console.error("发放失败:", error)
