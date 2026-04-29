@@ -245,7 +245,7 @@ function OrderContent() {
               <button
                 onClick={syncOrderStatus}
                 disabled={syncing}
-                className="px-4 py-2 bg-transparent border border-[#7CFF00] text-[#7CFF00] rounded-lg text-[13px] font-semibold hover:bg-[#7CFF00]/10 disabled:opacity-50 transition-colors flex items-center gap-2"
+                className="px-4 py-2 bg-transparent border border-[#7CFF00] text-[#7CFF00] rounded-lg text-[13px] font-semibold hover:bg-[#7CFF00] hover:text-[#131314] disabled:opacity-50 transition-colors flex items-center gap-2"
               >
                 {syncing ? (
                   <>
@@ -338,7 +338,7 @@ function OrderContent() {
                 <button
                   onClick={handleVerifyPassword}
                   disabled={verifying || !password.trim()}
-                  className="h-11 px-6 bg-[#7CFF00] hover:bg-[#7CFF00]/10 disabled:bg-[#3c3c3f] text-[#131314] disabled:text-[#6e6e73] font-semibold rounded-xl transition-colors flex items-center gap-2 shrink-0"
+                  className="h-11 px-6 bg-[#7CFF00] hover:bg-[#7CFF00] hover:text-[#131314] disabled:bg-[#3c3c3f] text-[#131314] disabled:text-[#6e6e73] font-semibold rounded-xl transition-colors flex items-center gap-2 shrink-0"
                 >
                   {verifying ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
