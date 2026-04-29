@@ -128,12 +128,11 @@ export default function OrdersPage() {
       
       const failures = results
         .filter(r => r.status === "rejected" || (r.status === "fulfilled" && !r.value.ok))
-        .map(r => r.status === "fulfilled" ? r.value : { id: "", ok: false, status: 0, data: { error: "网络错误" } })
+        .map(r => (r.status === "fulfilled" ? r.value : { id: "", ok: false, status: 0, data: { error: "网络错误" } }) as { id: string; ok: boolean; status: number; data: { error: string } })
       
       if (failures.length > 0) {
         console.error(`[v0] 删除失败 ${failures.length} 个订单:`, failures)
-        const firstFailure = failures[0]
-        const errorMsg = firstFailure?.data?.error || "未知错误"
+        const errorMsg = failures[0].data.error || "未知错误"
         alert(`删除失败: ${errorMsg}`)
         setIsBatchDeleting(false)
         return
