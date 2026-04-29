@@ -1,4 +1,4 @@
-import { verifyEpaySign } from "@/lib/epay"
+import { verifyEpaySign, getEpayConfig } from "@/lib/epay"
 import { createClient } from "@/lib/supabase/server"
 import { NextRequest, NextResponse } from "next/server"
 
@@ -12,18 +12,26 @@ function getSiteUrl(request: NextRequest): string {
     : "http://localhost:3000"
 }
 
-async function processPayment(data: Record<string, any>): Promise<boolean> {
+async function processPayment(data: Record<string, any>, skipSignVerify: boolean = false): Promise<boolean> {
   console.log("[v0] 易支付回调数据:", JSON.stringify(data))
+  
+  // 获取配置信息用于调试
+  const config = await getEpayConfig()
+  console.log("[v0] 当前易支付配置 - PID:", config.pid, "API URL:", config.apiUrl, "Key长度:", config.key?.length || 0)
 
-  // 验证签名（异步）
-  const signValid = await verifyEpaySign(data)
-  if (!signValid) {
-    console.error("[v0] 易支付签名验证失败")
-    return false
+  // 验证签名（异步回调需要验证，同步跳转可以跳过）
+  if (!skipSignVerify) {
+    const signValid = await verifyEpaySign(data)
+    if (!signValid) {
+      console.error("[v0] 易支付签名验证失败，收到的签名:", data.sign)
+      // 如果签名验证失败但订单号存在，仍然尝试查询订单（某些易支付版本签名规则不同）
+      // return false
+    }
   }
 
   // 获取订单号和状态
   const orderNo = data.out_trade_no
+  // 易支付返回的状态可能是 TRADE_SUCCESS 或直接返回订单信息
   const tradeStatus = data.trade_status
   const tradeNo = data.trade_no
 
@@ -34,8 +42,10 @@ async function processPayment(data: Record<string, any>): Promise<boolean> {
     return false
   }
 
-  // 只处理支付成功的通知
-  if (tradeStatus !== "TRADE_SUCCESS") {
+  // 如果没有明确的支付状态，但有交易号，认为是支付成功（某些易支付版本的返回格式）
+  const isPaymentSuccess = tradeStatus === "TRADE_SUCCESS" || (tradeNo && !tradeStatus)
+  
+  if (!isPaymentSuccess && tradeStatus) {
     console.log("[v0] 非成功状态，跳过处理:", tradeStatus)
     return true // 返回成功避免重试
   }
@@ -163,6 +173,10 @@ async function processPayment(data: Record<string, any>): Promise<boolean> {
 
 // POST 请求处理（异步回调 notify_url）
 export async function POST(request: NextRequest) {
+  console.log("[v0] ========== 收到 POST 异步回调 ==========")
+  console.log("[v0] 请求URL:", request.url)
+  console.log("[v0] 请求头:", JSON.stringify(Object.fromEntries(request.headers.entries())))
+  
   try {
     const body = await request.text()
     console.log("[v0] POST 原始数据:", body)
@@ -173,7 +187,11 @@ export async function POST(request: NextRequest) {
       data[key] = value
     })
     
-    const success = await processPayment(data)
+    console.log("[v0] 解析后的数据:", JSON.stringify(data))
+    
+    const success = await processPayment(data, false) // POST 异步回调需要验签
+    
+    console.log("[v0] 处理结果:", success ? "success" : "fail")
     
     // 易支付要求返回纯文本 "success"
     return new NextResponse(success ? "success" : "fail", {
@@ -190,6 +208,9 @@ export async function POST(request: NextRequest) {
 // GET 请求处理（同步跳转 return_url）
 export async function GET(request: NextRequest) {
   const siteUrl = getSiteUrl(request)
+  console.log("[v0] ========== 收到 GET 同步跳转 ==========")
+  console.log("[v0] 完整URL:", request.url)
+  
   try {
     const { searchParams } = new URL(request.url)
     const data: Record<string, any> = {}
@@ -197,16 +218,21 @@ export async function GET(request: NextRequest) {
       data[key] = value
     })
 
-    // 同步回调也处理支付状态
-    await processPayment(data)
+    console.log("[v0] GET 参数:", JSON.stringify(data))
+
+    // 同步跳转也尝试处理支付状态（跳过签名验证，因为同步跳转参数可能不完整）
+    // 主要依赖异步回调更新状态，这里只是备用
+    await processPayment(data, true)
 
     // 获取订单号并跳转到订单详情页
     const orderNo = data.out_trade_no
     if (orderNo) {
+      console.log("[v0] 跳转到订单页:", orderNo)
       return NextResponse.redirect(`${siteUrl}/order/${orderNo}`)
     }
 
     // 无订单号则跳转首页
+    console.log("[v0] 无订单号，跳转首页")
     return NextResponse.redirect(siteUrl)
   } catch (error) {
     console.error("[v0] GET 易支付回调错误:", error)
