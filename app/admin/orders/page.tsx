@@ -115,13 +115,35 @@ export default function OrdersPage() {
     if (!confirm(`确定要彻底删除选中的 ${selectedIds.length} 个订单吗？此操作不可恢复！`)) return
     setIsBatchDeleting(true)
     try {
-      await Promise.all(selectedIds.map(id =>
-        fetch(`/api/admin/orders/${id}`, { method: "DELETE" })
-      ))
+      const results = await Promise.allSettled(
+        selectedIds.map(id =>
+          fetch(`/api/admin/orders/${id}`, { method: "DELETE" }).then(async res => ({
+            id,
+            ok: res.ok,
+            status: res.status,
+            data: await res.json(),
+          }))
+        )
+      )
+      
+      const failures = results
+        .filter(r => r.status === "rejected" || (r.status === "fulfilled" && !r.value.ok))
+        .map(r => r.status === "fulfilled" ? r.value : { error: "网络错误" })
+      
+      if (failures.length > 0) {
+        console.error(`[v0] 删除失败 ${failures.length} 个订单:`, failures)
+        const errorMsg = failures[0]?.data?.error || failures[0]?.error || "未知错误"
+        alert(`删除失败: ${errorMsg}`)
+        setIsBatchDeleting(false)
+        return
+      }
+      
+      console.log("[v0] 批量删除订单成功")
       setSelectedIds([])
       mutate("/api/admin/orders")
     } catch (error) {
-      console.error("批量删除失败:", error)
+      console.error("[v0] 批量删除出错:", error)
+      alert("删除失败，请重试")
     } finally {
       setIsBatchDeleting(false)
     }
@@ -130,10 +152,20 @@ export default function OrdersPage() {
   const handleDeleteOrder = async (orderId: string) => {
     if (!confirm("确定要彻底删除该订单吗？此操作不可恢复！")) return
     try {
-      await fetch(`/api/admin/orders/${orderId}`, { method: "DELETE" })
+      const res = await fetch(`/api/admin/orders/${orderId}`, { method: "DELETE" })
+      const data = await res.json()
+      
+      if (!res.ok) {
+        console.error("[v0] 删除订单失败:", data)
+        alert(`删除失败: ${data.error || "未知错误"}`)
+        return
+      }
+      
+      console.log("[v0] 订单删除成功")
       mutate("/api/admin/orders")
     } catch (error) {
-      console.error("删除失败:", error)
+      console.error("[v0] 删除订单出错:", error)
+      alert("删除失败，请重试")
     }
   }
 
@@ -376,7 +408,7 @@ export default function OrdersPage() {
                           onClick={() => openModal(order)}
                           className="text-[12px] text-[#7CFF00] hover:text-[#9FFF40] transition-colors font-medium mr-2"
                         >
-                          详情
+                          详��
                         </button>
                         <button
                           onClick={() => handleDeleteOrder(order.id)}

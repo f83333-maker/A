@@ -50,14 +50,35 @@ export async function DELETE(
   const { id } = await params
   const supabase = await createClient()
 
-  const { error } = await supabase
-    .from("orders")
-    .delete()
-    .eq("id", id)
+  console.log(`[v0] 尝试删除订单: ${id}`)
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  try {
+    const { data, error } = await supabase
+      .from("orders")
+      .delete()
+      .eq("id", id)
+      .select()
+
+    if (error) {
+      console.error(`[v0] 删除订单失败 ${id}:`, error)
+      console.error(`[v0] 错误详情:`, {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+      })
+      return NextResponse.json(
+        { error: `删除失败: ${error.message}` },
+        { status: 500 }
+      )
+    }
+
+    console.log(`[v0] 订单删除成功: ${id}`, data)
+    return NextResponse.json({ success: true, data })
+  } catch (err) {
+    console.error(`[v0] 删除订单异常 ${id}:`, err)
+    return NextResponse.json(
+      { error: `系统错误: ${err instanceof Error ? err.message : "未知错误"}` },
+      { status: 500 }
+    )
   }
-
-  return NextResponse.json({ success: true })
 }
