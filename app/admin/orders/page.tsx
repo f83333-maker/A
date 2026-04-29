@@ -178,29 +178,6 @@ export default function OrdersPage() {
       alert(`删除失败: ${error instanceof Error ? error.message : "网络错误"}`)
     }
   }
-    console.log("[v0] 用户确认删除，发送请求...")
-    try {
-      const url = `/api/admin/orders/${orderId}`
-      console.log("[v0] 删除请求 URL:", url)
-      const res = await fetch(url, { method: "DELETE" })
-      console.log("[v0] 响应状态:", res.status, res.ok)
-      const data = await res.json()
-      console.log("[v0] 响应数据:", data)
-      
-      if (!res.ok) {
-        console.error("[v0] 删除订单失败:", data)
-        alert(`删除失败: ${data.error || "未知错误"}`)
-        return
-      }
-      
-      console.log("[v0] 订单删除成功")
-      alert("订单已删除")
-      mutate("/api/admin/orders")
-    } catch (error) {
-      console.error("[v0] 删除订单出错:", error)
-      alert("删除失败，请重试")
-    }
-  }
 
   const handleDeliver = async () => {
     if (!selectedOrder || !deliverContent.trim()) return
