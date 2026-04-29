@@ -186,18 +186,26 @@ export default function ProductsPage() {
     if (!confirm(`确定要删除选中的 ${selectedIds.length} 个产品吗？此操作不可恢复。`)) return
     setIsBatchDeleting(true)
     try {
-      const results = await Promise.all(selectedIds.map(id =>
-        fetch(`/api/admin/products/${id}`, { method: "DELETE" }).then(res => ({
-          ok: res.ok,
-          data: res.json(),
-          id
-        }))
-      ))
+      const results = await Promise.allSettled(
+        selectedIds.map(id =>
+          fetch(`/api/admin/products/${id}`, { method: "DELETE" }).then(async res => {
+            const data = await res.json()
+            return {
+              id,
+              ok: res.ok,
+              error: data.error,
+            }
+          })
+        )
+      )
       
-      const failed = results.filter(r => !r.ok)
-      if (failed.length > 0) {
-        console.error(`[v0] 删除失败 ${failed.length} 个产品:`, failed)
-        alert(`删除失败: ${failed.length} 个产品无法删除`)
+      const failures = results
+        .filter(r => r.status === "rejected" || (r.status === "fulfilled" && !r.value.ok))
+        .map(r => r.status === "fulfilled" ? r.value : { error: "网络错误" })
+      
+      if (failures.length > 0) {
+        console.error(`[v0] 删除失败 ${failures.length} 个产品:`, failures)
+        alert(`删除失败: ${failures.length} 个产品\n${failures[0]?.error || "未知错误"}`)
         return
       }
       

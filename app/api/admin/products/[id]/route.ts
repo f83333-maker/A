@@ -32,16 +32,28 @@ export async function DELETE(
 
   console.log(`[v0] 删除产品: ${id}`)
 
-  const { error } = await supabase
+  // 先删除相关的订单（处理外键约束）
+  const { error: ordersError } = await supabase
+    .from("orders")
+    .delete()
+    .eq("product_id", id)
+
+  if (ordersError) {
+    console.error(`[v0] 删除相关订单失败 ${id}:`, ordersError)
+    return NextResponse.json({ error: `无法删除相关订单: ${ordersError.message}` }, { status: 500 })
+  }
+
+  // 再删除产品
+  const { error: productError } = await supabase
     .from("products")
     .delete()
     .eq("id", id)
 
-  if (error) {
-    console.error(`[v0] 删除失败 ${id}:`, error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  if (productError) {
+    console.error(`[v0] 删除产品失败 ${id}:`, productError)
+    return NextResponse.json({ error: productError.message }, { status: 500 })
   }
 
-  console.log(`[v0] 产品删除成功: ${id}`)
+  console.log(`[v0] 产品及相关订单删除成功: ${id}`)
   return NextResponse.json({ success: true })
 }
