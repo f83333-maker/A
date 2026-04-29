@@ -118,7 +118,7 @@ export default function TutorialPage() {
             <p className="text-[#9aa0a6] mb-6">如果您在使用过程中遇到任何问题，欢迎随时联系我们的客服团队</p>
             <a
               href="mailto:support@example.com"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#7CFF00] hover:bg-[#7CFF00]/30 text-[#131314] font-semibold rounded-full transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#7CFF00]/20 hover:bg-[#7CFF00]/30 text-[#7CFF00] font-semibold rounded-full transition-colors"
             >
               <MessageCircle className="w-5 h-5" />
               联系客服
