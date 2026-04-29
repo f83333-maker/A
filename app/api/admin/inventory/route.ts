@@ -1,11 +1,11 @@
 "use server"
 
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { NextRequest, NextResponse } from "next/server"
 
 // 获取产品库存列表
 export async function GET(request: NextRequest) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { searchParams } = new URL(request.url)
   const productId = searchParams.get("productId")
 
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
 
 // 批量添加库存（一行一个账号）
 export async function POST(request: NextRequest) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const body = await request.json()
   const { productId, content } = body
 
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
 
 // 删除库存
 export async function DELETE(request: NextRequest) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { searchParams } = new URL(request.url)
   const id = searchParams.get("id")
   const productId = searchParams.get("productId")

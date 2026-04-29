@@ -55,7 +55,7 @@ export default function AnnouncementDetailPage() {
             <p className="text-[14px] text-[#6e6e73] mb-6">该公告可能已被删除或不存在</p>
             <Link
               href="/"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#7CFF00] hover:bg-[#9FFF40] text-black font-semibold rounded-full transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#7CFF00] hover:bg-[#7CFF00]/10 text-black font-semibold rounded-full transition-all"
             >
               <ArrowLeft className="w-4 h-4" />
               返回首页

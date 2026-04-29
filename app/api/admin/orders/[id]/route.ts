@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { NextResponse } from "next/server"
 
 export async function GET(
@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data, error } = await supabase
     .from("orders")
@@ -27,7 +27,7 @@ export async function PATCH(
 ) {
   const { id } = await params
   const body = await request.json()
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data, error } = await supabase
     .from("orders")
@@ -48,30 +48,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
-  const supabase = await createClient()
-
-  console.log(`[v0] 尝试删除订单: ${id}`)
-
-  // 权限验证：确保只有管理员可以删除订单
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) {
-    console.error(`[v0] 未授权的删除请求: 用户未登录`)
-    return NextResponse.json(
-      { error: "未授权：用户未登录" },
-      { status: 401 }
-    )
-  }
-
-  // 检查用户是否为管理员（这里你需要根据实际情况调整）
-  // 可以通过检查用户角色、邮箱、或 user_metadata 中的 is_admin 标记
-  const isAdmin = user.user_metadata?.is_admin === true
-  if (!isAdmin) {
-    console.warn(`[v0] 权限不足: 用户 ${user.id} 尝试删除订单`)
-    return NextResponse.json(
-      { error: "权限不足：只有管理员才能删除订单" },
-      { status: 403 }
-    )
-  }
+  const supabase = createAdminClient()
 
   try {
     const { data, error } = await supabase

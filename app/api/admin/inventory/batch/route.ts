@@ -1,13 +1,13 @@
 "use server"
 
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { NextRequest, NextResponse } from "next/server"
 
 // 批量同步货源到多个产品
 // body: { productIds: string[], content: string }
 // 将 content 按行拆分后，每行分发到每个产品
 export async function POST(request: NextRequest) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const body = await request.json()
   const { productIds, content } = body
 
