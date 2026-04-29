@@ -170,7 +170,7 @@ export function PurchaseModal({ product, isOpen, onClose }: PurchaseModalProps) 
         quantity,
         buyerEmail: contact,
         buyerName: contact,
-        paymentType,
+        paymentType: paymentType as "wxpay" | "alipay",
         queryPassword,
       })
 
