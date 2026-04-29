@@ -69,7 +69,16 @@ function OrderContent() {
         // 刷新订单数据
         await fetchOrder()
       } else {
-        setSyncMessage(data.message || data.error || "同步失败，可能订单未支付")
+        // 显示更详细的错误信息
+        let errorMsg = data.message || data.error || "同步失败"
+        if (data.epayResult) {
+          console.log("[v0] 易支付返回:", data.epayResult)
+        }
+        if (data.rawResponse) {
+          console.log("[v0] 原始响应:", data.rawResponse)
+          errorMsg += " (接口返回异常)"
+        }
+        setSyncMessage(errorMsg)
       }
     } catch (error) {
       console.error("[v0] 同步失败:", error)
