@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, Pencil, Trash2, Loader2, X, Package, ArrowUp, ArrowDown, Flag, Search, BookmarkPlus, BookOpen, ChevronDown, Clock, CheckCircle, Copy } from "lucide-react"
+import { Plus, Pencil, Trash2, Loader2, X, Package, ArrowUp, ArrowDown, Flag, Search, BookmarkPlus, BookOpen, ChevronDown, Clock, CheckCircle, Copy, Download } from "lucide-react"
 import Link from "next/link"
 
 interface InventoryItem {
@@ -114,6 +114,12 @@ export default function ProductsPage() {
   const [inventoryAdding, setInventoryAdding] = useState(false)
   const [newInventoryContent, setNewInventoryContent] = useState("")
   const [inventoryFilter, setInventoryFilter] = useState<"all" | "available" | "sold">("all")
+
+  // 导入功能状态
+  const [showImportModal, setShowImportModal] = useState(false)
+  const [importUrl, setImportUrl] = useState("")
+  const [isImporting, setIsImporting] = useState(false)
+  const [importMessage, setImportMessage] = useState<{ type: "success" | "error" | ""; text: string }>({ type: "", text: "" })
 
   // 从数据库加载模板
   const fetchTemplates = async () => {
@@ -442,6 +448,43 @@ export default function ProductsPage() {
     }
   }
 
+  const handleImport = async () => {
+    if (!importUrl.trim()) {
+      setImportMessage({ type: "error", text: "请输入网站URL" })
+      return
+    }
+
+    setIsImporting(true)
+    setImportMessage({ type: "", text: "" })
+
+    try {
+      const res = await fetch("/api/admin/products/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: importUrl })
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setImportMessage({ type: "error", text: data.error || "导入失败" })
+        return
+      }
+
+      setImportMessage({ type: "success", text: data.message })
+      setImportUrl("")
+      setTimeout(() => {
+        setShowImportModal(false)
+        fetchData()
+      }, 1500)
+    } catch (error) {
+      console.error("[v0] 导入错误:", error)
+      setImportMessage({ type: "error", text: "导入请求失败，请检查URL是否正确" })
+    } finally {
+      setIsImporting(false)
+    }
+  }
+
   const handleMoveUp = async (index: number) => {
     if (index === 0) return
     const sortedProducts = Array.isArray(products) ? [...products].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)) : []
@@ -658,6 +701,13 @@ export default function ProductsPage() {
           <Package className="w-3.5 h-3.5 text-[#81c995]" />
           库存管理
         </Link>
+        <button
+          onClick={() => setShowImportModal(true)}
+          className="h-8 px-3 bg-[#2d2e30] hover:bg-[#3c3c3f] border border-[#3c3c3f] text-[#e3e3e3] font-medium rounded-lg text-[12px] transition-colors flex items-center gap-1.5"
+        >
+          <Download className="w-3.5 h-3.5 text-[#7CFF00]" />
+          导入商品
+        </button>
         {(searchName || filterCategoryId) && (
           <button
             onClick={() => { setSearchName(""); setSearchInput(""); setFilterCategoryId("") }}
@@ -717,7 +767,7 @@ export default function ProductsPage() {
                     className="w-3.5 h-3.5 rounded accent-[#7CFF00] cursor-pointer"
                   />
                 </th>
-                <th className="px-3 py-3 text-left text-[13px] font-semibold text-[#9aa0a6]">商品信息</th>
+                <th className="px-3 py-3 text-left text-[13px] font-semibold text-[#9aa0a6]">商品信���</th>
                 <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] w-12">操作</th>
                 <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] w-24">售价</th>
                 <th className="px-4 py-3 text-left text-[13px] font-semibold text-[#9aa0a6] w-36">状态</th>
@@ -728,7 +778,7 @@ export default function ProductsPage() {
             <tbody className="divide-y divide-[#3c3c3f]/50">
               {filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-8 text-[#6e6e73] text-[12px]">暂无产品</td>
+                  <td colSpan={7} className="text-center py-8 text-[#6e6e73] text-[12px]">暂无产��</td>
                 </tr>
               ) : filteredProducts.map((product, index) => (
                 <tr key={product.id} className={`hover:bg-[#2d2e30]/30 transition-colors h-10 ${selectedIds.includes(product.id) ? "bg-[#7CFF00]/5" : ""}`}>
@@ -1417,6 +1467,84 @@ export default function ProductsPage() {
                   ))}
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 导入弹窗 */}
+      {showImportModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] w-full max-w-md">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#3c3c3f]">
+              <h2 className="text-[18px] font-semibold text-[#e3e3e3]">导入商品</h2>
+              <button
+                onClick={() => {
+                  setShowImportModal(false)
+                  setImportUrl("")
+                  setImportMessage({ type: "", text: "" })
+                }}
+                className="p-1 text-[#9aa0a6] hover:text-[#e3e3e3] transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-[13px] font-medium text-[#e3e3e3] mb-2">网站URL</label>
+                <input
+                  type="url"
+                  value={importUrl}
+                  onChange={e => setImportUrl(e.target.value)}
+                  placeholder="https://例如 https://tgttt.com/"
+                  className="w-full px-3 py-2.5 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[13px] focus:outline-none focus:border-[#7CFF00] transition-colors"
+                  disabled={isImporting}
+                />
+              </div>
+
+              {importMessage.text && (
+                <div
+                  className={`p-3 rounded-lg text-[13px] font-medium ${
+                    importMessage.type === "success"
+                      ? "bg-[#7CFF00]/10 text-[#7CFF00]"
+                      : "bg-[#ee675c]/10 text-[#ee675c]"
+                  }`}
+                >
+                  {importMessage.text}
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => {
+                    setShowImportModal(false)
+                    setImportUrl("")
+                    setImportMessage({ type: "", text: "" })
+                  }}
+                  disabled={isImporting}
+                  className="flex-1 h-10 px-4 bg-[#2d2e30] hover:bg-[#3c3c3f] disabled:opacity-50 border border-[#3c3c3f] text-[#e3e3e3] font-medium rounded-lg text-[13px] transition-colors"
+                >
+                  取消
+                </button>
+                <button
+                  onClick={handleImport}
+                  disabled={isImporting || !importUrl.trim()}
+                  className="flex-1 h-10 px-4 bg-[#7CFF00]/20 hover:bg-[#7CFF00]/30 disabled:opacity-50 disabled:hover:bg-[#7CFF00]/20 text-[#7CFF00] font-medium rounded-lg text-[13px] transition-colors flex items-center justify-center gap-2"
+                >
+                  {isImporting ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      导入中...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-3.5 h-3.5" />
+                      开始导入
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
