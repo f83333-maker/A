@@ -48,7 +48,7 @@ const statusConfig: Record<string, { icon: typeof Clock; color: string; text: st
 }
 
 export default function OrdersPage() {
-  const { data: orders = [], isLoading } = useSWR<Order[]>("/api/admin/orders", fetcher)
+  const { data: orders = [], isLoading, mutate: refreshOrders } = useSWR<Order[]>("/api/admin/orders", fetcher)
   const [searchOrderNo, setSearchOrderNo] = useState("")
   const [searchBuyer, setSearchBuyer] = useState("")
   const [searchContent, setSearchContent] = useState("")
@@ -115,25 +115,67 @@ export default function OrdersPage() {
     if (!confirm(`确定要彻底删除选中的 ${selectedIds.length} 个订单吗？此操作不可恢复！`)) return
     setIsBatchDeleting(true)
     try {
-      await Promise.all(selectedIds.map(id =>
-        fetch(`/api/admin/orders/${id}`, { method: "DELETE" })
-      ))
+      const results = await Promise.allSettled(
+        selectedIds.map(id =>
+          fetch(`/api/admin/orders/${id}`, { method: "DELETE" }).then(async res => ({
+            id,
+            ok: res.ok,
+            status: res.status,
+            data: await res.json(),
+          }))
+        )
+      )
+      
+      const failures = results
+        .filter(r => r.status === "rejected" || (r.status === "fulfilled" && !r.value.ok))
+        .map(r => r.status === "fulfilled" ? r.value : { error: "网络错误" })
+      
+      if (failures.length > 0) {
+        console.error(`[v0] 删除失败 ${failures.length} 个订单:`, failures)
+        const errorMsg = failures[0]?.data?.error || failures[0]?.error || "未知错误"
+        alert(`删除失败: ${errorMsg}`)
+        setIsBatchDeleting(false)
+        return
+      }
+      
+      console.log("[v0] 批量删除订单成功")
       setSelectedIds([])
-      mutate("/api/admin/orders")
+      await refreshOrders()
     } catch (error) {
-      console.error("批量删除失败:", error)
+      console.error("[v0] 批量删除出错:", error)
+      alert("删除失败，请重试")
     } finally {
       setIsBatchDeleting(false)
     }
   }
 
   const handleDeleteOrder = async (orderId: string) => {
-    if (!confirm("确定要彻底删除该订单吗？此操作不可恢复！")) return
+    console.log("[v0] 点击删除订单按钮，订单 ID:", orderId)
+    if (!confirm("确定要彻底删除该订单吗？此操作不可恢复！")) {
+      console.log("[v0] 用户取消删除")
+      return
+    }
+    console.log("[v0] 用户确认删除，发送请求...")
     try {
-      await fetch(`/api/admin/orders/${orderId}`, { method: "DELETE" })
-      mutate("/api/admin/orders")
+      const url = `/api/admin/orders/${orderId}`
+      console.log("[v0] 删除请求 URL:", url)
+      const res = await fetch(url, { method: "DELETE" })
+      console.log("[v0] 响应状态:", res.status, res.ok)
+      const data = await res.json()
+      console.log("[v0] 响应数据:", data)
+      
+      if (res.ok) {
+      console.log("[v0] 订单删除成功")
+      alert("订单已删除")
+      await refreshOrders()
+        return
+      }
+      
+      console.error("[v0] 删除订单失败:", data)
+      alert(`删除失败: ${data.error || "未知错误"}`)
     } catch (error) {
-      console.error("删除失败:", error)
+      console.error("[v0] 删除订单出错:", error)
+      alert(`删除失败: ${error instanceof Error ? error.message : "网络错误"}`)
     }
   }
 
@@ -149,7 +191,7 @@ export default function OrdersPage() {
           delivered_content: deliverContent,
         }),
       })
-      mutate("/api/admin/orders")
+      await refreshOrders()
       setIsModalOpen(false)
     } catch (error) {
       console.error("发放失败:", error)
