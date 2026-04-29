@@ -1,10 +1,10 @@
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { NextResponse } from "next/server"
 
 // 获取所有设置
 export async function GET() {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
     const { data, error } = await supabase
       .from("site_settings")
       .select("*")
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "无效的请求数据" }, { status: 400 })
     }
 
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     for (const setting of settings) {
       const { error } = await supabase
