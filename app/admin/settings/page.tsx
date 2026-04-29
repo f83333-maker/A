@@ -393,7 +393,7 @@ export default function SettingsPage() {
               </div>
               <div>
                 <h2 className="text-[15px] font-semibold text-[#e3e3e3]">首页Banner标题</h2>
-                <p className="text-[12px] text-[#6e6e73]">设置首页顶部��主标题和副标题</p>
+                <p className="text-[12px] text-[#6e6e73]">设置首页顶部的主标题和副标题</p>
               </div>
             </div>
             
@@ -561,7 +561,7 @@ export default function SettingsPage() {
                 onChange={(e) => setNewTag(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && addTag()}
                 className="flex-1 h-10 px-4 bg-[#2d2e30] border border-[#3c3c3f] rounded-lg text-[#e3e3e3] text-[14px] focus:outline-none focus:border-[#7CFF00] transition-colors"
-                placeholder="输入标签���称，按回车添加"
+                placeholder="输入标签名称，按回车添加"
               />
               <button onClick={addTag} className="px-4 h-10 bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#e3e3e3] rounded-lg text-[13px] flex items-center gap-2">
                 <Plus className="w-4 h-4" />
@@ -776,7 +776,7 @@ export default function SettingsPage() {
           ) : paymentConfigs.length === 0 ? (
             <div className="bg-[#1e1f20] rounded-2xl border border-[#3c3c3f] p-12 text-center">
               <CreditCard className="w-12 h-12 text-[#3c3c3f] mx-auto mb-4" />
-              <p className="text-[14px] text-[#6e6e73] mb-4">暂无支��配置</p>
+              <p className="text-[14px] text-[#6e6e73] mb-4">暂无支付配置</p>
               <button
                 onClick={() => openPaymentModal()}
                 className="px-4 py-2 bg-[#2d2e30] hover:bg-[#3c3c3f] text-[#e3e3e3] rounded-lg text-[13px] inline-flex items-center gap-2"

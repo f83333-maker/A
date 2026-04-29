@@ -418,7 +418,7 @@ export default function OrdersPage() {
                           onClick={() => openModal(order)}
                           className="text-[12px] text-[#7CFF00] hover:text-[#9FFF40] transition-colors font-medium mr-2"
                         >
-                          详��
+                          详情
                         </button>
                         <button
                           onClick={() => handleDeleteOrder(order.id)}
