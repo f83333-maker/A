@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { NextRequest, NextResponse } from "next/server"
 import { verifyData } from "@/lib/encryption"
 
@@ -14,7 +14,7 @@ export async function POST(
     return NextResponse.json({ success: false, error: "请输入密码" }, { status: 400 })
   }
 
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data: order, error } = await supabase
     .from("orders")
