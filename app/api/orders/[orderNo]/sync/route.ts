@@ -51,24 +51,54 @@ export async function POST(
 
     // 请求易支付查询接口
     const response = await fetch(queryUrl)
-    const result = await response.json()
+    const responseText = await response.text()
+    
+    console.log("[v0] 易支付原始响应:", responseText)
+    
+    let result: any
+    try {
+      result = JSON.parse(responseText)
+    } catch {
+      console.log("[v0] 响应不是JSON格式，可能是易支付配置错误")
+      return NextResponse.json({ 
+        success: false, 
+        message: "易支付接口返回格式错误",
+        rawResponse: responseText.substring(0, 200)
+      })
+    }
 
     console.log("[v0] 易支付查询结果:", JSON.stringify(result))
+    console.log("[v0] code:", result.code, "status:", result.status, "trade_no:", result.trade_no)
 
     // 检查返回结果
-    // 易支付返回格式：code=1 表示查询成功，status=1 表示订单已支付
-    if (result.code !== 1) {
+    // 易支付不同版本返回格式可能不同:
+    // 1. 标准格式: code=1 表示查询成功，status=1 表示订单已支付
+    // 2. 部分版本: 直接返回订单信息，有 trade_no 表示已支付
+    
+    // 如果返回错误码
+    if (result.code === -1 || result.code === 0) {
       console.log("[v0] 易支付查询失败:", result.msg)
       return NextResponse.json({ 
         success: false, 
-        message: result.msg || "查询订单失败",
+        message: result.msg || "查询订单失败，请检查易支付配置",
         epayResult: result
       })
     }
 
+    // 判断是否已支付的多种方式：
+    // 1. status === 1 (标准格式)
+    // 2. status === "1" (字符串格式)
+    // 3. trade_status === "TRADE_SUCCESS"
+    // 4. 有 trade_no 且 code === 1 (部分版本)
+    const isPaid = 
+      result.status === 1 || 
+      result.status === "1" ||
+      result.trade_status === "TRADE_SUCCESS" ||
+      (result.code === 1 && result.trade_no)
+
     // 检查订单支付状态
-    if (result.status !== 1) {
-      console.log("[v0] 订单未支付，status:", result.status)
+    if (!isPaid) {
+      console.log("[v0] 订单未支付，status:", result.status, "trade_status:", result.trade_status)
       return NextResponse.json({ 
         success: false, 
         message: "订单尚未支付，请完成支付后再试",
@@ -76,10 +106,8 @@ export async function POST(
       })
     }
 
-    // 订单已支付 (code=1 && status=1)
-    if (result.status === 1) {
-      // 订单已支付，更新状态并发货
-      console.log("[v0] 易支付确认订单已支付，开始处理发货")
+    // 订单已支付，开始处理发货
+    console.log("[v0] 易支付确认订单已支付，开始处理发货")
 
       // 从库存表获取可用的账号
       const { data: inventoryItems, error: invError } = await supabase
@@ -153,12 +181,11 @@ export async function POST(
         })
         .eq("id", order.product_id)
 
-      return NextResponse.json({ 
-        success: true, 
-        message: "订单已同步并发货",
-        status: "delivered"
-      })
-    }
+    return NextResponse.json({ 
+      success: true, 
+      message: "订单已同步并发货",
+      status: "delivered"
+    })
   } catch (error) {
     console.error("[v0] 同步订单状态错误:", error)
     return NextResponse.json({ success: false, error: "同步失败" })
