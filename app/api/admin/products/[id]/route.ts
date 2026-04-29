@@ -32,6 +32,26 @@ export async function DELETE(
 
   console.log(`[v0] 删除产品: ${id}`)
 
+  // 权限验证：确保只有管理员可以删除产品
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) {
+    console.error(`[v0] 未授权的删除请求: 用户未登录`)
+    return NextResponse.json(
+      { error: "未授权：用户未登录" },
+      { status: 401 }
+    )
+  }
+
+  // 检查用户是否为管理员
+  const isAdmin = user.user_metadata?.is_admin === true
+  if (!isAdmin) {
+    console.warn(`[v0] 权限不足: 用户 ${user.id} 尝试删除产品`)
+    return NextResponse.json(
+      { error: "权限不足：只有管理员才能删除产品" },
+      { status: 403 }
+    )
+  }
+
   // 先删除相关的订单（处理外键约束）
   const { error: ordersError } = await supabase
     .from("orders")
