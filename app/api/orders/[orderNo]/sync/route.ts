@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { getEpayConfig } from "@/lib/epay"
 
 // 主动查询易支付订单状态
@@ -13,7 +13,7 @@ export async function POST(
   console.log("[v0] 订单号:", orderNo)
 
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // 获取订单信息
     const { data: order, error: orderError } = await supabase
@@ -149,7 +149,6 @@ export async function POST(
         .update({
           status: "delivered",
           stripe_payment_intent_id: result.trade_no || result.tradeNo,
-          epay_trade_no: result.trade_no || result.tradeNo,
           delivered_content: deliveredContent,
           delivered_at: new Date().toISOString(),
         })

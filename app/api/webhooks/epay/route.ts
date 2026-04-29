@@ -1,5 +1,5 @@
 import { verifyEpaySign, getEpayConfig } from "@/lib/epay"
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { NextRequest, NextResponse } from "next/server"
 
 // 从请求头获取当前访问域名，兼容 www 和不带 www
@@ -50,7 +50,7 @@ async function processPayment(data: Record<string, any>, skipSignVerify: boolean
     return true // 返回成功避免重试
   }
 
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   // 检查订单是否存在（增加重试机制，因为可能数据库写入有延迟）
   let order = null
@@ -124,16 +124,11 @@ async function processPayment(data: Record<string, any>, skipSignVerify: boolean
   }
 
   // 更新订单状态为已发货
-  // 记录三个单号：
-  // 1. order_no - 商户订单号（本站ZH开头，已有）
-  // 2. epay_trade_no / stripe_payment_intent_id - 易支付系统订单号
-  // 3. user_trade_no - 用户交易单号（如微信/支付宝的实际交易流水号，如果易支付返回）
   const { error: updateError } = await supabase
     .from("orders")
     .update({
       status: "delivered",
       stripe_payment_intent_id: tradeNo, // 易支付系统订单号
-      epay_trade_no: tradeNo, // 新字段（如果存在）
       delivered_content: deliveredContent,
       delivered_at: new Date().toISOString(),
     })

@@ -1,6 +1,6 @@
 import "server-only"
 import crypto from "crypto"
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 
 // 易支付 API 配置缓存
 let epayConfigCache: { pid: string; key: string; apiUrl: string; configId?: string; configName?: string } | null = null
@@ -17,7 +17,7 @@ export async function getEpayConfig(configId?: string) {
   }
   
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
     
     // 优先从 payment_configs 表获取
     let query = supabase
