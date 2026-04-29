@@ -186,13 +186,27 @@ export default function ProductsPage() {
     if (!confirm(`确定要删除选中的 ${selectedIds.length} 个产品吗？此操作不可恢复。`)) return
     setIsBatchDeleting(true)
     try {
-      await Promise.all(selectedIds.map(id =>
-        fetch(`/api/admin/products/${id}`, { method: "DELETE" })
+      const results = await Promise.all(selectedIds.map(id =>
+        fetch(`/api/admin/products/${id}`, { method: "DELETE" }).then(res => ({
+          ok: res.ok,
+          data: res.json(),
+          id
+        }))
       ))
+      
+      const failed = results.filter(r => !r.ok)
+      if (failed.length > 0) {
+        console.error(`[v0] 删除失败 ${failed.length} 个产品:`, failed)
+        alert(`删除失败: ${failed.length} 个产品无法删除`)
+        return
+      }
+      
+      console.log("[v0] 批量删除成功")
       setSelectedIds([])
       fetchData()
     } catch (error) {
-      console.error("批量删除失败:", error)
+      console.error("[v0] 批量删除出错:", error)
+      alert("批量删除失败，请重试")
     } finally {
       setIsBatchDeleting(false)
     }
@@ -403,10 +417,20 @@ export default function ProductsPage() {
     if (!confirm("确定要删除这个产品吗？")) return
 
     try {
-      await fetch(`/api/admin/products/${id}`, { method: "DELETE" })
+      const res = await fetch(`/api/admin/products/${id}`, { method: "DELETE" })
+      const data = await res.json()
+      
+      if (!res.ok) {
+        console.error("[v0] 删除失败:", data.error)
+        alert(`删除失败: ${data.error || "未知错误"}`)
+        return
+      }
+      
+      console.log("[v0] 产品删除成功")
       fetchData()
     } catch (error) {
-      console.error("Failed to delete product:", error)
+      console.error("[v0] 删除产品出错:", error)
+      alert("删除失败，请重试")
     }
   }
 

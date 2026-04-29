@@ -30,14 +30,18 @@ export async function DELETE(
   const { id } = await params
   const supabase = await createClient()
 
+  console.log(`[v0] 删除产品: ${id}`)
+
   const { error } = await supabase
     .from("products")
     .delete()
     .eq("id", id)
 
   if (error) {
+    console.error(`[v0] 删除失败 ${id}:`, error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
+  console.log(`[v0] 产品删除成功: ${id}`)
   return NextResponse.json({ success: true })
 }
