@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(
@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: Promise<{ orderNo: string }> }
 ) {
   const { orderNo } = await params
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   // 查询订单（只使用 order_no 字段）
   const { data: order, error } = await supabase
